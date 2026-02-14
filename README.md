@@ -32,7 +32,7 @@ budsUI works perfectly on WoW 3.3.5 private servers like Ascension.gg.
 
 All core features are fully functional with graceful degradation for missing API elements.
 
-For technical details, see [VERSION_COMPATIBILITY.md](VERSION_COMPATIBILITY.md).
+For technical details, see [budsUI/VERSION_COMPATIBILITY.md](budsUI/VERSION_COMPATIBILITY.md).
 
 ## Credits
 
