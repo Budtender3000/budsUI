@@ -8,7 +8,7 @@ A comprehensive World of Warcraft user interface addon that enhances and customi
 
 The addon has been updated to handle API differences between WoW versions gracefully. All core features are fully functional on 3.3.5, with some minor adjustments:
 
-- **Config GUI:** Access via `/kkthnxui` command
+- **Config GUI:** Access via `/buds` command
 - **Addon List:** Access via `/addons` command
 - **All Features:** Bags, UI customization, and all other features work perfectly
 
@@ -18,7 +18,7 @@ For technical details about the compatibility implementation, see [VERSION_COMPA
 
 1. Extract the addon folders to your `World of Warcraft/Interface/AddOns/` directory
 2. Restart WoW or type `/reload` in-game
-3. Configure the addon using `/kkthnxui`
+3. Configure the addon using `/buds`
 
 ## Support
 
