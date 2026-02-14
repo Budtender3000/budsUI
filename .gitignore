@@ -1,0 +1,23 @@
+# WoW Addon specific
+*.bak
+*.backup
+*.old
+*.tmp
+
+# Kiro/IDE
+.kiro/
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
