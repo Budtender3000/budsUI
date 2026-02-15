@@ -4,6 +4,17 @@ A comprehensive World of Warcraft user interface addon for WoW 3.3.5 (Wrath of t
 
 **Based on [KkthnxUI](https://github.com/kkthnx-wow/KkthnxUI) by Kkthnx**
 
+## ⚠️ Development Status
+
+**This addon is in active development and has only been tested sporadically.**
+
+- May contain bugs and unexpected behavior
+- Features are subject to change
+- Always check for new releases before reporting issues
+- Backup your WTF folder before updating
+
+Use at your own risk and please report any issues on GitHub!
+
 ## Features
 
 - ✅ Full WoW 3.3.5 compatibility (Ascension.gg tested)

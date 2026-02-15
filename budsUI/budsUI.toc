@@ -2,7 +2,7 @@
 ## Title: |cff388bdbbudsUI|r
 ## Notes: |cff388bdbbudsUI|r - Based on KkthnxUI
 ## Author: Budtender3000 (Based on KkthnxUI by Shestak & Kkthnx)
-## Version: 1.0
+## Version: 0.1.0-alpha
 ## DefaultState: Enabled
 ## OptionalDeps: budsUI_Config, Blizzard_CombatText, Blizzard_DebugTools, CLCRet, DBM-Core, Recount, Skada, Spy, WeakAuras
 ## SavedVariables: SavedOptions

@@ -7,6 +7,33 @@ local GetNumPartyMembers = GetNumPartyMembers
 local GetNumRaidMembers = GetNumRaidMembers
 local CreateFrame = CreateFrame
 
+-- GitHub Release Check
+local function CheckGitHubVersion()
+	local versionFrame = CreateFrame("Frame")
+	versionFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	versionFrame:SetScript("OnEvent", function(self, event)
+		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		
+		-- Wait 5 seconds after login to check
+		C_Timer.After(5, function()
+			local currentVersion = K.Version
+			-- GitHub API URL for latest release
+			local url = "https://api.github.com/repos/Budtender3000/budsUI/releases/latest"
+			
+			-- Note: WoW 3.3.5 doesn't have HTTP API, so we use a workaround
+			-- This will be checked via addon communication when playing with others
+			-- For now, show a reminder to check GitHub
+			if not budsUICheckedVersion then
+				K.Print("|cff388bdbbudsUI v"..currentVersion.."|r")
+				K.Print("Check for updates: |cff00ff00https://github.com/Budtender3000/budsUI/releases|r")
+				budsUICheckedVersion = true
+			end
+		end)
+	end)
+end
+
+CheckGitHubVersion()
+
 --	Check outdated UI version
 local Check = function(self, event, prefix, message, channel, sender)
 	local numParty, numRaid = GetNumPartyMembers(), GetNumRaidMembers()
@@ -14,6 +41,7 @@ local Check = function(self, event, prefix, message, channel, sender)
 		if prefix ~= "budsUIVersion" or sender == K.Name then return end
 		if tonumber(message) ~= nil and tonumber(message) > tonumber(K.Version) then
 			print("|cfff02c35"..L_MISC_UI_OUTDATED.."|r")
+			K.Print("Download latest version: |cff00ff00https://github.com/Budtender3000/budsUI/releases|r")
 			self:UnregisterEvent("CHAT_MSG_ADDON")
 		end
 	else
