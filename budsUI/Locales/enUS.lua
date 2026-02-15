@@ -195,7 +195,7 @@ L_WATCH_WOWHEAD_LINK = "|cffffe02eWowhead link|r"
 -- Welcome Localization
 L_WELCOME_LINE_1 = "Welcome to |cff388bdbbudsUI|r v"
 L_WELCOME_LINE_2_1 = ""
-L_WELCOME_LINE_2_2 = "Type |cff388bdb/uihelp|r |cffffe02eor|r |cff388bdb/cfg|r |cffffe02efor more features|r"
+L_WELCOME_LINE_2_2 = "Type |cff388bdb/uihelp|r |cffffe02efor help or|r |cff388bdb/buds|r |cffffe02efor config|r"
 -- Slash Commands Localization
 L_SLASHCMD_HELP = {
     "|cffffffffAvailable slash commands:|r",

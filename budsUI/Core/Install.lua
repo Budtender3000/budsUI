@@ -326,10 +326,3 @@ end
 		print("|cffffe02e"..L_WELCOME_LINE_2_1.."|cffffe02e"..L_WELCOME_LINE_2_2.."|r")
 	end
 end)
-
--- Help translate
-if C.General.TranslateMessage == true then
-	if GetLocale() == "esES" or GetLocale() == "koKR" or GetLocale() == "esMX" or GetLocale() == "deDE" or GetLocale() == "frFR" or GetLocale() == "koKR" or GetLocale() == "zhCN" or GetLocale() == "zhTW" then
-		print("|cffffe02ePlease help us translate the text settings for |cff388bdbbudsUI|r. |cffffe02eYou can post a commit to|r |cff388bdbgithub.com/Kkthnx/budsUI_WotLK|r")
-	end
-end

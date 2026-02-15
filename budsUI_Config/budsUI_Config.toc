@@ -8,6 +8,6 @@
 ## RequiredDeps: budsUI
 
 Locales\enUS.lua
-Locales\ruRU.lua
+Locales\deDE.lua
 
 budsUI_Config.lua
