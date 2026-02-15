@@ -7,6 +7,9 @@
 # Kiro/IDE
 .kiro/
 
+# Developer documentation (not for end users)
+budsUI/VERSION_COMPATIBILITY.md
+
 # OS specific
 .DS_Store
 Thumbs.db
