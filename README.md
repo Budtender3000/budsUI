@@ -1,7 +1,7 @@
 # budsUI
 
 <div align="center">
-  <img src="Media/assets/budsui_logo.png" alt="budsUI Logo" width="300" />
+  <img src="Media/assets/budsui_logo.png" alt="budsUI Logo" width="800" />
 </div>
 
 A comprehensive World of Warcraft user interface addon for WoW 3.3.5 (Wrath of the Lich King).
