@@ -177,8 +177,10 @@ local function Kill(object)
     if object.UnregisterAllEvents then
         object:UnregisterAllEvents()
     end
-    object.Show = K.Noop
     object:Hide()
+    if object.HookScript then
+        object:HookScript("OnShow", function(self) self:Hide() end)
+    end
 end
 
 -- StripTextures

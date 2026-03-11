@@ -15,8 +15,8 @@ if K.Class == "SHAMAN" then
  
 		hooksecurefunc("MultiCastActionButton_Update",function(actionbutton) if not InCombatLockdown() then actionbutton:SetAllPoints(actionbutton.slotButton) end end)
  
-		MultiCastActionBarFrame.SetParent = K.Noop
-		MultiCastActionBarFrame.SetPoint = K.Noop
-		MultiCastRecallSpellButton.SetPoint = K.Noop
+		-- MultiCastActionBarFrame.SetParent = K.Noop
+		-- MultiCastActionBarFrame.SetPoint = K.Noop
+		-- MultiCastRecallSpellButton.SetPoint = K.Noop
 	end
 end

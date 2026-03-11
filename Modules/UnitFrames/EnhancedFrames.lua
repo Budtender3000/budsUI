@@ -11,9 +11,17 @@ local GetCVar = GetCVar
 local EnhancedFrames = CreateFrame("Frame")
 
 -- EVENT LISTENER TO MAKE SURE WE ENABLE THE ADDON AT THE RIGHT TIME
+local hasInitialized = false
 function EnhancedFrames:PLAYER_ENTERING_WORLD()
+	if hasInitialized then return end
+	hasInitialized = true
 
 	EnableEnhancedFrames()
+	for i = 1, MAX_PARTY_MEMBERS do
+		if _G["PartyMemberFrame"..i] then
+			EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt(_G["PartyMemberFrame"..i])
+		end
+	end
 	--EnableEnhancedPartyFrames()
 end
 
@@ -67,29 +75,35 @@ function EnhancedFrames_Style_PlayerFrame()
 end
 
 function EnhancedFrames_Style_TargetFrame(self)
-	local classification = UnitClassification(self.unit)
-	if (classification == "minus") then
-		self.healthbar:SetHeight(12)
-		self.healthbar:SetPoint("TOPLEFT", 7, -41)
-		self.healthbar.TextString:SetPoint("CENTER", -50, 4)
-		self.deadText:SetPoint("CENTER", -50, 4)
-		self.Background:SetPoint("TOPLEFT", 7, -41)
-	else
-		self.name:SetPoint("TOPLEFT", 16, -10)
+	if not InCombatLockdown() then
+		local classification = UnitClassification(self.unit)
+		if (classification == "minus") then
+			self.healthbar:SetHeight(12)
+			self.healthbar:SetPoint("TOPLEFT", 7, -41)
+			self.healthbar.TextString:SetPoint("CENTER", -50, 4)
+			self.deadText:SetPoint("CENTER", -50, 4)
+			self.Background:SetPoint("TOPLEFT", 7, -41)
+		else
+			self.name:SetPoint("TOPLEFT", 16, -10)
 
-		self.healthbar:SetHeight(29)
-		self.healthbar:SetPoint("TOPLEFT", 7, -22)
-		self.healthbar.TextString:SetPoint("CENTER", -50, 12)
-		self.deadText:SetPoint("CENTER", -50, 12)
-		self.nameBackground:Hide()
-		--self.Background:SetPoint("TOPLEFT", 7, -22)
+			self.healthbar:SetHeight(29)
+			self.healthbar:SetPoint("TOPLEFT", 7, -22)
+			self.healthbar.TextString:SetPoint("CENTER", -50, 12)
+			self.deadText:SetPoint("CENTER", -50, 12)
+			self.nameBackground:Hide()
+			--self.Background:SetPoint("TOPLEFT", 7, -22)
+		end
+
+		self.healthbar:SetWidth(119)
 	end
-
-	self.healthbar:SetWidth(119)
 end
 
 function EnhancedFrames_BossTargetFrame_Style(self)
-	self.borderTexture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-UnitFrame-Boss")
+	if not self then return end
+
+	if self.borderTexture then
+		self.borderTexture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-UnitFrame-Boss")
+	end
 
 	EnhancedFrames_Style_TargetFrame(self)
 end
@@ -205,27 +219,41 @@ function EnhancedFrames_TargetFrame_CheckFaction(self)
 	EnhancedFrames_Style_TargetFrame(self)
 end
 
--- STYLE - PARTY MEMEBER FRAME STYLE CHANGES
 function EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt(self)
 	if not InCombatLockdown() then
-		for i = 1, MAX_PARTY_MEMBERS do
-			_G["PartyMemberFrame"..i.."HealthBarText"]:SetPoint("CENTER", _G["PartyMemberFrame"..i.."HealthBar"], "CENTER", 0, 1)
+		if self.healthbar and self.healthbar.TextString then
+			self.healthbar.TextString:SetPoint("CENTER", self.healthbar, "CENTER", 0, 1)
+		end
 
-			_G["PartyMemberFrame"..i.."Name"]:SetPoint("TOP", 0, 20)
-			_G["PartyMemberFrame"..i.."Name"]:SetFont(C.Media.Font, 10)
+		if self.name then
+			self.name:SetPoint("TOP", 0, 20)
+			self.name:SetFont(C.Media.Font, 10)
+		end
 
-			_G["PartyMemberFrame"..i.."Texture"]:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\PartyFrame")
-			_G["PartyMemberFrame"..i.."Texture"]:SetPoint("TOPLEFT", 0, 6)
+		local name = self:GetName()
+		if name then
+			local texture = _G[name.."Texture"]
+			if texture then
+				texture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\PartyFrame")
+				texture:SetPoint("TOPLEFT", 0, 6)
+			end
 
-			_G["PartyMemberFrame"..i.."Flash"]:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\PartyFrameFlash")
-			_G["PartyMemberFrame"..i.."Flash"]:SetPoint("TOPLEFT", 0, 6)
+			local flash = _G[name.."Flash"]
+			if flash then
+				flash:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\PartyFrameFlash")
+				flash:SetPoint("TOPLEFT", 0, 6)
+			end
 
-			_G["PartyMemberFrame"..i.."HealthBar"]:SetPoint("TOPLEFT", 47, -3)
-			_G["PartyMemberFrame"..i.."HealthBar"]:SetHeight(17)
+			if self.healthbar then
+				self.healthbar:SetPoint("TOPLEFT", 47, -3)
+				self.healthbar:SetHeight(17)
+			end
 
-			_G["PartyMemberFrame"..i.."Background"]:SetPoint("TOPLEFT", 46, -3)
-			_G["PartyMemberFrame"..i.."Background"]:SetSize(70, 24)
-			_G["PartyMemberFrame"..i.."Background"]:SetPoint("TOPLEFT", 47, -3)
+			local bg = _G[name.."Background"]
+			if bg then
+				bg:SetSize(70, 24)
+				bg:SetPoint("TOPLEFT", 47, -3)
+			end
 		end
 	end
 end

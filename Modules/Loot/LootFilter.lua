@@ -10,9 +10,10 @@ local GetItemInfo = GetItemInfo
 local minRarity = 3
 function LootFilter(self, event, msg)
 	local itemID = select(3, find(msg, "item:(%d+):"))
+	if not itemID then return false end
 	local itemRarity = select(3, GetItemInfo(itemID))
 
-	if (itemRarity < minRarity) and (find(msg, "receives") or find(msg, "gets") or find(msg, "creates")) then
+	if (itemRarity and itemRarity < minRarity) and (find(msg, "receives") or find(msg, "gets") or find(msg, "creates")) then
 		return true
 	else
 		return false

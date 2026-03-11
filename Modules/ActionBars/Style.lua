@@ -52,8 +52,8 @@ local function StyleNormalButton(self)
 	if hotkey then
 		if C.ActionBar.Hotkey then
 			hotkey:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-			hotkey.ClearAllPoints = K.Noop
-			hotkey.SetPoint = K.Noop
+			-- hotkey.ClearAllPoints = K.Noop
+			-- hotkey.SetPoint = K.Noop
 		else
 			hotkey:SetText("")
 			hotkey:Kill()
@@ -97,7 +97,7 @@ end
 local function StyleSmallButton(normal, button, icon, name, pet)
 	local flash = _G[name.."Flash"]
 	button:SetNormalTexture("")
-	button.SetNormalTexture = K.Noop
+	-- button.SetNormalTexture = K.Noop
 
 	flash:SetTexture(204/255, 204/255, 204/255, 0.5)
 	flash:SetInside()

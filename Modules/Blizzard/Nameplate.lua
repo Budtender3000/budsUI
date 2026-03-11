@@ -188,6 +188,7 @@ end
 
 local function HealthBar_ValueChanged(frame)
 	frame = frame:GetParent()
+	if not frame or not frame.hp or not frame.healthOriginal then return end
 	frame.hp:SetMinMaxValues(frame.healthOriginal:GetMinMaxValues())
 	frame.hp:SetValue(frame.healthOriginal:GetValue())
 end
@@ -623,7 +624,7 @@ local function HookFrames(...)
 		local frame = select(index, ...)
 		local region = frame:GetRegions()
 
-		if (not frames[frame] and not (frame:GetName() and frame:GetName():find("NamePlate%d")) and region and region:GetObjectType() == "Texture" and region:GetTexture() == OVERLAY) then
+		if (not frames[frame] and not (frame:GetName() and (frame:GetName():find("NamePlate%d") or frame:GetName():find("NamePlateDriverFrame"))) and not frame.UnitFrame and not frame._unit and region and region:GetObjectType() == "Texture" and region:GetTexture() == OVERLAY) then
 			SkinObjects(frame)
 			frame.region = region
 		end

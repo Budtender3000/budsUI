@@ -27,7 +27,7 @@ BuffsAnchor:SetSize((15 * C.Aura.BuffSize) + 42, (C.Aura.BuffSize * 2) + 3)
 ConsolidatedBuffs:ClearAllPoints()
 ConsolidatedBuffs:SetPoint("TOPRIGHT", BuffsAnchor, "TOPRIGHT", 0, 0)
 ConsolidatedBuffs:SetSize(C.Aura.BuffSize, C.Aura.BuffSize)
-ConsolidatedBuffs.SetPoint = K.Noop
+-- ConsolidatedBuffs.SetPoint = K.Noop
 
 ConsolidatedBuffsIcon:SetTexture("Interface\\Icons\\Spell_ChargePositive")
 ConsolidatedBuffsIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)

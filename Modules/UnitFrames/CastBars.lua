@@ -34,7 +34,7 @@ CastBars:SetScript("OnEvent", function(self, event, addon)
 		CastingBarFrame:ClearAllPoints()
 		CastingBarFrame:SetScale(C.Unitframe.CastBarScale)
 		CastingBarFrame:SetPoint("CENTER", PlayerCastbarAnchor, "CENTER", 0, -3)
-		CastingBarFrame.SetPoint = K.Noop
+		-- CastingBarFrame.SetPoint = K.Noop
 
 		-- Style CastingBarFrame
 		CastingBarFrameBorder:SetTexture("Interface\\CastingBar\\UI-CastingBar-Border-Small")
@@ -60,7 +60,7 @@ CastBars:SetScript("OnEvent", function(self, event, addon)
 		TargetFrameSpellBar:ClearAllPoints()
 		TargetFrameSpellBar:SetPoint("CENTER", TargetCastbarAnchor, "CENTER", 0, 0)
 		TargetFrameSpellBar:SetScale(C.Unitframe.CastBarScale)
-		TargetFrameSpellBar.SetPoint = K.Noop
+		-- TargetFrameSpellBar.SetPoint = K.Noop
 
 		-- Castbar Timer
 		CastingBarFrame.timer = CastingBarFrame:CreateFontString(nil)

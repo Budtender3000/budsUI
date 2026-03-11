@@ -163,7 +163,7 @@ if C.Unitframe.Enable == true then
 			PlayerFrame:ClearAllPoints()
 			PlayerFrame:SetPoint("CENTER", PlayerFrameAnchor, "CENTER", -51, 3)
 			PlayerFrame:SetMovable(false)
-			PlayerFrame.SetPoint = K.Noop
+			-- PlayerFrame.SetPoint = K.Noop
 
 			-- Hide Pet Name.
 			PetName:Hide()
@@ -173,7 +173,7 @@ if C.Unitframe.Enable == true then
 			TargetFrame:ClearAllPoints()
 			TargetFrame:SetPoint("CENTER", TargetFrameAnchor, "CENTER", 51, 3)
 			TargetFrame:SetMovable(false)
-			TargetFrame.SetPoint = K.Noop
+			-- TargetFrame.SetPoint = K.Noop
 			-- Tweak Name Background
 			TargetFrameNameBackground:SetTexture(0, 0, 0, 0.01)
 
@@ -281,12 +281,12 @@ end
 -- Remove Portrait Damage Spam
 if C.Unitframe.CombatFeedback == true then
 	PlayerHitIndicator:SetText(nil)
-	PlayerHitIndicator.SetText = K.Noop
+	-- PlayerHitIndicator.SetText = K.Noop
 end
 
 -- Remove Group Number Frame
 if C.Unitframe.GroupNumber == true then
-	PlayerFrameGroupIndicator.Show = K.Noop
+	-- PlayerFrameGroupIndicator.Show = K.Noop
 end
 
 -- Remove PvPIcons
