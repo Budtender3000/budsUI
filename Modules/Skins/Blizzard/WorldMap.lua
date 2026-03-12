@@ -9,23 +9,43 @@ local IsInInstance = IsInInstance
 
 -- NEEDS TO BE RECODED
 
-if not InCombatLockdown() then
+local function InitializeMap()
 	local WorldMap_Tweak = CreateFrame("Frame")
-	WorldMap_Tweak:SetScript("OnEvent", OnEvent)
 	WorldMap_Tweak:RegisterEvent("PLAYER_LOGIN")
+	WorldMap_Tweak:SetScript("OnEvent", function(self, event, ...)
+		-- Execute login logic
+	end)
 	BlackoutWorld:Hide()
 	WorldMapFrame:EnableKeyboard(false)
 	WorldMapFrame:EnableMouse(false)
 	WorldMapFrame:SetAttribute("UIPanelLayout-area", "center")
 	WorldMapFrame:SetAttribute("UIPanelLayout-allowOtherPanels", true)
 	UIPanelWindows["WorldMapFrame"] = {area = "center"}
-	BlackoutWorld.Show = function() UIPanelWindows["WorldMapFrame"] = {area = "center"}
+	hooksecurefunc(BlackoutWorld, "Show", function(self)
+		self:Hide()
+		UIPanelWindows["WorldMapFrame"] = {area = "center"}
 		WorldMapFrame:EnableKeyboard(false)
 		WorldMapFrame:EnableMouse(false)
 		WorldMapFrame:SetAttribute("UIPanelLayout-area", "center")
 		WorldMapFrame:SetAttribute("UIPanelLayout-allowOtherPanels", true)
-	end
-	WorldMapFrame:HookScript("OnShow", function(self) self:SetScale(0.80) self:SetAlpha(0.90) WorldMapTooltip:SetScale(1/0.80) end)
+	end)
+
+	hooksecurefunc(WorldMapFrame, "Show", function(self)
+		self:SetScale(0.80)
+		self:SetAlpha(0.90)
+		WorldMapTooltip:SetScale(1/0.80)
+	end)
+end
+
+if InCombatLockdown() then
+	local initFrame = CreateFrame("Frame")
+	initFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+	initFrame:SetScript("OnEvent", function(self)
+		InitializeMap()
+		self:UnregisterAllEvents()
+	end)
+else
+	InitializeMap()
 end
 
 local WorldMap_Coords = CreateFrame("Frame", "CoordsFrame", WorldMapFrame)
@@ -39,18 +59,17 @@ WorldMap_Coords.PlayerText:SetPoint("BOTTOMLEFT", WorldMapDetailFrame, "BOTTOMLE
 WorldMap_Coords.PlayerText:SetText("Player: 0, 0")
 WorldMap_Coords.MouseText:SetPoint("BOTTOMLEFT", WorldMap_Coords.PlayerText, "TOPLEFT", 0, 5)
 WorldMap_Coords.MouseText:SetText("Mouse: 0, 0")
-local int = 0
+local timeElapsed = 0
 
 WorldMapFrame:HookScript("OnUpdate", function(self, elapsed)
-	int = int + 1
+	timeElapsed = timeElapsed + elapsed
 
-	if int >= 3 then
-		local inInstance, _ = IsInInstance()
-		local x,y = GetPlayerMapPosition("player")
+	if timeElapsed >= 0.1 then
+		local x, y = GetPlayerMapPosition("player")
 		x = floor(100 * x)
 		y = floor(100 * y)
 		if x ~= 0 and y ~= 0 then
-			WorldMap_Coords.PlayerText:SetText(PLAYER..": "..x..", "..y)
+			WorldMap_Coords.PlayerText:SetFormattedText("%s: %d, %d", PLAYER, x, y)
 		else
 			WorldMap_Coords.PlayerText:SetText(" ")
 		end
@@ -59,19 +78,19 @@ WorldMapFrame:HookScript("OnUpdate", function(self, elapsed)
 		local width = WorldMapDetailFrame:GetWidth()
 		local height = WorldMapDetailFrame:GetHeight()
 		local centerX, centerY = WorldMapDetailFrame:GetCenter()
-		local x, y = GetCursorPosition()
-		local adjustedX = (x / scale - (centerX - (width/2))) / width
-		local adjustedY = (centerY + (height/2) - y / scale) / height
+		local cursorX, cursorY = GetCursorPosition()
+		local adjustedX = (cursorX / scale - (centerX - (width/2))) / width
+		local adjustedY = (centerY + (height/2) - cursorY / scale) / height
 
 		if (adjustedX >= 0 and adjustedY >= 0 and adjustedX <= 1 and adjustedY <= 1) then
 			adjustedX = floor(100 * adjustedX)
 			adjustedY = floor(100 * adjustedY)
-			WorldMap_Coords.MouseText:SetText(MOUSE_LABEL..": "..adjustedX..", "..adjustedY)
+			WorldMap_Coords.MouseText:SetFormattedText("%s: %d, %d", MOUSE_LABEL, adjustedX, adjustedY)
 		else
 			WorldMap_Coords.MouseText:SetText(" ")
 		end
 
-		int = 0
+		timeElapsed = 0
 	end
 end)
 
