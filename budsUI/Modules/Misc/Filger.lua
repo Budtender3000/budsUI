@@ -45,6 +45,26 @@ T_DE_BUFF_BAR_Anchor:SetSize(218, 25)
 local Filger = {}
 local MyUnits = {player = true, vehicle = true, pet = true}
 
+-- Single-pass aura cache: avoids O(N*M) scanning per UNIT_AURA event
+local auraCache = {buff = {}, debuff = {}}
+
+local function BuildAuraCache(unitID, auraType)
+	local cache = {}
+	local scanner = (auraType == "buff") and UnitBuff or UnitDebuff
+	for i = 1, 40 do
+		local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID = scanner(unitID, i)
+		if not name then break end
+		cache[spellID] = {name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID}
+	end
+	auraCache[auraType][unitID] = cache
+	return cache
+end
+
+local function WipeAuraCache()
+	for k in pairs(auraCache.buff) do auraCache.buff[k] = nil end
+	for k in pairs(auraCache.debuff) do auraCache.debuff[k] = nil end
+end
+
 function Filger:TooltipOnEnter()
 	if self.spellID > 20 then
 		local str = "spell:%s"
@@ -61,12 +81,10 @@ end
 
 function Filger:UnitBuff(unitID, inSpellID, spn, absID)
 	if absID then
-		for i = 1, 40, 1 do
-			local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID = UnitBuff(unitID, i)
-			if not name then break end
-			if inSpellID == spellID then
-				return name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID
-			end
+		local cache = auraCache.buff[unitID] or BuildAuraCache(unitID, "buff")
+		local data = cache[inSpellID]
+		if data then
+			return unpack(data)
 		end
 	else
 		return UnitBuff(unitID, spn)
@@ -76,12 +94,10 @@ end
 
 function Filger:UnitDebuff(unitID, inSpellID, spn, absID)
 	if absID then
-		for i = 1, 40, 1 do
-			local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID = UnitDebuff(unitID, i)
-			if not name then break end
-			if inSpellID == spellID then
-				return name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID
-			end
+		local cache = auraCache.debuff[unitID] or BuildAuraCache(unitID, "debuff")
+		local data = cache[inSpellID]
+		if data then
+			return unpack(data)
 		end
 	else
 		return UnitDebuff(unitID, spn)
@@ -320,6 +336,7 @@ end
 
 function Filger:OnEvent(event, unit)
 	if event == "SPELL_UPDATE_COOLDOWN" or event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED" or event == "PLAYER_ENTERING_WORLD" or event == "UNIT_AURA" and (unit == "target" or unit == "player" or unit == "pet" or unit == "focus") then
+		WipeAuraCache()
 		local needUpdate = false
 		local id = self.Id
 

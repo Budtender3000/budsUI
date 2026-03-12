@@ -79,14 +79,36 @@ end)
 
 -- Difficulty color for WatchFrame lines
 -- Remove those shitty dashes too
+local watchFrameLineCache = {}
+local function GetWatchFrameLine(i)
+	local line = watchFrameLineCache[i]
+	if line == nil then
+		line = _G["WatchFrameLine"..i] or false
+		watchFrameLineCache[i] = line
+	end
+	return line
+end
+
 hooksecurefunc("WatchFrame_Update", function()
 	local nextline = 1
 	local numQuestWatches = GetNumQuestWatches()
 
 	for i = nextline, 50 do
-	local line = _G["WatchFrameLine"..i]
+		local line = GetWatchFrameLine(i)
 		if line then
 			line.dash:Hide()
+		end
+	end
+
+	-- Build a title→indices lookup from WATCHFRAME_QUESTLINES for O(1) matching
+	local titleLookup = {}
+	for j = 1, #WATCHFRAME_QUESTLINES do
+		local text = WATCHFRAME_QUESTLINES[j].text:GetText()
+		if text then
+			if not titleLookup[text] then
+				titleLookup[text] = {}
+			end
+			titleLookup[text][#titleLookup[text] + 1] = j
 		end
 	end
 
@@ -96,8 +118,9 @@ hooksecurefunc("WatchFrame_Update", function()
 			local title, level = GetQuestLogTitle(questIndex)
 			local col = GetQuestDifficultyColor(level)
 
-			for j = 1, #WATCHFRAME_QUESTLINES do
-				if WATCHFRAME_QUESTLINES[j].text:GetText() == title then
+			local indices = titleLookup[title]
+			if indices then
+				for _, j in ipairs(indices) do
 					WATCHFRAME_QUESTLINES[j].text:SetTextColor(col.r, col.g, col.b)
 					WATCHFRAME_QUESTLINES[j].col = col
 				end

@@ -137,28 +137,20 @@ function frame:UNIT_SPELLCAST_SUCCEEDED(unit, spell, rank)
 	if unit == "player" then
 		watching[spell] = {GetTime(), "spell", spell.."("..rank..")"}
 		self:SetScript("OnUpdate", OnUpdate)
+	elseif unit == "pet" then
+		local name = spell
+		local index = GetPetActionIndexByName(name)
+		if index and not select(7, GetPetActionInfo(index)) then
+			watching[name] = {GetTime(), "pet", index}
+		elseif not index and name then
+			watching[name] = {GetTime(), "spell", name.."("..rank..")"}
+		else
+			return
+		end
+		self:SetScript("OnUpdate", OnUpdate)
 	end
 end
 frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-
-function frame:COMBAT_LOG_EVENT_UNFILTERED(...)
-	local _, event, _, _, sourceFlags, _, _, _, spellID = ...
-	if event == "SPELL_CAST_SUCCESS" then
-		if (bit.band(sourceFlags, COMBATLOG_OBJECT_TYPE_PET) == COMBATLOG_OBJECT_TYPE_PET and bit.band(sourceFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE) then
-			local name = GetSpellInfo(spellID)
-			local index = GetPetActionIndexByName(name)
-			if index and not select(7, GetPetActionInfo(index)) then
-				watching[name] = {GetTime(), "pet", index}
-			elseif not index and name then
-				watching[name] = {GetTime(), "spell", spellID}
-			else
-				return
-			end
-			self:SetScript("OnUpdate", OnUpdate)
-		end
-	end
-end
-frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
 function frame:PLAYER_ENTERING_WORLD()
 	local _, instanceType = IsInInstance()

@@ -62,8 +62,42 @@ do
 	end
 end
 
+-- Throttle setup: defer remaining tooltip scans if too many uncached items
+local MAX_SCANS_PER_FRAME = 10
+local scanBudget = MAX_SCANS_PER_FRAME
+local deferFrame = CreateFrame("Frame")
+deferFrame:Hide()
+
+local function ResetScanBudget()
+	scanBudget = MAX_SCANS_PER_FRAME
+end
+
+local function ThrottledIsAlreadyKnown(itemLink, deferCallback)
+	if not itemLink then return end
+	-- Cached items are free (no tooltip scan needed)
+	local itemID = itemLink:match("item:(%d+):")
+	if itemID and knowns[itemID] then return true end
+	-- Budget check for uncached items requiring tooltip scan
+	if scanBudget <= 0 then
+		-- Defer remaining checks to next frame
+		if deferCallback then
+			deferFrame:SetScript("OnUpdate", function(self)
+				self:SetScript("OnUpdate", nil)
+				self:Hide()
+				ResetScanBudget()
+				deferCallback()
+			end)
+			deferFrame:Show()
+		end
+		return nil, true -- nil result, deferred flag
+	end
+	scanBudget = scanBudget - 1
+	return IsAlreadyKnown(itemLink)
+end
+
 -- merchant frame
-local function MerchantFrame_UpdateMerchantInfo ()
+local function MerchantFrame_UpdateMerchantInfo()
+	ResetScanBudget()
 	local numItems = GetMerchantNumItems()
 
 	for i = 1, MERCHANT_ITEMS_PER_PAGE do
@@ -150,7 +184,8 @@ end
 
 -- auction frame
 
-local function AuctionFrameBrowse_Update ()
+local function AuctionFrameBrowse_Update()
+	ResetScanBudget()
 	local numItems = GetNumAuctionItems("list")
 	local offset = FauxScrollFrame_GetOffset(BrowseScrollFrame)
 
@@ -165,8 +200,12 @@ local function AuctionFrameBrowse_Update ()
 		if ( texture and texture:IsShown() ) then
 			local _, _, _, _, canUse = GetAuctionItemInfo("list", index)
 
-			if ( canUse and IsAlreadyKnown(GetAuctionItemLink("list", index)) ) then
-				texture:SetVertexColor(knowncolor.r, knowncolor.g, knowncolor.b)
+			if canUse then
+				local known, deferred = ThrottledIsAlreadyKnown(GetAuctionItemLink("list", index), AuctionFrameBrowse_Update)
+				if deferred then return end
+				if known then
+					texture:SetVertexColor(knowncolor.r, knowncolor.g, knowncolor.b)
+				end
 			end
 		end
 	end

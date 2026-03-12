@@ -1,4 +1,4 @@
-﻿local K, C, L, _ = select(2, ...):unpack()
+local K, C, L, _ = select(2, ...):unpack()
 if C.Loot.GroupLoot ~= true then return end
 
 local unpack = unpack
@@ -38,11 +38,25 @@ local function SetItemTip(frame)
 	GameTooltip:SetHyperlink(frame.link)
 	if IsShiftKeyDown() then GameTooltip_ShowCompareItem() end
 	if IsModifiedClick("DRESSUP") then ShowInspectCursor() else ResetCursor() end
+	-- Register modifier event for shift-compare while hovering
+	frame:RegisterEvent("MODIFIER_STATE_CHANGED")
+	frame:SetScript("OnEvent", function(self, event, key)
+		if key == "LSHIFT" or key == "RSHIFT" then
+			if IsShiftKeyDown() then
+				GameTooltip_ShowCompareItem()
+			else
+				ShoppingTooltip1:Hide()
+				ShoppingTooltip2:Hide()
+			end
+		end
+	end)
 end
 
-local function ItemOnUpdate(self)
-	if IsShiftKeyDown() then GameTooltip_ShowCompareItem() end
-	CursorOnUpdate(self)
+local function HideItemTip(frame)
+	GameTooltip:Hide()
+	ResetCursor()
+	frame:UnregisterEvent("MODIFIER_STATE_CHANGED")
+	frame:SetScript("OnEvent", nil)
 end
 
 local function LootClick(frame)
@@ -106,8 +120,7 @@ local function CreateRollFrame()
 	button:SetBackdrop(K.BorderBackdrop)
 	button:SetBackdropColor(unpack(C.Media.Backdrop_Color))
 	button:SetScript("OnEnter", SetItemTip)
-	button:SetScript("OnLeave", HideTip2)
-	button:SetScript("OnUpdate", ItemOnUpdate)
+	button:SetScript("OnLeave", HideItemTip)
 	button:SetScript("OnClick", LootClick)
 	frame.button = button
 
