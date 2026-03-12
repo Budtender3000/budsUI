@@ -13,7 +13,7 @@ local GetUnitName = GetUnitName
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local WorldFrame = WorldFrame
 
-local frames, numChildren = {}, -1
+local frames, numChildren, scanThrottle = {}, -1, 0
 local goodR, goodG, goodB = unpack(C.Nameplate.GoodColor)
 local badR, badG, badB = unpack(C.Nameplate.BadColor)
 local transitionR, transitionG, transitionB = unpack(C.Nameplate.NearColor)
@@ -634,9 +634,13 @@ end
 
 -- Core right here, scan for any possible nameplate frames that are Children of the WorldFrame
 NamePlates:SetScript("OnUpdate", function(self, elapsed)
-	if WorldFrame:GetNumChildren() ~= numChildren then
-		numChildren = WorldFrame:GetNumChildren()
-		HookFrames(WorldFrame:GetChildren())
+	scanThrottle = scanThrottle + elapsed
+	if scanThrottle > 0.1 then
+		if WorldFrame:GetNumChildren() ~= numChildren then
+			numChildren = WorldFrame:GetNumChildren()
+			HookFrames(WorldFrame:GetChildren())
+		end
+		scanThrottle = 0
 	end
 
 	if self.elapsed and self.elapsed > 0.2 then

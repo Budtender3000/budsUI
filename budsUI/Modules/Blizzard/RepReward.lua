@@ -12,6 +12,7 @@ local GetNumQuestLogRewardFactions = GetNumQuestLogRewardFactions
 local GetTitleText = GetTitleText
 local GetQuestLogRewardFactionInfo = GetQuestLogRewardFactionInfo
 local GetFactionInfoByID = GetFactionInfoByID
+local GetNumFactions = GetNumFactions
 
 local questIndex, questName, numRewFactions
 local updateInterval = 1.0
@@ -43,23 +44,18 @@ function CalcBonusRep(factionName)
 	return bonusRep
 end
 
-function CalcBonusRepCommendation(factionName)
-	local factionIndex = 1
-	local lastFactionName, name, hasBonusRepGain
-	local bonusRepCommendation = 1
-	repeat
-		name, _, _, _, _, _, _, _, _, _, _, _, _, _, hasBonusRepGain, _ = GetFactionInfo(factionIndex)
-		if name == lastFactionName then break end
-		lastFactionName = name
-		if name == factionName then
-			if hasBonusRepGain then
-				bonusRepCommendation = 2
-			end
-			break
+local factionCommendationCache = {}
+local function UpdateCommendationCache()
+	for i = 1, GetNumFactions() do
+		local name, _, _, _, _, _, _, _, _, _, _, _, _, _, hasBonusRepGain = GetFactionInfo(i)
+		if name then
+			factionCommendationCache[name] = hasBonusRepGain and 2 or 1
 		end
-		factionIndex = factionIndex + 1
-	until factionIndex > 200
-	return bonusRepCommendation
+	end
+end
+
+function CalcBonusRepCommendation(factionName)
+	return factionCommendationCache[factionName] or 1
 end
 
 function ShowReputations()
@@ -142,6 +138,11 @@ local function Reputations_ShowTitle()
 	ReputationsTitleFrame.text:SetText("Reputations")
 	return ReputationsTitleFrame
 end
+
+ReputationsTitleFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+ReputationsTitleFrame:RegisterEvent("UPDATE_FACTION")
+ReputationsTitleFrame:SetScript("OnEvent", UpdateCommendationCache)
+UpdateCommendationCache()
 
 local function Reputations_ShowDetail()
 	local stringRep, numRepFactions = ShowReputations()

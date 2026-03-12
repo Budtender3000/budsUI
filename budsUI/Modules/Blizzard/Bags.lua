@@ -344,48 +344,33 @@ function Stuffing:SearchUpdate(str)
 	str = string.lower(str)
 
 	for _, b in ipairs(self.buttons) do
-		if b.name then
-			if not string.find(string.lower(b.name), str) then
-				SetItemButtonDesaturated(b.frame, true)
-				if b.Glow then
-					b.Glow:Hide()
-				end
-			else
-				SetItemButtonDesaturated(b.frame, false)
-				if b.Glow then
-					b.Glow:Show()
-					b.Glow:SetVertexColor(0.8, 0.8, 0.3)
-				end
-			end
-		end
-	end
-end
-
-function Stuffing:SearchUpdate(str)
-	str = string.lower(str)
-
-	for _, b in ipairs(self.buttons) do
 		if b.frame and not b.name then
 			b.frame:SetAlpha(0.2)
 		end
 		if b.name then
-			setName = setName or ""
 			local ilink = GetContainerItemLink(b.bag, b.slot)
-			local _, equipSlot = select(6, GetItemInfo(ilink))
-			local minLevel = select(5, GetItemInfo(ilink))
+			local _, _, _, _, minLevel, _, equipSlot = GetItemInfo(ilink)
 			equipSlot = _G[equipSlot] or ""
-			if not string.find(string.lower(b.name), str) and not string.find(string.lower(equipSlot), str) then
+			
+			local match = string.find(string.lower(b.name), str) or string.find(string.lower(equipSlot), str)
+			
+			if not match then
 				if minLevel > K.Level then
 					_G[b.frame:GetName().."IconTexture"]:SetVertexColor(0.5, 0.5, 0.5)
 				end
 				SetItemButtonDesaturated(b.frame, true)
 				b.frame:SetAlpha(0.2)
+				if b.Glow then b.Glow:Hide() end
 			else
 				if minLevel > K.Level then
 					_G[b.frame:GetName().."IconTexture"]:SetVertexColor(1, 0.1, 0.1)
 				end
 				SetItemButtonDesaturated(b.frame, false)
 				b.frame:SetAlpha(1)
+				if b.Glow then
+					b.Glow:Show()
+					b.Glow:SetVertexColor(0.8, 0.8, 0.3)
+				end
 			end
 		end
 	end
