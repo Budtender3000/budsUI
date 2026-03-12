@@ -121,23 +121,14 @@ function Stuffing:SlotUpdate(b)
 	end
 
 	if(clink) then
-		local iType
-		b.name, _, b.rarity, _, _, iType = GetItemInfo(clink)
+		b.name, _, b.rarity = GetItemInfo(clink)
 
-		if QUEST_ITEM_STRING == nil then
-			-- GetItemInfo returns a localized item type.
-			-- this is to figure out what that string is.
-			local t = {GetAuctionItemClasses()}
-			QUEST_ITEM_STRING = t[#t]	-- #t == 12
-		end
-
-		if iType and iType == QUEST_ITEM_STRING then
-			--K.Print(iType .. " " .. b.name)
+		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(b.bag, b.slot)
+		if isQuestItem or questId or isActive then
 			b.qitem = true
 		else
 			b.qitem = nil
 		end
-
 	else
 		b.name, b.rarity, b.qitem = nil, nil, nil
 	end
@@ -346,23 +337,24 @@ function Stuffing:SearchUpdate(str)
 	for _, b in ipairs(self.buttons) do
 		if b.frame and not b.name then
 			b.frame:SetAlpha(0.2)
+			SetItemButtonDesaturated(b.frame, true)
 		end
 		if b.name then
 			local ilink = GetContainerItemLink(b.bag, b.slot)
-			local _, _, _, _, minLevel, _, equipSlot = GetItemInfo(ilink)
-			equipSlot = _G[equipSlot] or ""
+			local name, _, _, _, minLevel, _, _, _, equipSlot = GetItemInfo(ilink)
+			equipSlot = (equipSlot and _G[equipSlot]) or ""
 			
 			local match = string.find(string.lower(b.name), str) or string.find(string.lower(equipSlot), str)
 			
 			if not match then
-				if minLevel > K.Level then
+				if minLevel and minLevel > K.Level then
 					_G[b.frame:GetName().."IconTexture"]:SetVertexColor(0.5, 0.5, 0.5)
 				end
 				SetItemButtonDesaturated(b.frame, true)
 				b.frame:SetAlpha(0.2)
 				if b.Glow then b.Glow:Hide() end
 			else
-				if minLevel > K.Level then
+				if minLevel and minLevel > K.Level then
 					_G[b.frame:GetName().."IconTexture"]:SetVertexColor(1, 0.1, 0.1)
 				end
 				SetItemButtonDesaturated(b.frame, false)

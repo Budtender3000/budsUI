@@ -84,9 +84,10 @@ SmoothFrame:SetScript("OnUpdate", function(self, elapsed)
 	plateScanTimer = plateScanTimer + elapsed
 	if plateScanTimer > 0.5 then
 		plateScanTimer = 0
-		local frames = {WorldFrame:GetChildren()}
-		for _, plate in ipairs(frames) do
-			if isPlate(plate) and not plateCache[plate] then
+		local numChildren = WorldFrame:GetNumChildren()
+		for i = 1, numChildren do
+			local plate = select(i, WorldFrame:GetChildren())
+			if plate and isPlate(plate) and not plateCache[plate] then
 				local v = plate:GetChildren()
 				SmoothBar(v)
 				plateCache[plate] = true

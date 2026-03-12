@@ -632,6 +632,9 @@ local function HookFrames(...)
 end
 
 
+-- Throttle timers
+local healthThrottle, unitThrottle = 0, 0
+
 -- Core right here, scan for any possible nameplate frames that are Children of the WorldFrame
 NamePlates:SetScript("OnUpdate", function(self, elapsed)
 	scanThrottle = scanThrottle + elapsed
@@ -651,10 +654,21 @@ NamePlates:SetScript("OnUpdate", function(self, elapsed)
 		self.elapsed = (self.elapsed or 0) + elapsed
 	end
 
-	ForEachPlate(ShowHealth)
-	ForEachPlate(CheckBlacklist)
+	-- Throttle health and blacklist checks (0.2s interval)
+	healthThrottle = healthThrottle + elapsed
+	if healthThrottle > 0.2 then
+		ForEachPlate(ShowHealth)
+		ForEachPlate(CheckBlacklist)
+		healthThrottle = 0
+	end
+
+	-- Throttle unit GUID checks if auras enabled (0.2s interval)
 	if C.Nameplate.Auras then
-		ForEachPlate(CheckUnit_Guid)
+		unitThrottle = unitThrottle + elapsed
+		if unitThrottle > 0.2 then
+			ForEachPlate(CheckUnit_Guid)
+			unitThrottle = 0
+		end
 	end
 end)
 

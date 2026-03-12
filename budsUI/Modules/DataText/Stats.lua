@@ -83,7 +83,7 @@ local function UpdateMemory()
 end
 
 -- Build DataText
-local int = 10
+local int = 30
 
 local function Update(self, t)
 	int = int - t
@@ -92,11 +92,11 @@ local function Update(self, t)
 		RebuildAddonList(self)
 		local total = UpdateMemory()
 		Text:SetText(floor(GetFramerate())..K.RGBToHex(K.Color.r, K.Color.g, K.Color.b).." fps|r & "..select(3, GetNetStats())..K.RGBToHex(K.Color.r, K.Color.g, K.Color.b).." ms|r")
-		int = 10
+		int = 30
 	end
 end
 -- Setup Tooltip
-Stat:SetScript("OnMouseDown", function () collectgarbage("collect") Update(Stat, 20) end)
+Stat:SetScript("OnMouseDown", function () Update(Stat, 30) end)
 Stat:SetScript("OnEnter", function(self)
 	if not InCombatLockdown() then
 		self.tooltip = true
@@ -134,10 +134,9 @@ Stat:SetScript("OnMouseDown", function(self, btn)
 	if (btn == "LeftButton") then
 		if not LFDQueueFrame then ToggleFrame(LFDParentFrame) end
 		ToggleFrame(LFDParentFrame)
-	else
 		UpdateAddOnMemoryUsage()
 		local Before = gcinfo()
-		collectgarbage("collect")
+		-- collectgarbage("collect") -- Removed for performance, Lua will handle this
 		UpdateAddOnMemoryUsage()
 		local After = gcinfo()
 		K.Print(L_DATATEXT_MEMORY_CLEANED..formatMem(Before-After))
@@ -145,5 +144,5 @@ Stat:SetScript("OnMouseDown", function(self, btn)
 end)
 Stat:SetScript("OnLeave", function(self) self.tooltip = false GameTooltip:Hide() end)
 Stat:SetScript("OnUpdate", Update)
-Stat:SetScript("OnEvent", function(self, event) collectgarbage("collect") end)
+Stat:SetScript("OnEvent", function(self, event) --[[ collectgarbage("collect") --]] end)
 Update(Stat, 20)
