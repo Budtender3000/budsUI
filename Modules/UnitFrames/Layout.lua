@@ -166,7 +166,7 @@ if C.Unitframe.Enable == true then
 			-- PlayerFrame.SetPoint = K.Noop
 
 			-- Hide Pet Name.
-			PetName:Hide()
+			PetName:SetAlpha(0)
 
 			-- Tweak Target Frame
 			TargetFrame:SetMovable(true)
