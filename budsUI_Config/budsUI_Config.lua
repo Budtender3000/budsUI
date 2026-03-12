@@ -371,11 +371,17 @@ StaticPopupDialogs["RESET_ALL"] = {
 }
 
 local function SetValue(group, option, value)
-	local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Default"
-	if not GUIConfigAll.Profiles then GUIConfigAll.Profiles = { ["Default"] = {} } end
+	local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
+	if not GUIConfigAll.Profiles then GUIConfigAll.Profiles = { ["Budtender Preset"] = {} } end
 	if not GUIConfigAll.Profiles[activeProfile] then GUIConfigAll.Profiles[activeProfile] = {} end
 	if not GUIConfigAll.Profiles[activeProfile][group] then GUIConfigAll.Profiles[activeProfile][group] = {} end
 	GUIConfigAll.Profiles[activeProfile][group][option] = value
+	
+	-- Update live C table for instant sync!
+	local K, C, L, _ = budsUI:unpack()
+	if C[group] then
+		C[group][option] = value
+	end
 end
 
 local VISIBLE_GROUP = nil
@@ -762,10 +768,10 @@ end
 		frame.buttons = {}
 
 		if not GUIConfigAll then GUIConfigAll = {} end
-		if not GUIConfigAll.Profiles then GUIConfigAll.Profiles = { ["Default"] = {} } end
+		if not GUIConfigAll.Profiles then GUIConfigAll.Profiles = { ["Budtender Preset"] = {} } end
 		if not GUIConfigAll.CharacterMap then GUIConfigAll.CharacterMap = {} end
 
-		local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Default"
+		local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
 		local offset = 40
 		
 		local activeLabel = frame.activeLabel or frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -786,7 +792,7 @@ end
 			end
 			tinsert(frame.buttons, btn)
 
-			if pName ~= "Default" and pName ~= "Budtender" then
+			if pName ~= "Default" and pName ~= "Budtender Preset" then
 				local delSub = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 				delSub:SetSize(20, 20)
 				delSub:SetPoint("LEFT", btn, "RIGHT", 5, 0)
@@ -817,6 +823,15 @@ end
 				local newName = createEdit:GetText()
 				if newName and newName ~= "" and not GUIConfigAll.Profiles[newName] then
 					GUIConfigAll.Profiles[newName] = {}
+					-- Copy current settings to the new profile
+					for group, options in pairs(C) do
+						if type(options) == "table" and ALLOWED_GROUPS[group] then
+							GUIConfigAll.Profiles[newName][group] = {}
+							for option, value in pairs(options) do
+								GUIConfigAll.Profiles[newName][group][option] = value
+							end
+						end
+					end
 					createEdit:SetText("")
 					UpdateProfileList()
 				end
@@ -826,24 +841,39 @@ end
 		createEdit:SetPoint("TOPLEFT", 20, -offset - 20)
 		frame.createEdit = createEdit
 		
+		local saveBtn = frame.saveBtn or NormalButton(L_GUI_PROFILES_SAVE or "Save Profile", frame)
+		saveBtn:SetPoint("TOPLEFT", 20, -offset - 60)
+		saveBtn:SetWidth(250)
+		saveBtn:SetScript("OnClick", function()
+			local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
+			GUIConfigAll.Profiles[activeProfile] = {}
+			for group, options in pairs(C) do
+				if type(options) == "table" and ALLOWED_GROUPS[group] then
+					GUIConfigAll.Profiles[activeProfile][group] = {}
+					for option, value in pairs(options) do
+						GUIConfigAll.Profiles[activeProfile][group][option] = value
+					end
+				end
+			end
+			Print("Settings saved to profile: " .. activeProfile)
+		end)
+		frame.saveBtn = saveBtn
+
 		local budBtn = frame.budBtn or NormalButton(L_GUI_PROFILES_BUDTENDER, frame)
-		budBtn:SetPoint("TOPLEFT", 20, -offset - 60)
+		budBtn:SetPoint("TOPLEFT", 20, -offset - 100)
 		budBtn:SetWidth(250)
 		budBtn:SetScript("OnClick", function()
-			-- Budtender Preset logic
-			local profiles = GUIConfigAll.Profiles
-			profiles[activeProfile] = profiles[activeProfile] or {}
-			-- Sample preset values
-			profiles[activeProfile]["General"] = profiles[activeProfile]["General"] or {}
-			profiles[activeProfile]["General"]["DeveloperMode"] = true
-			profiles[activeProfile]["ActionBar"] = profiles[activeProfile]["ActionBar"] or {}
-			profiles[activeProfile]["ActionBar"]["BottomBars"] = 3
-			profiles[activeProfile]["ActionBar"]["RightBars"] = 1
-			profiles[activeProfile]["Unitframe"] = profiles[activeProfile]["Unitframe"] or {}
-			profiles[activeProfile]["Unitframe"]["Enable"] = true
-			profiles[activeProfile]["Chat"] = profiles[activeProfile]["Chat"] or {}
-			profiles[activeProfile]["Chat"]["Enable"] = true
-			ReloadUI()
+			-- Save current settings TO the Budtender Preset
+			GUIConfigAll.Profiles["Budtender Preset"] = {}
+			for group, options in pairs(C) do
+				if type(options) == "table" and ALLOWED_GROUPS[group] then
+					GUIConfigAll.Profiles["Budtender Preset"][group] = {}
+					for option, value in pairs(options) do
+						GUIConfigAll.Profiles["Budtender Preset"][group][option] = value
+					end
+				end
+			end
+			Print("Settings saved as new Budtender Preset (Default for all chars)")
 		end)
 		frame.budBtn = budBtn
 	end

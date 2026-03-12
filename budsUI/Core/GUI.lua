@@ -9,19 +9,22 @@ if not GUIConfigAll then GUIConfigAll = {} end
 if not GUIConfigAll.Profiles then 
 	GUIConfigAll.Profiles = {} 
 	GUIConfigAll.Profiles["Default"] = {}
-	-- Migration: Move old global settings to Default profile
+	GUIConfigAll.Profiles["Budtender Preset"] = {}
+	-- Migration: Move old global settings to Budtender Preset profile
 	if GUIConfigSettings then
 		for k, v in pairs(GUIConfigSettings) do
-			GUIConfigAll.Profiles["Default"][k] = v
+			GUIConfigAll.Profiles["Budtender Preset"][k] = v
 		end
 		GUIConfigSettings = nil
 	end
 end
+if not GUIConfigAll.Profiles["Budtender Preset"] then GUIConfigAll.Profiles["Budtender Preset"] = {} end
 if not GUIConfigAll.CharacterMap then GUIConfigAll.CharacterMap = {} end
 
 local realmKey = K.Realm.."-"..K.Name
-local activeProfile = GUIConfigAll.CharacterMap[realmKey] or "Default"
-if not GUIConfigAll.Profiles[activeProfile] then activeProfile = "Default" end
+local activeProfile = GUIConfigAll.CharacterMap[realmKey] or "Budtender Preset"
+if not GUIConfigAll.Profiles[activeProfile] then activeProfile = "Budtender Preset" end
+
 
 -- Migration: If this character had "Per Character" settings enabled, move them to a new profile
 if GUIConfigAll[K.Realm] and GUIConfigAll[K.Realm][K.Name] == true and GUIConfig then
