@@ -238,3 +238,13 @@ L_GUI_UNITFRAME_PERCENT_HEALTH = "Healthbars change color based on Percent (Clas
 L_GUI_UNITFRAME_SCALE = "Scale the main Unitframes"
 L_GUI_UNITFRAME_SMALL_AURA = "Change the size of small auras on Uniframes."
 L_GUI_UNITFRAME_SMOOTH_BARS = "Smoothly animates status bars on some standard frames"
+-- Profiles Localization
+L_GUI_PROFILES = "Profiles"
+L_GUI_PROFILES_ACTIVE = "Active Profile:"
+L_GUI_PROFILES_SELECT = "Select Profile"
+L_GUI_PROFILES_CREATE = "Create New Profile"
+L_GUI_PROFILES_NAME = "Profile Name"
+L_GUI_PROFILES_DELETE = "Delete Profile"
+L_GUI_PROFILES_DELETE_CONFIRM = "Are you sure you want to delete this profile?"
+L_GUI_PROFILES_BUDTENDER = "Apply Budtender Preset"
+L_GUI_PROFILES_BUDTENDER_CONFIRM = "Are you sure you want to apply the Budtender preset to the current profile? This will overwrite all current settings."

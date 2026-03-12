@@ -4,49 +4,51 @@ if not IsAddOnLoaded("budsUI_Config") then return end
 local pairs = pairs
 
 -- This Module loads new user settings if budsUI_Config is loaded
+-- Initialize Profile System
 if not GUIConfigAll then GUIConfigAll = {} end
-if GUIConfigAll[K.Realm] == nil then GUIConfigAll[K.Realm] = {} end
-if GUIConfigAll[K.Realm][K.Name] == nil then GUIConfigAll[K.Realm][K.Name] = false end
+if not GUIConfigAll.Profiles then 
+	GUIConfigAll.Profiles = {} 
+	GUIConfigAll.Profiles["Default"] = {}
+	-- Migration: Move old global settings to Default profile
+	if GUIConfigSettings then
+		for k, v in pairs(GUIConfigSettings) do
+			GUIConfigAll.Profiles["Default"][k] = v
+		end
+		GUIConfigSettings = nil
+	end
+end
+if not GUIConfigAll.CharacterMap then GUIConfigAll.CharacterMap = {} end
 
-if GUIConfigAll[K.Realm][K.Name] == true and not GUIConfig then return end
-if GUIConfigAll[K.Realm][K.Name] == false and not GUIConfigSettings then return end
+local realmKey = K.Realm.."-"..K.Name
+local activeProfile = GUIConfigAll.CharacterMap[realmKey] or "Default"
+if not GUIConfigAll.Profiles[activeProfile] then activeProfile = "Default" end
 
-if GUIConfigAll[K.Realm][K.Name] == true then
-	for group, options in pairs(GUIConfig) do
-		if C[group] then
-			local count = 0
-			for option, value in pairs(options) do
-				if (C[group][option] ~= nil) then
-					if (C[group][option] == value) then
-						GUIConfig[group][option] = nil
-					else
-						count = count + 1
-						C[group][option] = value
-					end
-				end
-			end
-			if (count == 0) then GUIConfig[group] = nil end
-		else
-			GUIConfig[group] = nil
+-- Migration: If this character had "Per Character" settings enabled, move them to a new profile
+if GUIConfigAll[K.Realm] and GUIConfigAll[K.Realm][K.Name] == true and GUIConfig then
+	local charProfileName = K.Name.."-"..K.Realm
+	if not GUIConfigAll.Profiles[charProfileName] then
+		GUIConfigAll.Profiles[charProfileName] = {}
+		for k, v in pairs(GUIConfig) do
+			GUIConfigAll.Profiles[charProfileName][k] = v
 		end
 	end
-else
-	for group, options in pairs(GUIConfigSettings) do
+	GUIConfigAll.CharacterMap[realmKey] = charProfileName
+	GUIConfigAll[K.Realm][K.Name] = nil -- Clean up old flag
+	activeProfile = charProfileName
+	GUIConfig = nil
+end
+
+local profileSettings = GUIConfigAll.Profiles[activeProfile]
+
+-- Load profile settings into C
+if profileSettings then
+	for group, options in pairs(profileSettings) do
 		if C[group] then
-			local count = 0
 			for option, value in pairs(options) do
 				if C[group][option] ~= nil then
-					if C[group][option] == value then
-						GUIConfigSettings[group][option] = nil
-					else
-						count = count + 1
-						C[group][option] = value
-					end
+					C[group][option] = value
 				end
 			end
-			if (count == 0) then GUIConfigSettings[group] = nil end
-		else
-			GUIConfigSettings[group] = nil
 		end
 	end
 end

@@ -244,3 +244,13 @@ L_GUI_UNITFRAME_PERCENT_HEALTH = "Gesundheitsleisten ändern Farbe basierend auf
 L_GUI_UNITFRAME_SCALE = "Haupt-Einheitenfenster skalieren"
 L_GUI_UNITFRAME_SMALL_AURA = "Größe kleiner Auren auf Einheitenfenstern ändern"
 L_GUI_UNITFRAME_SMOOTH_BARS = "Statusleisten auf einigen Standardfenstern sanft animieren"
+-- Profiles Localization
+L_GUI_PROFILES = "Profile"
+L_GUI_PROFILES_ACTIVE = "Aktives Profil:"
+L_GUI_PROFILES_SELECT = "Profil auswählen"
+L_GUI_PROFILES_CREATE = "Neues Profil erstellen"
+L_GUI_PROFILES_NAME = "Profilname"
+L_GUI_PROFILES_DELETE = "Profil löschen"
+L_GUI_PROFILES_DELETE_CONFIRM = "Bist du sicher, dass du das Profil löschen möchtest?"
+L_GUI_PROFILES_BUDTENDER = "Budtender Preset anwenden"
+L_GUI_PROFILES_BUDTENDER_CONFIRM = "Bist du sicher, dass du das Budtender Preset auf das aktuelle Profil anwenden möchtest? Dies wird alle aktuellen Einstellungen überschreiben."

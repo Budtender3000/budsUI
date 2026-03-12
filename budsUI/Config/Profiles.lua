@@ -16,13 +16,3 @@ end
 -- Per Max Character Level Config (overwrite general, class and name)
 if K.Level ~= MAX_PLAYER_LEVEL then
 end
-
--- Magicnachos Personal Config
-if (K.Name == "Magicnachos" or K.Name == "Bootyshorts") and (K.Realm == "Icecrown") then
-
-end
-
--- Kkthnx Personal Config
-if (K.Name == "Kkthnx" or K.Name == "Rollndots" or K.Name == "Safeword" or K.Name == "Broflex" or K.Name == "Broflexin") and (K.Realm == "Icecrown") then
-
-end

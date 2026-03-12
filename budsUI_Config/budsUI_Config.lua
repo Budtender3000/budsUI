@@ -41,6 +41,7 @@ local ALLOWED_GROUPS = {
 	["Skins"] = 18,
 	["Tooltip"] = 19,
 	["Unitframe"] = 20,
+	["Profiles"] = 21,
 }
 
 local function Local(o)
@@ -278,6 +279,8 @@ local function Local(o)
 	if o == "UIConfigUnitframePercentHealth" then o = L_GUI_UNITFRAME_PERCENT_HEALTH end
 	if o == "UIConfigUnitframeScale" then o = L_GUI_UNITFRAME_SCALE end
 	if o == "UIConfigUnitframeSmallAuraSize" then o = L_GUI_UNITFRAME_SMALL_AURA end
+	-- Profiles settings
+	if o == "UIConfigProfiles" then o = L_GUI_PROFILES or "Profiles" end
 
 	K.option = o
 end
@@ -368,28 +371,11 @@ StaticPopupDialogs["RESET_ALL"] = {
 }
 
 local function SetValue(group, option, value)
-	local mergesettings
-	if GUIConfig == GUIConfigSettings then
-		mergesettings = true
-	else
-		mergesettings = false
-	end
-
-	if GUIConfigAll[realm][name] == true then
-		if not GUIConfig then GUIConfig = {} end
-		if not GUIConfig[group] then GUIConfig[group] = {} end
-		GUIConfig[group][option] = value
-	else
-		if mergesettings == true then
-			if not GUIConfig then GUIConfig = {} end
-			if not GUIConfig[group] then GUIConfig[group] = {} end
-			GUIConfig[group][option] = value
-		end
-
-		if not GUIConfigSettings then GUIConfigSettings = {} end
-		if not GUIConfigSettings[group] then GUIConfigSettings[group] = {} end
-		GUIConfigSettings[group][option] = value
-	end
+	local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Default"
+	if not GUIConfigAll.Profiles then GUIConfigAll.Profiles = { ["Default"] = {} } end
+	if not GUIConfigAll.Profiles[activeProfile] then GUIConfigAll.Profiles[activeProfile] = {} end
+	if not GUIConfigAll.Profiles[activeProfile][group] then GUIConfigAll.Profiles[activeProfile][group] = {} end
+	GUIConfigAll.Profiles[activeProfile][group][option] = value
 end
 
 local VISIBLE_GROUP = nil
@@ -458,7 +444,8 @@ function CreateUIConfig()
 	end
 
 	-- Main Frame
-	local UIConfigMain = CreateFrame("Frame", "UIConfigMain", UIParent)
+	UIConfigMain = CreateFrame("Frame", "UIConfigMain", UIParent)
+	local UIConfigMain = UIConfigMain
 	UIConfigMain:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 200)
 	UIConfigMain:SetSize(780, 520)
 	UIConfigMain:SetBackdrop(K.Backdrop)
@@ -586,7 +573,7 @@ function CreateUIConfig()
 		offset = offset + 20
 	end
 	child:SetSize(125, offset)
-	--slider:SetMinMaxValues(0, (offset == 0 and 1 or offset - 12 * 33))
+	slider:SetMinMaxValues(0, max(0, offset - 400))
 	slider:SetValue(1)
 	groups:SetScrollChild(child)
 
@@ -605,6 +592,7 @@ function CreateUIConfig()
 	end)
 
 	local group = CreateFrame("ScrollFrame", "UIConfigGroup", UIConfig)
+	UIConfigGroup = group
 	group:SetPoint("TOPLEFT", 0, 5)
 	group:SetSize(520, 400)
 
@@ -615,16 +603,17 @@ function CreateUIConfig()
 	slider:SetThumbTexture("Interface\\Buttons\\UI-ScrollBar-Knob")
 	slider:SetOrientation("VERTICAL")
 	slider:SetValueStep(20)
-	slider:SetScript("OnValueChanged", function(self, value) group:SetVerticalScroll(value) end)
+	slider:SetScript("OnValueChanged", function(self, value) UIConfigGroup:SetVerticalScroll(value) end)
 
 	for i in pairs(ALLOWED_GROUPS) do
-		local frame = CreateFrame("Frame", "UIConfig"..i, UIConfigGroup)
-		frame:SetPoint("TOPLEFT")
-		frame:SetWidth(225)
+		if i ~= "Profiles" then
+			local frame = CreateFrame("Frame", "UIConfig"..i, UIConfigGroup)
+			frame:SetPoint("TOPLEFT")
+			frame:SetWidth(225)
 
-		local offset = 5
+			local offset = 5
 
-		if type(C[i]) ~= "table" then Error(i.." GroupName not found in config table.") return end
+			if type(C[i]) ~= "table" then Error(i.." GroupName not found in config table.") return end
 		for j, value in PairsByKeys(C[i]) do
 			if type(value) == "boolean" then
 				local button = CreateFrame("CheckButton", "UIConfig"..i..j, frame, "InterfaceOptionsCheckButtonTemplate")
@@ -758,6 +747,112 @@ function CreateUIConfig()
 		frame:SetHeight(offset)
 		frame:Hide()
 	end
+end
+
+	-- Create Profiles Frame
+	local function UpdateProfileList()
+		local K, C, L, _ = budsUI:unpack()
+		if not _G["UIConfigProfiles"] then return end
+		local frame = _G["UIConfigProfiles"]
+		
+		-- Clear existing children (except title/static ones)
+		if frame.buttons then
+			for _, b in pairs(frame.buttons) do b:Hide() end
+		end
+		frame.buttons = {}
+
+		if not GUIConfigAll then GUIConfigAll = {} end
+		if not GUIConfigAll.Profiles then GUIConfigAll.Profiles = { ["Default"] = {} } end
+		if not GUIConfigAll.CharacterMap then GUIConfigAll.CharacterMap = {} end
+
+		local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Default"
+		local offset = 40
+		
+		local activeLabel = frame.activeLabel or frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		activeLabel:SetPoint("TOPLEFT", 10, -10)
+		activeLabel:SetText(L_GUI_PROFILES_ACTIVE .. " |cff388bdb" .. activeProfile .. "|r")
+		frame.activeLabel = activeLabel
+
+		for pName, _ in pairs(GUIConfigAll.Profiles) do
+			local btn = NormalButton(pName, frame)
+			btn:SetPoint("TOPLEFT", 20, -offset)
+			btn:SetWidth(200)
+			btn:SetScript("OnClick", function()
+				GUIConfigAll.CharacterMap[realm.."-"..name] = pName
+				ReloadUI()
+			end)
+			if pName == activeProfile then
+				btn:SetText("|cff388bdb" .. pName .. "|r")
+			end
+			tinsert(frame.buttons, btn)
+
+			if pName ~= "Default" and pName ~= "Budtender" then
+				local delSub = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+				delSub:SetSize(20, 20)
+				delSub:SetPoint("LEFT", btn, "RIGHT", 5, 0)
+				delSub:SetText("X")
+				delSub:SetScript("OnClick", function()
+					GUIConfigAll.Profiles[pName] = nil
+					UpdateProfileList()
+				end)
+				tinsert(frame.buttons, delSub)
+			end
+			
+			offset = offset + 25
+		end
+
+		local createEdit = frame.createEdit or CreateFrame("EditBox", nil, frame)
+		if not frame.createEdit then
+			createEdit:SetSize(150, 20)
+			createEdit:SetPoint("TOPLEFT", 20, -offset - 20)
+			createEdit:SetAutoFocus(false)
+			createEdit:SetFontObject(GameFontHighlight)
+			createEdit:SetBackdrop(K.Backdrop)
+			createEdit:SetBackdropColor(0,0,0,0.5)
+			
+			local createBtn = NormalButton(L_GUI_PROFILES_CREATE, frame)
+			createBtn:SetPoint("LEFT", createEdit, "RIGHT", 5, 0)
+			createBtn:SetSize(100, 20)
+			createBtn:SetScript("OnClick", function()
+				local newName = createEdit:GetText()
+				if newName and newName ~= "" and not GUIConfigAll.Profiles[newName] then
+					GUIConfigAll.Profiles[newName] = {}
+					createEdit:SetText("")
+					UpdateProfileList()
+				end
+			end)
+			frame.createBtn = createBtn
+		end
+		createEdit:SetPoint("TOPLEFT", 20, -offset - 20)
+		frame.createEdit = createEdit
+		
+		local budBtn = frame.budBtn or NormalButton(L_GUI_PROFILES_BUDTENDER, frame)
+		budBtn:SetPoint("TOPLEFT", 20, -offset - 60)
+		budBtn:SetWidth(250)
+		budBtn:SetScript("OnClick", function()
+			-- Budtender Preset logic
+			local profiles = GUIConfigAll.Profiles
+			profiles[activeProfile] = profiles[activeProfile] or {}
+			-- Sample preset values
+			profiles[activeProfile]["General"] = profiles[activeProfile]["General"] or {}
+			profiles[activeProfile]["General"]["DeveloperMode"] = true
+			profiles[activeProfile]["ActionBar"] = profiles[activeProfile]["ActionBar"] or {}
+			profiles[activeProfile]["ActionBar"]["BottomBars"] = 3
+			profiles[activeProfile]["ActionBar"]["RightBars"] = 1
+			profiles[activeProfile]["Unitframe"] = profiles[activeProfile]["Unitframe"] or {}
+			profiles[activeProfile]["Unitframe"]["Enable"] = true
+			profiles[activeProfile]["Chat"] = profiles[activeProfile]["Chat"] or {}
+			profiles[activeProfile]["Chat"]["Enable"] = true
+			ReloadUI()
+		end)
+		frame.budBtn = budBtn
+	end
+
+	local profilesFrame = CreateFrame("Frame", "UIConfigProfiles", UIConfigGroup)
+	profilesFrame:SetPoint("TOPLEFT")
+	profilesFrame:SetSize(520, 400)
+	profilesFrame:Hide()
+	profilesFrame:SetScript("OnShow", UpdateProfileList)
 
 	local reset = NormalButton(DEFAULT, UIConfigMain)
 	reset:SetPoint("TOPLEFT", UIConfig, "BOTTOMLEFT", -10, -25)
@@ -790,7 +885,8 @@ function CreateUIConfig()
 		GUIConfigSettings = {}
 	end)
 
-	if GUIConfigAll then
+	-- Hide legacy per-character toggle
+	if false and GUIConfigAll then
 		local button = CreateFrame("CheckButton", "UIConfigAllCharacters", TitleBox, "InterfaceOptionsCheckButtonTemplate")
 		button:SetScript("OnClick", function(self) StaticPopup_Show("PERCHAR") UIConfigCover:Show() end)
 		button:SetPoint("RIGHT", TitleBox, "RIGHT", -3, 0)
@@ -819,20 +915,6 @@ function CreateUIConfig()
 end
 
 do
-	function SlashCmdList.CONFIG(msg, editbox)
-		if not UIConfigMain or not UIConfigMain:IsShown() then
-			PlaySound("igMainMenuOption")
-			CreateUIConfig()
-			HideUIPanel(GameMenuFrame)
-		else
-			PlaySound("igMainMenuOption")
-			UIConfigMain:Hide()
-		end
-	end
-	SLASH_CONFIG1 = "/config"
-	SLASH_CONFIG2 = "/cfg"
-	SLASH_CONFIG3 = "/configui"
-
 	function SlashCmdList.RESETCONFIG()
 		if UIConfigMain and UIConfigMain:IsShown() then UIConfigCover:Show() end
 
@@ -920,12 +1002,17 @@ end
 --end)
 
 do
-	SLASH_CONFIG1 = '/kc'
-	SLASH_CONFIG2 = '/buds'
+	SLASH_CONFIG1 = "/kc"
+	SLASH_CONFIG2 = "/buds"
+	SLASH_CONFIG3 = "/config"
+	SLASH_CONFIG4 = "/cfg"
+	SLASH_CONFIG5 = "/configui"
 	function SlashCmdList.CONFIG(msg, editbox)
 		if not UIConfigMain or not UIConfigMain:IsShown() then
+			PlaySound("igMainMenuOption")
 			CreateUIConfig()
 		else
+			PlaySound("igMainMenuOption")
 			UIConfigMain:Hide()
 		end
 	end

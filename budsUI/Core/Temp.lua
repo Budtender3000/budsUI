@@ -7,7 +7,7 @@ local K, C, L, _ = select(2, ...):unpack()
 -- timestamp, event, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellID = ...
 -- timestamp, event, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellID, spellName = select (1, ...)
 
-if (K.Name == "Kkthnx" or K.Name == "Rollndots" or K.Name == "Safeword" or K.Name == "Broflex" or K.Name == "Broflexin") and (K.Realm == "Icecrown") then
+if C.General.DeveloperMode == true then
 
 	local GetZonePVPInfo = GetZonePVPInfo
 	local GetSpellInfo = GetSpellInfo

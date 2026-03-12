@@ -141,6 +141,7 @@ C["General"] = {
 	["UIScale"] = 0.71,
 	["MultisampleCheck"] = false,
 	["WelcomeMessage"] = true,
+	["DeveloperMode"] = false,
 }
 -- Loot Options
 C["Loot"] = {

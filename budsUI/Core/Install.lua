@@ -72,7 +72,7 @@ local function InstallUI()
 	InterfaceOptionsCombatPanelSelfCastKeyDropDown:SetValue("ALT")
 	InterfaceOptionsCombatPanelSelfCastKeyDropDown:RefreshValue()
 
-	if K.Name == "Kkthnx" or K.Name == "Rollndots" or K.Name == "Broflex" then
+	if C.General.DeveloperMode == true then
 		SetCVar("scriptErrors", 1)
 	end
 
@@ -231,7 +231,7 @@ StaticPopupDialogs["RELOAD_UI"] = {
 	button1 = ACCEPT,
 	button2 = CANCEL,
 	OnAccept = function() ReloadUI() end,
-	OnCancel = function() SavedOptionsPerChar.Install = false end,
+	OnCancel = function() end,
 	timeout = 0,
 	whileDead = 1,
 	hideOnEscape = false,
@@ -302,27 +302,26 @@ Install:SetScript("OnEvent", function(self, event, addon)
 		SetCVar("useUiScale", 0)
 		StaticPopup_Show("DISABLE_UI")
 	else
+		-- Is this causing crashes?
+		if C.General.MultisampleCheck == true then
+			local Multisample = GetCVar("gxMultisample")
+			if Multisample ~= "1" then
+				SetCVar("gxMultisample", 1)
+				StaticPopup_Show("RESTART_GFX")
+			end
+		end
 
-	-- Is this causing crashes?
-	if C.General.MultisampleCheck == true then
-	local Multisample = GetCVar("gxMultisample")
-	if Multisample ~= "1" then
-		SetCVar("gxMultisample", 1)
-		StaticPopup_Show("RESTART_GFX")
+		-- Install default if we never ran budsUI on this character
+		if not SavedOptionsPerChar.Install then
+			StaticPopup_Show("INSTALL_UI")
+		end
 	end
-end
-
-	-- Install default if we never ran budsUI on this character
-	if not SavedOptionsPerChar.Install then
-		StaticPopup_Show("INSTALL_UI")
-	end
-
-	self:UnregisterEvent("ADDON_LOADED")
-end
 
 	-- Welcome message
 	if C.General.WelcomeMessage == true then
 		print("|cffffe02e"..L_WELCOME_LINE_1..K.Version.." "..K.Client..", "..format("|cff%02x%02x%02x%s|r", K.Color.r * 255, K.Color.g * 255, K.Color.b * 255, K.Name)..".|r")
 		print("|cffffe02e"..L_WELCOME_LINE_2_1.."|cffffe02e"..L_WELCOME_LINE_2_2.."|r")
 	end
+
+	self:UnregisterEvent("ADDON_LOADED")
 end)
