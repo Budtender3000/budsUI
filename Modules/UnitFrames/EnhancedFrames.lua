@@ -185,6 +185,7 @@ EnhancedFrames_PlayerFrame_ToVehicleArt = function(self)
 end
 
 EnhancedFrames_TargetFrame_Update = function(self)
+	if not self or not self.unit or not self.healthbar then return end
 	-- Set back color of health bar
 	-- UnitIsTapDenied doesn't exist in WotLK, use UnitIsTapped and UnitIsTappedByPlayer instead
 	if (not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit)) then

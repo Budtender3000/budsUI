@@ -20,9 +20,9 @@ K.BetterFactionBarColors = BETTER_FACTION_BAR_COLORS
 -- Class Colors (extend the global RAID_CLASS_COLORS safely; do not overwrite the global table itself)
 do
 	local customClassColors = {
-		["HUNTER"] = {r = 255/255, g = 255/255, b = 255/255},
+		["HUNTER"] = {r = 171/255, g = 214/255, b = 116/255},
 		["WARLOCK"] = {r = 148/255, g = 130/255, b = 201/255},
-		["PRIEST"] = {r = 220/255, g = 235/255, b = 250/255},
+		["PRIEST"] = {r = 255/255, g = 255/255, b = 255/255},
 		["PALADIN"] = {r = 245/255, g = 140/255, b = 186/255},
 		["MAGE"] = {r = 105/255, g = 204/255, b = 240/255},
 		["ROGUE"] = {r = 255/255, g = 245/255, b = 105/255},
@@ -32,7 +32,14 @@ do
 		["DEATHKNIGHT"] = {r = 196/255, g = 30/255 , b = 59/255},
 	}
 	for class, color in pairs(customClassColors) do
-		RAID_CLASS_COLORS[class] = color
+		if RAID_CLASS_COLORS[class] then
+			RAID_CLASS_COLORS[class].r = color.r
+			RAID_CLASS_COLORS[class].g = color.g
+			RAID_CLASS_COLORS[class].b = color.b
+			RAID_CLASS_COLORS[class].colorStr = ("ff%02x%02x%02x"):format(color.r * 255, color.g * 255, color.b * 255)
+		else
+			RAID_CLASS_COLORS[class] = color
+		end
 	end
 end
 

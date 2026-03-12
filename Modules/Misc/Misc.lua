@@ -45,11 +45,6 @@ hooksecurefunc("WorldStateAlwaysUpFrame_Update", function()
 	for i = 1, NUM_ALWAYS_UP_UI_FRAMES do
 		local frame = _G["AlwaysUpFrame"..i]
 
-		if frame == AlwaysUpFrame1 then
-			local _, _, _, _, y = frame:GetPoint()
-			frame:SetPoint("TOP", WorldStateAlwaysUpFrame, "TOP", 0, 0)
-		end
-
 		local text = _G["AlwaysUpFrame"..i.."Text"]
 		text:ClearAllPoints()
 		text:SetPoint("CENTER", frame, "CENTER", 0, 0)
