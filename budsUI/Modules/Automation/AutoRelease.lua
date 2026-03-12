@@ -19,7 +19,7 @@ autoreleasepvp:SetScript("OnEvent", function(self, event)
 		if (tostring(GetZoneText()) == WINTERGRASP) then
 			RepopMe()
 		end
-		if MiniMapBattlefieldFrame.status == "active" then
+		if MiniMapBattlefieldFrame and MiniMapBattlefieldFrame.status == "active" then
 			RepopMe()
 		end
 	end

@@ -4,6 +4,15 @@ local function InGroup()
 	return (GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0) and true or false
 end
 
+local FeastSpells = {
+	[46887] = true, [43015] = true, [43478] = true, 
+	[34753] = true, [45279] = true, [43480] = true
+}
+
+local PortalSpells = {
+	[698] = true, [29893] = true, [58887] = true
+}
+
 -- Announce Feasts/Souls/Repair Bots/Portals/Ritual of Summoning
 -- It's better to use (self, event, ...) in the function, than put local _, subEvent, blabla = ... later, then it's easier to get the right arguments for each game client
 local frame = CreateFrame("Frame")
@@ -16,13 +25,13 @@ frame:SetScript("OnEvent", function(self, _, ...)
 	local srcName = srcName:gsub("%-[^|]+", "")
 	if subEvent == "SPELL_CAST_SUCCESS" then
 		-- Feasts
-		if C.Announcements.Feasts and (spellID == 46887 or spellID == 43015 or spellID == 43478 or spellID == 34753 or spellID == 45279 or spellID == 43480) then
+		if C.Announcements.Feasts and FeastSpells[spellID] then
 			SendChatMessage(format(L_ANNOUNCE_FP_PRE, srcName, GetSpellLink(spellID)), K.CheckChat(true))
 		-- Refreshment Table
 		elseif C.Announcements.Feasts and (spellID == 43987) then
 			SendChatMessage(format(L_ANNOUNCE_FP_PRE, srcName, GetSpellLink(spellID)), K.CheckChat(true))
 		-- Ritual of Summoning and Ritual of Souls
-		elseif C.Announcements.Portals and (spellID == 698 or spellID == 29893 or spellID == 58887) then
+		elseif C.Announcements.Portals and PortalSpells[spellID] then
 			SendChatMessage(format(L_ANNOUNCE_FP_CLICK, srcName, GetSpellLink(spellID)), K.CheckChat(true))
 		-- Piccolo of the Flaming Fire
 		elseif C.Announcements.Toys and (spellID == 18400) then

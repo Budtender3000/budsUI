@@ -18,6 +18,7 @@ TabBinder:RegisterEvent("CHAT_MSG_SYSTEM")
 TabBinder:RegisterEvent("ADDON_LOADED")
 
 local RTB_Fail, RTB_DefaultKey, RTB_LastTargetKey, RTB_TargetKey, RTB_CurrentBind, RTB_Success = false, true
+local RTB_ZoneChangedInCombat = false
 
 TabBinder:SetScript("OnEvent", function(self, event, ...)
 	if event == "CHAT_MSG_SYSTEM" then
@@ -25,7 +26,19 @@ TabBinder:SetScript("OnEvent", function(self, event, ...)
 		if RTBChatMessage == ERR_DUEL_REQUESTED then
 			event = "DUEL_REQUESTED"
 		end
-	elseif event == "ZONE_CHANGED_NEW_AREA" or (event == "PLAYER_REGEN_ENABLED" and RTB_Fail) or event == "DUEL_REQUESTED" or event == "DUEL_FINISHED" then
+	elseif event == "ZONE_CHANGED_NEW_AREA" then
+		if InCombatLockdown() then
+			RTB_ZoneChangedInCombat = true
+			return
+		end
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		if not RTB_Fail and not RTB_ZoneChangedInCombat then
+			return
+		end
+		RTB_ZoneChangedInCombat = false
+	end
+
+	if event == "ZONE_CHANGED_NEW_AREA" or event == "PLAYER_REGEN_ENABLED" or event == "DUEL_REQUESTED" or event == "DUEL_FINISHED" then
 		local RTB_BindSet = GetCurrentBindingSet()
 		local RTB_PVPType = GetZonePVPInfo()
 		local _, RTB_ZoneType = IsInInstance()

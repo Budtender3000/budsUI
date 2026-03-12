@@ -26,9 +26,10 @@ SellGreyRepair:SetScript("OnEvent", function(self, event)
 		for slot = 1, GetContainerNumSlots(bag) do
 			local item = GetContainerItemLink(bag, slot)
 			if item then
-				local itemValue = select(11, GetItemInfo(item)) * GetItemCount(item)
-
-				if select(3, GetItemInfo(item)) == 0 then
+				local _, _, itemRarity, _, _, _, _, _, _, _, itemSellPrice = GetItemInfo(item)
+				
+				if itemSellPrice and itemRarity == 0 then
+					local itemValue = itemSellPrice * GetItemCount(item)
 					ShowMerchantSellCursor(1)
 					UseContainerItem(bag, slot)
 

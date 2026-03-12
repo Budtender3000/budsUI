@@ -21,13 +21,13 @@ local function reset()
 end
 
 local function pull(self, elapsed)
-	local tname = UnitName("target")
-	if tname then
-		target = tname
-	else
-		target = ""
-	end
 	if not firstdone then
+		local tname = UnitName("target")
+		if tname then
+			target = tname
+		else
+			target = ""
+		end
 		SendChatMessage(format(L_ANNOUNCE_PC_MSG, target, tostring(delay)), K.CheckChat(true))
 		firstdone = true
 		delay = delay - 1
