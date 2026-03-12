@@ -234,7 +234,7 @@ local UploadBFacade = function()
 	if ButtonFacadeDB then wipe(ButtonFacadeDB) end
 	ButtonFacadeDB = {
 		["profileKeys"] = {
-			["Kkthnx - Lordaeron"] = "Default",
+			[K.Name.." - "..K.Realm] = "Default",
 		},
 		["profiles"] = {
 			["Default"] = {
@@ -257,7 +257,7 @@ local UploadThreatPlates = function()
 	if ThreatPlates3BetaDB then wipe(ThreatPlates3BetaDB) end
 	ThreatPlates3BetaDB = {
 		["char"] = {
-			["Kkthnx - Lordaeron"] = {
+			[K.Name.." - "..K.Realm] = {
 				["specInfo"] = {
 					{
 						nil, -- [1]
@@ -273,7 +273,7 @@ local UploadThreatPlates = function()
 			},
 		},
 		["profileKeys"] = {
-			["Kkthnx - Lordaeron"] = "Default",
+			[K.Name.." - "..K.Realm] = "Default",
 		},
 		["profiles"] = {
 			["Default"] = {
@@ -646,7 +646,7 @@ local UploadBartender4 = function()
 			},
 		},
 		["profileKeys"] = {
-			["Kkthnx - Lordaeron"] = "Default",
+			[K.Name.." - "..K.Realm] = "Default",
 		},
 		["profiles"] = {
 			["Default"] = {
@@ -664,7 +664,7 @@ local UploadPlates = function()
 	if NameplatesDB then wipe(NameplatesDB) end
 	NameplatesDB = {
 		["profileKeys"] = {
-			["Kkthnx - Lordaeron"] = "Default",
+			[K.Name.." - "..K.Realm] = "Default",
 		},
 		["profiles"] = {
 			["Default"] = {
@@ -700,10 +700,10 @@ local UploadClassTimer = function()
 	if ClassTimerDB then wipe(ClassTimerDB) end
 	ClassTimerDB = {
 		["profileKeys"] = {
-			["Kkthnx - Lordaeron"] = "Kkthnx - Lordaeron",
+			[K.Name.." - "..K.Realm] = K.Name.." - "..K.Realm,
 		},
 		["profiles"] = {
-			["Kkthnx - Lordaeron"] = {
+			[K.Name.." - "..K.Realm] = {
 				["Units"] = {
 					["player"] = {
 						["growup"] = true,

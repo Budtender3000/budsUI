@@ -13,6 +13,19 @@ local OFFSET_SIZE = 6
 local BORDER_LAYER = "OVERLAY"
 
 
+local function SetBorderLayer(self, layer)
+	local t = self.BorderTextures
+	if not t then return end
+
+	for pos, tex in pairs(t) do
+		tex:SetDrawLayer(layer or BORDER_LAYER)
+	end
+end
+
+local function GetBorderLayer(self)
+	return self.BorderTextures and self.BorderTextures.TOPLEFT:GetDrawLayer()
+end
+
 local sections = {"TOPLEFT", "TOP", "TOPRIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT", "LEFT", "RIGHT"}
 
 local function SetBackdropBorderColor(self, r, g, b, a)

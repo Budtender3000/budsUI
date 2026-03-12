@@ -15,7 +15,7 @@ local function CheckGitHubVersion()
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		
 		-- Wait 5 seconds after login to check
-		C_Timer.After(5, function()
+		K.Delay(5, function()
 			local currentVersion = K.Version
 			-- GitHub API URL for latest release
 			local url = "https://api.github.com/repos/Budtender3000/budsUI/releases/latest"

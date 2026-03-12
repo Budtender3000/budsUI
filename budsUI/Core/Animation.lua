@@ -16,7 +16,6 @@ function K:UIFrameFade_OnUpdate(elapsed)
 		fadeInfo = FADEFRAMES[index].fadeInfo
 		-- Reset the timer if there isn't one, this is just an internal counter
 		fadeInfo.fadeTimer = (fadeInfo.fadeTimer or 0) + elapsed
-		fadeInfo.fadeTimer = fadeInfo.fadeTimer + elapsed
 
 		-- If the fadeTimer is less then the desired fade time then set the alpha otherwise hold the fade state, call the finished function, or just finish the fade
 		if ( fadeInfo.fadeTimer < fadeInfo.timeToFade ) then

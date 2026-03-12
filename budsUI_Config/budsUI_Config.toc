@@ -2,7 +2,7 @@
 ## Title: |cff388bdbbudsUI Config|r
 ## Notes: |cff388bdbbudsUI|r Config GUI
 ## Author: Budtender3000
-## Version: 1.0
+## Version: 0.2.0
 ## SavedVariables: GUIConfigAll, GUIConfigSettings
 ## SavedVariablesPerCharacter: GUIConfig
 ## RequiredDeps: budsUI

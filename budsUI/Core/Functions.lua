@@ -255,18 +255,30 @@ K.Delay = function(delay, func, ...)
 			local i = 1
 			while(i <= count) do
 				local waitRecord = waitTable[i]
-				local d = waitRecord[1]
-				if(d > elapse) then
-					waitRecord[1] = d - elapse
-					i = i + 1
-				else
+				if(waitRecord[2] == nil) then
 					tremove(waitTable, i)
 					count = count - 1
-					waitRecord[2](unpack(waitRecord[3]))
+				else
+					local d = waitRecord[1]
+					if(d > elapse) then
+						waitRecord[1] = d - elapse
+						i = i + 1
+					else
+						tremove(waitTable, i)
+						count = count - 1
+						waitRecord[2](unpack(waitRecord[3]))
+					end
 				end
 			end
 		end)
 	end
-	tinsert(waitTable, {delay, func, {...}})
-	return true
+	local record = {delay, func, {...}}
+	tinsert(waitTable, record)
+	return record
+end
+
+K.CancelDelay = function(record)
+	if record then
+		record[2] = nil
+	end
 end

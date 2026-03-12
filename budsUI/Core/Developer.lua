@@ -117,7 +117,7 @@ SlashCmdList["FRAMELIST"] = function(msg)
 		CopyChatFrame:Hide()
 	end
 
-	ElvUI[1]:GetModule("Chat"):CopyChat(ChatFrame1)
+	SlashCmdList.COPYCHAT()
 	if(not isPreviouslyShown) then
 		FrameStackTooltip_Toggle()
 	end
