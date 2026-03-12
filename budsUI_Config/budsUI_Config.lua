@@ -208,6 +208,10 @@ local function Local(o)
 	if o == "UIConfigPowerBarHeight" then o = L_GUI_POWERBAR_HEIGHT end
 	if o == "UIConfigPowerBarDKRuneBar" then o = L_GUI_POWERBAR_HIDE_BLIZZ_RUNEBAR end
 	if o == "UIConfigPowerBarCombo" then o = L_GUI_POWERBAR_SHOW_COMBO end
+	if o == "UIConfigPowerBarMaelstrom" then o = L_GUI_POWERBAR_SHOW_MAELSTROM end
+	if o == "UIConfigPowerBarMaelstromSize" then o = L_GUI_POWERBAR_MAELSTROM_SIZE end
+	if o == "UIConfigPowerBarMaelstromPulse" then o = L_GUI_POWERBAR_MAELSTROM_PULSE end
+	if o == "UIConfigPowerBarMaelstromPulseAt" then o = L_GUI_POWERBAR_MAELSTROM_PULSE_AT end
 	if o == "UIConfigPowerBarMana" then o = L_GUI_POWERBAR_SHOW_MANA end
 	if o == "UIConfigPowerBarRage" then o = L_GUI_POWERBAR_SHOW_RAGE end
 	if o == "UIConfigPowerBarRune" then o = L_GUI_POWERBAR_SHOW_RUNE end

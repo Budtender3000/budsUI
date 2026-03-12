@@ -129,6 +129,7 @@
 	<Script file="Modules\Chat\TellTarget.lua"/>
 
 	<Script file="Modules\Class\Hunter.lua"/>
+	<Script file="Modules\Class\Shaman.lua"/>
 
 	<Script file="Modules\DataText\Battleground.lua"/>
 	<Script file="Modules\DataText\Location.lua"/>
