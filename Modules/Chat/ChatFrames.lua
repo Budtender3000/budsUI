@@ -32,17 +32,20 @@ local function ShortChannel(channel)
 end
 
 local function AddMessage(frame, str, ...)
-		str = str:gsub("|Hchannel:(.-)|h%[(.-)%]|h", ShortChannel)
-		str = str:gsub("CHANNEL:", "")
-		str = str:gsub("^(.-|h) "..L_CHAT_WHISPERS, "%1")
-		str = str:gsub("^(.-|h) "..L_CHAT_SAYS, "%1")
-		str = str:gsub("^(.-|h) "..L_CHAT_YELLS, "%1")
-		str = str:gsub("<"..AFK..">", "[|cffFF0000"..L_CHAT_AFK.."|r] ")
-		str = str:gsub("<"..DND..">", "[|cffE7E716"..L_CHAT_DND.."|r] ")
-		str = str:gsub("%[BN_CONVERSATION:", "%[1".."")
-		str = str:gsub("^%["..RAID_WARNING.."%]", "["..L_CHAT_RAID_WARNING.."]")
-
-		return origs[frame](frame, str, ...)
+	str = str:gsub("|Hchannel:(.-)|h%[(.-)%]|h", ShortChannel)
+	str = str:gsub("CHANNEL:", "")
+	str = str:gsub("^(.-|h) "..L_CHAT_WHISPERS, "%1")
+	str = str:gsub("^(.-|h) "..L_CHAT_SAYS, "%1")
+	str = str:gsub("^(.-|h) "..L_CHAT_YELLS, "%1")
+	str = str:gsub("<"..AFK..">", "[|cffFF0000"..L_CHAT_AFK.."|r] ")
+	str = str:gsub("<"..DND..">", "[|cffE7E716"..L_CHAT_DND.."|r] ")
+	str = str:gsub("%[BN_CONVERSATION:", "%[1".."")
+	str = str:gsub("^%["..RAID_WARNING.."%]", "["..L_CHAT_RAID_WARNING.."]")
+	-- T1: Guard against origs[frame] being nil (e.g. if called before SetChatStyle)
+	local orig = origs[frame]
+	if orig then
+		return orig(frame, str, ...)
+	end
 end
 
 FriendsMicroButton:Kill()
@@ -60,8 +63,13 @@ local function SetChatStyle(frame)
 
 	frame:SetClampRectInsets(0, 0, 0, 0)
 	frame:SetClampedToScreen(false)
-	frame:SetTimeVisible(C.Chat.FadeTime)
-	frame:SetFading(true)
+	-- Respect Fading option: false = messages stay visible forever; true = fade after FadeTime
+	if C.Chat.Fading == false then
+		frame:SetFading(false)
+	else
+		frame:SetFading(true)
+		frame:SetTimeVisible(C.Chat.FadeTime)
+	end
 
 	-- Move the chat edit box
 	editbox:ClearAllPoints()
@@ -88,9 +96,7 @@ local function SetChatStyle(frame)
 	_G[format("ChatFrame%sTabHighlightMiddle", id)]:Kill()
 	_G[format("ChatFrame%sTabHighlightRight", id)]:Kill()
 
-	_G[format("ChatFrame%sTabSelectedLeft", id)]:Kill()
-	_G[format("ChatFrame%sTabSelectedMiddle", id)]:Kill()
-	_G[format("ChatFrame%sTabSelectedRight", id)]:Kill()
+	-- T2: Duplicate Kill calls removed (already called at L83-85)
 
 	_G[format("ChatFrame%sButtonFrameUpButton", id)]:Kill()
 	_G[format("ChatFrame%sButtonFrameDownButton", id)]:Kill()
@@ -104,8 +110,12 @@ local function SetChatStyle(frame)
 
 	_G[format("ChatFrame%sTabGlow", id)]:Kill()
 
-	-- Kill off editbox artwork
-	local a, b, c = select(6, editbox:GetRegions()) a:Kill() b:Kill() c:Kill()
+	-- T3: Kill editbox artwork via type-safe region iteration (immune to region reordering)
+	for _, region in ipairs({editbox:GetRegions()}) do
+		if region:GetObjectType() == "Texture" then
+			region:Kill()
+		end
+	end
 
 	-- Kill bubble tex/glow
 	if tab.conversationIcon then tab.conversationIcon:Kill() end
@@ -120,25 +130,24 @@ local function SetChatStyle(frame)
 	editbox:HookScript("OnEditFocusGained", function(self) self:Show() end)
 	editbox:HookScript("OnEditFocusLost", function(self) self:Hide() end)
 
+	-- T4: Removed commented-out combat guard dead code; clear text instead of hiding (better UX)
 	local function OnTextChanged(self)
 		local text = self:GetText()
 
-		--if InCombatLockdown() then
 		local MIN_REPEAT_CHARACTERS = 5
-		if (len(text) > MIN_REPEAT_CHARACTERS) then
+		if len(text) > MIN_REPEAT_CHARACTERS then
 			local repeatChar = true
-			for i=1, MIN_REPEAT_CHARACTERS, 1 do
-				if (sub(text,(0-i), (0-i)) ~= sub(text,(-1-i),(-1-i)) ) then
+			for i = 1, MIN_REPEAT_CHARACTERS do
+				if sub(text, -i, -i) ~= sub(text, -i-1, -i-1) then
 					repeatChar = false
 					break
 				end
 			end
-			if ( repeatChar ) then
-				self:Hide()
+			if repeatChar then
+				self:SetText("")
 				return
 			end
 		end
-		--end
 
 		local new, found = gsub(text, "|Kf(%S+)|k(%S+)%s(%S+)|k", "%2 %3")
 		if found > 0 then
@@ -167,18 +176,25 @@ local function SetChatStyle(frame)
 			EditBoxBackground:SetBackdropBorderColor(r, g, b)
 		end
 
-		-- Update border color according where we talk
+		-- T5+T6: Renamed `type` → `chatType` (avoids shadowing global), nil-guarded ChatTypeInfo access
 		hooksecurefunc("ChatEdit_UpdateHeader", function()
-			local type = editbox:GetAttribute("chatType")
-			if type == "CHANNEL" then
+			local chatType = editbox:GetAttribute("chatType")
+			if not chatType then return end
+			if chatType == "CHANNEL" then
 				local id = GetChannelName(editbox:GetAttribute("channelTarget"))
-				if id == 0 then
-					colorize(unpack(C.Media.Border_Color))
+				local info = id and id ~= 0 and ChatTypeInfo[chatType..id]
+				if info then
+					colorize(info.r, info.g, info.b)
 				else
-					colorize(ChatTypeInfo[type..id].r, ChatTypeInfo[type..id].g, ChatTypeInfo[type..id].b)
+					colorize(unpack(C.Media.Border_Color))
 				end
 			else
-				colorize(ChatTypeInfo[type].r, ChatTypeInfo[type].g, ChatTypeInfo[type].b)
+				local info = ChatTypeInfo[chatType]
+				if info then
+					colorize(info.r, info.g, info.b)
+				else
+					colorize(unpack(C.Media.Border_Color))
+				end
 			end
 		end)
 	end
@@ -196,8 +212,7 @@ local function SetChatStyle(frame)
 		CombatLogQuickButtonFrame_CustomProgressBar:ClearAllPoints()
 		CombatLogQuickButtonFrame_CustomProgressBar:SetPoint("TOPLEFT", CombatLogQuickButtonFrame_Custom.backdrop, 4, -4)
 		CombatLogQuickButtonFrame_CustomProgressBar:SetPoint("BOTTOMRIGHT", CombatLogQuickButtonFrame_Custom.backdrop, -4, 4)
-		CombatLogQuickButtonFrame_CustomProgressBar:SetStatusBarTexture(C.Media.Texture)
-		CombatLogQuickButtonFrame_CustomProgressBar:SetStatusBarTexture(C.Media.Texture)
+		CombatLogQuickButtonFrame_CustomProgressBar:SetStatusBarTexture(C.Media.Texture) -- T7: Removed duplicate call
 		CombatLogQuickButtonFrameButton1:SetPoint("BOTTOM", 0, 0)
 	end
 
@@ -325,8 +340,10 @@ for i = 1, NUM_CHAT_WINDOWS do
 end
 
 -- Big Trade Chat
+-- T8: SLASH_* binding declared before SlashCmdList entry (WoW convention)
 local bigchat = false
-function SlashCmdList.BIGCHAT(msg, editbox)
+SLASH_BIGCHAT1 = "/bigchat"
+SlashCmdList.BIGCHAT = function(msg, editbox)
 	if bigchat == false then
 		ChatFrame1:SetSize(400, 400)
 		bigchat = true
@@ -337,4 +354,3 @@ function SlashCmdList.BIGCHAT(msg, editbox)
 		K.Print(L_CHAT_BIGCHAT_OFF)
 	end
 end
-SLASH_BIGCHAT1 = "/bigchat"

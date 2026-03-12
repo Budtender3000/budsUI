@@ -50,19 +50,21 @@ end
 -- If you pass on the arguments in that function, you need to pass the ... along, or it might break the functionality
 if C.Chat.Spam == true then
 	-- Repeat spam filter
-	local lastMessage
+	-- T19: Module-local state replaces frame pollution (Blizzard frames should not be mutated)
+	-- T20: Removed dead `lastMessage` variable (was set but never read independently)
+	local repeatState = {}
 	local function repeatMessageFilter(self, event, text, sender)
 		if sender == K.Name or UnitIsInMyGuild(sender) then return end
-		if not self.repeatMessages or self.repeatCount > 100 then
-			self.repeatCount = 0
-			self.repeatMessages = {}
+		local state = repeatState[self]
+		if not state or state.count > 100 then
+			state = {count = 0, messages = {}}
+			repeatState[self] = state
 		end
-		lastMessage = self.repeatMessages[sender]
-		if lastMessage == text then
+		if state.messages[sender] == text then
 			return true
 		end
-		self.repeatMessages[sender] = text
-		self.repeatCount = self.repeatCount + 1
+		state.messages[sender] = text
+		state.count = state.count + 1
 	end
 
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL", repeatMessageFilter)

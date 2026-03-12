@@ -7,6 +7,32 @@ local InCombatLockdown = InCombatLockdown
 
 INTERFACE_ACTION_BLOCKED = ""
 
+-- Suppress Ascension's CallBoardUI debug print: "no cost data for CategoryType: nil Category: nil"
+-- This is a debug message printed by the game's own CallBoard Lua when no category is selected.
+do
+	local origAddMessage = DEFAULT_CHAT_FRAME.AddMessage
+	DEFAULT_CHAT_FRAME.AddMessage = function(self, msg, ...)
+		if type(msg) == "string" and msg:find("no cost data for CategoryType:") then
+			return
+		end
+		return origAddMessage(self, msg, ...)
+	end
+end
+
+-- Polyfill FontString:WrapText() for Ascension's custom FrameXML
+-- Ascension_CharacterFrame uses WrapText() which is a Retail-only API.
+-- In WotLK 3.3.5a the equivalent is SetWordWrap().
+do
+	local holder = CreateFrame("Frame")
+	local tmp = holder:CreateFontString()
+	local mt = getmetatable(tmp).__index
+	if mt and not mt.WrapText then
+		mt.WrapText = function(self, enable)
+			return self:SetWordWrap(enable ~= false)
+		end
+	end
+end
+
 -- Fix RemoveTalent() taint
 FCF_StartAlertFlash = K.Noop
 

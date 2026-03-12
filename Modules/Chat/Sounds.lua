@@ -1,4 +1,4 @@
-﻿local K, C, L, _ = select(2, ...):unpack()
+local K, C, L, _ = select(2, ...):unpack()
 if C.Chat.Enable ~= true or C.Chat.WhispSound ~= true then return end
 
 local sub = string.sub
@@ -9,7 +9,8 @@ local PlaySoundFile = PlaySoundFile
 local SoundSys = CreateFrame("Frame")
 SoundSys:RegisterEvent("CHAT_MSG_WHISPER")
 SoundSys:RegisterEvent("CHAT_MSG_BN_WHISPER")
-SoundSys:HookScript("OnEvent", function(self, event, ...)
+-- T22: SetScript (not HookScript) is correct for a freshly created frame with no prior handler
+SoundSys:SetScript("OnEvent", function(self, event)
 	if event == "CHAT_MSG_WHISPER" or event == "CHAT_MSG_BN_WHISPER" then
 		PlaySoundFile(C.Media.Whisp_Sound, "Master")
 	end

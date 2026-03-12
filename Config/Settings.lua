@@ -97,6 +97,7 @@ C["Chat"] = {
 	["CombatLog"] = true,
 	["DamageMeterSpam"] = false,
 	["Enable"] = true,
+	["Fading"] = true,
 	["Filter"] = true,
 	["Height"] = 150,
 	["Outline"] = false,

@@ -1,4 +1,6 @@
 local K, C, L, _ = select(2, ...):unpack()
+-- T9: Guard: return early if Chat module disabled
+if C.Chat.Enable ~= true then return end
 
 local _G = _G
 local CreateFrame = CreateFrame
@@ -75,9 +77,11 @@ local faneifyTab = function(frame, sel)
 			frame:SetAlpha(1)
 
 			if i ~= 2 then
-				-- Might not be the best solution, but we avoid hooking into the UIFrameFade
-				-- system this way.
-				frame.SetAlpha = UIFrameFadeRemoveFrame
+				-- T10: Proper closure so intent is explicit: intercept SetAlpha to prevent Blizzard
+				-- fade system from dimming the tab and remove it from fade tracking.
+				frame.SetAlpha = function(self, alpha)
+					UIFrameFadeRemoveFrame(self)
+				end
 			else
 				frame.SetAlpha = ChatFrame2_SetAlpha
 				frame.GetAlpha = ChatFrame2_GetAlpha
@@ -111,6 +115,12 @@ for i = 1, NUM_CHAT_WINDOWS do
 	faneifyTab(_G["ChatFrame"..i.."Tab"])
 end
 
+-- T11: Explicit OnEvent dispatch script required for method-as-handler pattern
+Fane:SetScript("OnEvent", function(self, event, ...)
+	if self[event] then self[event](self, event, ...) end
+end)
+Fane:RegisterEvent("ADDON_LOADED")
+
 function Fane:ADDON_LOADED(event, addon)
 	if addon == "Blizzard_CombatLog" then
 		self:UnregisterEvent(event)
@@ -119,4 +129,3 @@ function Fane:ADDON_LOADED(event, addon)
 		return CombatLogQuickButtonFrame_Custom:SetAlpha(0.4)
 	end
 end
-Fane:RegisterEvent("ADDON_LOADED")

@@ -1,4 +1,4 @@
-﻿local K, C, L, _ = select(2, ...):unpack()
+local K, C, L, _ = select(2, ...):unpack()
 if C.Chat.Enable ~= true then return end
 
 local _G = _G
@@ -13,8 +13,9 @@ for i = 1, NUM_CHAT_WINDOWS do
 	local editbox = _G["ChatFrame"..i.."EditBox"]
 	editbox:HookScript("OnTextChanged", function(self)
 		local text = self:GetText()
-		if text:len() < 7 then
-			if text:sub(1, 4) == "/tt " or text:sub(1, 6) == "/ее " then
+		-- T26: Use localized len/sub upvalues for consistency (avoid method call overhead)
+		if len(text) < 7 then
+			if sub(text, 1, 4) == "/tt " or sub(text, 1, 6) == "/ее " then
 				if UnitCanCooperate("player", "target") then
 					ChatFrame_SendTell((GetUnitName("target", true)), ChatFrame1)
 				end
@@ -24,7 +25,13 @@ for i = 1, NUM_CHAT_WINDOWS do
 end
 
 -- Slash command
-SlashCmdList.TELLTARGET = function(msg)
-	SendChatMessage(msg, "WHISPER")
-end
+-- T25: Fixed SendChatMessage call to include target name argument (was missing, causing silent failure)
 SLASH_TELLTARGET1 = "/tt"
+SlashCmdList.TELLTARGET = function(msg)
+	local target = GetUnitName("target", true)
+	if target then
+		SendChatMessage(msg, "WHISPER", nil, target)
+	else
+		K.Print("No target selected.")
+	end
+end

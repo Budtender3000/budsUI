@@ -1,4 +1,4 @@
-﻿local K, C, L, _ = select(2, ...):unpack()
+local K, C, L, _ = select(2, ...):unpack()
 if C.Chat.Enable ~= true or C.Chat.DamageMeterSpam ~= true then return end
 
 local ipairs = ipairs
@@ -111,14 +111,17 @@ function SetItemRef(link, text, button, frame)
 	local linkType, id = strsplit(":", link)
 	if linkType == "MergeSpamMeter" then
 		local meterID = tonumber(id)
+		-- T24: Guard against stale/invalid meter links that no longer exist in the table
+		local meterData = meters[meterID]
+		if not meterData then return end
 		ShowUIPanel(ItemRefTooltip)
 		if not ItemRefTooltip:IsShown() then
 			ItemRefTooltip:SetOwner(UIParent, "ANCHOR_PRESERVE")
 		end
 		ItemRefTooltip:ClearLines()
-		ItemRefTooltip:AddLine(meters[meterID].title)
-		ItemRefTooltip:AddLine(format(BY_SOURCE..": %s", meters[meterID].source))
-		for k, v in ipairs(meters[meterID].data) do
+		ItemRefTooltip:AddLine(meterData.title)
+		ItemRefTooltip:AddLine(format(BY_SOURCE..": %s", meterData.source))
+		for k, v in ipairs(meterData.data) do
 			local left, right = v:match("^(.*) (.*)$")
 			if left and right then
 				ItemRefTooltip:AddDoubleLine(left, right, 1, 1, 1, 1, 1, 1)
@@ -138,7 +141,11 @@ local function ParseChatEvent(self, event, message, sender, ...)
 			local isRecount, isFirstLine, newMessage = FilterLine(event, sender, message)
 			if isRecount then
 				if isFirstLine then
-					return false, newMessage, sender, ...
+					-- T23: Guard nil newMessage before passing to chat system
+					if newMessage then
+						return false, newMessage, sender, ...
+					end
+					return true  -- suppress if no replacement message available
 				else
 					return true
 				end

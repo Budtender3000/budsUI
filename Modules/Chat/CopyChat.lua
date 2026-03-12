@@ -14,10 +14,9 @@ local GetSpellInfo = GetSpellInfo
 
 -- Copy Chat
 local lines = {}
-local frame = nil
-local editBox = nil
-local isf = nil
-local tex = select(3, GetSpellInfo(6310))
+-- T12: Idiomatic Lua: declare multiple locals without redundant nil assignment
+-- T13: Removed dead code `tex = select(3, GetSpellInfo(6310))` — tex was never referenced
+local frame, editBox, isf
 local sizes = {
 	":14:14",
 	":15:15",
@@ -26,7 +25,8 @@ local sizes = {
 	":14"
 }
 
-local function CreatCopyFrame()
+-- T14: Fixed typo: CreatCopyFrame -> CreateCopyFrame
+local function CreateCopyFrame()
 	frame = CreateFrame("Frame", "CopyFrame", UIParent)
 	frame:SetBackdrop(K.Backdrop)
 	frame:SetBackdropBorderColor(unpack(C.Media.Border_Color))
@@ -39,7 +39,7 @@ local function CreatCopyFrame()
 
 	local scrollArea = CreateFrame("ScrollFrame", "CopyScroll", frame, "UIPanelScrollFrameTemplate")
 	scrollArea:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -30)
-	scrollArea:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -30, 8)
+	-- T15: Removed first BOTTOMRIGHT SetPoint here; set together with final position after close button (line ~67)
 
 	editBox = CreateFrame("EditBox", "CopyBox", frame)
 	editBox:SetMultiLine(true)
@@ -80,7 +80,7 @@ local function Copy(cf)
 	end
 	text = text:gsub("|[Tt]Interface\\TargetingFrame\\UI%-RaidTargetingIcon_(%d):0|[Tt]", "{rt%1}")
 	text = text:gsub("|[Tt][^|]+|[Tt]", "")
-	if not isf then CreatCopyFrame() end
+	if not isf then CreateCopyFrame() end
 	if frame:IsShown() then frame:Hide() return end
 	frame:Show()
 	editBox:SetText(text)
@@ -110,8 +110,10 @@ for i = 1, NUM_CHAT_WINDOWS do
 	button:HookScript("OnLeave", function()
 		K:UIFrameFadeOut(button, 1, button:GetAlpha(), 0)
 	end)
+end
 
-	SlashCmdList.COPY_CHAT = function()
-		Copy(_G["ChatFrame1"])
-	end
+-- T16: Moved slash command outside loop; added required SLASH_* binding so command is actually registered
+SLASH_COPYCHAT1 = "/copychat"
+SlashCmdList.COPYCHAT = function()
+	Copy(_G["ChatFrame1"])
 end

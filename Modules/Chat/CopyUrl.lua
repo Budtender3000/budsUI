@@ -31,26 +31,25 @@ for _, event in pairs({
 }) do
 	ChatFrame_AddMessageEventFilter(event, function(self, event, str, ...)
 		for _, pattern in pairs(patterns) do
-			local result, match = gsub(str, pattern, "|cff00FF00|Hurl:%1|h[%1]|h|r")
-			if match > 0 then
+			-- T17: Renamed `match` -> `count` to avoid shadowing the outer string.match upvalue
+			local result, count = gsub(str, pattern, "|cff00FF00|Hurl:%1|h[%1]|h|r")
+			if count > 0 then
 				return false, result, ...
 			end
 		end
 	end)
 end
 
-local SetHyperlink = _G.ItemRefTooltip.SetHyperlink
+-- T18: Defensive wrapper preserving prior addon overrides (avoids raw method clobber)
+-- Intentional: intercepts `url:` hyperlinks to insert them into the chat edit box.
+local origSetHyperlink = _G.ItemRefTooltip.SetHyperlink
 function _G.ItemRefTooltip:SetHyperlink(link, ...)
 	if link and (strsub(link, 1, 3) == "url") then
-		local url = strsub(link, 5)
-
 		local editbox = ChatEdit_ChooseBoxForSend()
 		ChatEdit_ActivateChat(editbox)
 		editbox:Insert(sub(link, 5))
 		editbox:HighlightText()
-
 		return
 	end
-
-	SetHyperlink(self, link, ...)
+	return origSetHyperlink(self, link, ...)
 end
