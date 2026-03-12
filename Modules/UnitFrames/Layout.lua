@@ -166,7 +166,7 @@ if C.Unitframe.Enable == true then
 			-- PlayerFrame.SetPoint = K.Noop
 
 			-- Hide Pet Name.
-			PetName:SetAlpha(0)
+			PetName:Hide()
 
 			-- Tweak Target Frame
 			TargetFrame:SetMovable(true)
@@ -195,44 +195,6 @@ if C.Unitframe.Enable == true then
 			FocusFrameToT:SetScale(1.0)
 			FocusFrameToT:ClearAllPoints()
 			FocusFrameToT:SetPoint("TOP", FocusFrame, "BOTTOM", 34, 35)
-
-			-- FIX FOR TOT TAINT
-			for _, frame in pairs({TargetFrameToT, FocusFrameToT}) do
-				local maxD = 0
-				while _G[frame:GetName().."Debuff"..(maxD+1)] do maxD = maxD + 1 end
-				frame.maxDebuffs = maxD
-			end
-
-			local function InsecureToT_Update(self, elapsed)
-				self.elapsed = (self.elapsed or 0) + elapsed
-				if self.elapsed < 0.2 then return end
-				self.elapsed = 0
-
-				if not self:IsShown() then return end
-				local parent = self:GetParent()
-				local unit = parent.unit.."target"
-				
-				if not UnitExists(unit) then return end
-
-				UnitFrame_Update(self)
-				TargetofTarget_CheckDead(self)
-				TargetofTargetHealthCheck(self)
-				if RefreshDebuffs and self.maxDebuffs > 0 then
-					RefreshDebuffs(self, unit, self.maxDebuffs, nil, true)
-				end
-			end
-
-			TargetFrame.totFrame = nil
-			FocusFrame.totFrame = nil
-
-			TargetFrameToT:SetAttribute("unit", "targettarget")
-			RegisterUnitWatch(TargetFrameToT)
-			TargetFrameToT:SetScript("OnUpdate", InsecureToT_Update)
-
-			FocusFrameToT:SetAttribute("unit", "focustarget")
-			RegisterUnitWatch(FocusFrameToT)
-			FocusFrameToT:SetScript("OnUpdate", InsecureToT_Update)
-
 
 			-- Arena Frames Scaling
 			local function SetArenaFrames()
