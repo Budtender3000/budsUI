@@ -1,7 +1,7 @@
  # budsUI
 
 <div align="center">
-  <img src="budsUI/Media/assets/budsui_logo.png" alt="budsUI Logo">
+  <img src="budsUI/Media/assets/budsui_logo.png" alt="budsUI Logo" width="250">
 </div>
 
 A comprehensive, full UI-replacement AddOn for **World of Warcraft 3.3.5 (Wrath of the Lich King)**, built for the [Ascension.gg](https://ascension.gg) classless server.
