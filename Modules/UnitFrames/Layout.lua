@@ -65,7 +65,7 @@ if C.Unitframe.Enable == true then
 						else
 							color = PET_COLOR
 						end
-					elseif UnitIsDeadOrGhost(unit) or UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
+					elseif UnitIsDeadOrGhost(unit) or (UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit)) then
 						color = GRAY_FONT_COLOR
 					else
 						color = CUSTOM_FACTION_BAR_COLORS[UnitIsEnemy(unit, "player") and 1 or UnitReaction(unit, "player") or 5]
@@ -251,7 +251,6 @@ if not InCombatLockdown() then
 					local t = CLASS_ICON_TCOORDS[select(2, UnitClass(self.unit))]
 					if t then
 						self.portrait:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
-						--self.portrait:SetTexture("Interface\\AddOns\\budsUI\\Media\\Test\\UI-CLASSES-CIRCLES")
 						self.portrait:SetTexCoord(unpack(t))
 					end
 				else
@@ -281,12 +280,12 @@ end
 -- Remove Portrait Damage Spam
 if C.Unitframe.CombatFeedback == true then
 	PlayerHitIndicator:SetText(nil)
-	-- PlayerHitIndicator.SetText = K.Noop
+	PlayerHitIndicator.SetText = K.Noop
 end
 
 -- Remove Group Number Frame
 if C.Unitframe.GroupNumber == true then
-	-- PlayerFrameGroupIndicator.Show = K.Noop
+	PlayerFrameGroupIndicator.Show = K.Noop
 end
 
 -- Remove PvPIcons

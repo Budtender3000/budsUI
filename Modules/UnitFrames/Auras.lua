@@ -22,7 +22,6 @@ local function TargetAuraColour(self)
 		if bframe then
 			bframe:SetScale(1)
 			K.CreateBorder(bframe, 8)
-			--bframe:SetBackdropBorderColor(unpack(C.Media.Border_Color))
 
 			bframecd:ClearAllPoints()
 			bframecd:SetPoint("TOPLEFT", bframe, 1.5, -1.5)
@@ -44,13 +43,14 @@ local function TargetAuraColour(self)
 			K.CreateBorder(dframe, 8)
 
 			-- border colour
-			local dname = UnitDebuff(self.unit, i)
-			local _, _, _, _, dtype = UnitDebuff(self.unit, i)
+			local dname, _, _, _, dtype = UnitDebuff(self.unit, i)
 			if dname then
 				local colour = DebuffTypeColor[dtype] or DebuffTypeColor.none
 				local auborder = _G[self:GetName().."Debuff"..i.."Border"]
-				auborder:Hide()
-				auborder = K.Noop
+				if auborder then
+					auborder:Hide()
+					auborder.Show = K.Noop
+				end
 				dframe:SetBackdropBorderColor(colour.r, colour.g, colour.b)
 			else
 				dframe:SetBackdropBorderColor(unpack(C.Media.Border_Color))
@@ -72,9 +72,12 @@ local function TargetAuraColour(self)
 	end
 end
 
+local beauty = _G["!BeautyCase"] or _G["BeautyCase"]
+
 -- reposition
 local function TargetAuraPosit(self, auraName, numAuras, numOppositeAuras, largeAuraList, updateFunc, maxRowWidth, offsetX, mirrorAurasVertically)
-	if beauty then
+	if not beauty then return end
+	do
 		local AURA_OFFSET_Y = C.Unitframe.AuraOffsetY
 		local LARGE_AURA_SIZE = C.Unitframe.LargeAuraSize
 		local SMALL_AURA_SIZE = C.Unitframe.SmallAuraSize

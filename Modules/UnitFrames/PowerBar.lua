@@ -8,6 +8,8 @@ local GetRuneCooldown = GetRuneCooldown
 local GetTime = GetTime
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitHasVehicleUI = UnitHasVehicleUI
+local floor = math.floor
+local ceil = math.ceil
 
 if (K.Class == "DEATHKNIGHT" and C.PowerBar.DKRuneBar) then
 	for i = 1, 6 do
@@ -156,7 +158,7 @@ end
 local function UpdateBarVisibility()
 	local _, powerType = UnitPowerType("player")
 
-	if ((not C.PowerBar.Enable and powerType == "ENERGY") or (not C.PowerBar.Rage and powerType == "RAGE") or (not C.PowerBar.Mana and powerType == "MANA") or (not C.PowerBar.Rune and powerType == "RUNEPOWER") or UnitIsDeadOrGhost("player") or UnitHasVehicleUI("player")) then
+	if ((not C.PowerBar.Rage and powerType == "RAGE") or (not C.PowerBar.Mana and powerType == "MANA") or (not C.PowerBar.Rune and powerType == "RUNEPOWER") or UnitIsDeadOrGhost("player") or UnitHasVehicleUI("player")) then
 		f.Power:SetAlpha(0)
 	elseif (InCombatLockdown()) then
 		securecall("UIFrameFadeIn", f.Power, 0.3, f.Power:GetAlpha(), 1)
@@ -168,14 +170,15 @@ local function UpdateBarVisibility()
 end
 
 local function UpdateBarValue()
-	f.Power:SetMinMaxValues(0, UnitPowerMax("player", f))
-	f.Power:SetValue(UnitPower("player"))
+	local powerType = UnitPowerType("player")
+	f.Power:SetMinMaxValues(0, UnitPowerMax("player", powerType))
+	local curValue = UnitPower("player", powerType)
+	f.Power:SetValue(curValue)
 
-	local curValue = UnitPower("player")
 	if (C.PowerBar.ValueAbbreviate) then
-		f.Power.Value:SetText(UnitPower("player") > 0 and K.ShortValue(curValue) or "")
+		f.Power.Value:SetText(curValue > 0 and K.ShortValue(curValue) or "")
 	else
-		f.Power.Value:SetText(UnitPower("player") > 0 and curValue or "")
+		f.Power.Value:SetText(curValue > 0 and curValue or "")
 	end
 end
 

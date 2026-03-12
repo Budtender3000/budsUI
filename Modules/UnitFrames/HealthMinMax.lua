@@ -1,18 +1,17 @@
 local K, C, L, _ = select(2, ...):unpack()
 if C.Unitframe.Enable ~= true then return end
 
-local min, max = math.min, math.max
 
 if C.Unitframe.ClassHealth == false and C.Unitframe.PercentHealth == true then
-	function HealthBar_OnValueChanged(self, value, smooth)
+	hooksecurefunc("HealthBar_OnValueChanged", function(self, value, smooth)
 		if not value then return end
 		local r, g, b
-		local min, max = self:GetMinMaxValues()
+		local vMin, vMax = self:GetMinMaxValues()
 
-		if value < min or value > max then return end
+		if value < vMin or value > vMax then return end
 
-		if (max - min) > 0 then
-			value = (value - min)/(max - min)
+		if (vMax - vMin) > 0 then
+			value = (value - vMin)/(vMax - vMin)
 		else
 			value = 0
 		end
@@ -25,5 +24,5 @@ if C.Unitframe.ClassHealth == false and C.Unitframe.PercentHealth == true then
 		end
 		b = 0
 		self:SetStatusBarColor(r, g, b)
-	end
+	end)
 end

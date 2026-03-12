@@ -8,7 +8,7 @@ local max = math.max
 local pairs, ipairs = pairs, ipairs
 
 local SmoothFrame = CreateFrame("Frame")
-Smoothing = {}
+local Smoothing = {}
 
 local BarsToSmooth = { -- SMOOTH ANIM ON PLAYER, TARGET, XP, REP, SKILL STATUSBARS
 	-- ALSO NAMEPLATES
@@ -61,33 +61,39 @@ local function SmoothSetValue(self, value)
 	self._max = max
 end
 
-for bar, value in pairs(Smoothing) do
-	if bar.SetValue_ then bar.SetValue = SmoothSetValue end
-end
+
 
 local function SmoothBar(bar)
 	if not bar.SetValue_ then
-		bar.SetValue_ = bar.SetValue bar.SetValue = SmoothSetValue
+		bar.SetValue_ = bar.SetValue
+		bar.SetValue = SmoothSetValue
 	end
 end
 
 local function ResetBar(bar)
 	if bar.SetValue_ then
-		bar.SetValue = bar.SetValue_ bar.SetValue_ = nil
+		bar.SetValue = bar.SetValue_
+		bar.SetValue_ = nil
 	end
 end
 
-SmoothFrame:SetScript("OnUpdate", function()
-	local frames = {WorldFrame:GetChildren()}
-	for _, plate in ipairs(frames) do
-		if isPlate(plate) and plate:IsVisible() then
-			local v = plate:GetChildren()
-			SmoothBar(v)
+local plateCache = {}
+local plateScanTimer = 0
+
+SmoothFrame:SetScript("OnUpdate", function(self, elapsed)
+	plateScanTimer = plateScanTimer + elapsed
+	if plateScanTimer > 0.5 then
+		plateScanTimer = 0
+		local frames = {WorldFrame:GetChildren()}
+		for _, plate in ipairs(frames) do
+			if isPlate(plate) and not plateCache[plate] then
+				local v = plate:GetChildren()
+				SmoothBar(v)
+				plateCache[plate] = true
+			end
 		end
 	end
 	AnimationTick()
 end)
 
 for _, v in pairs (BarsToSmooth) do if v then SmoothBar(v) end end
-SmoothFrame:RegisterEvent"ADDON_LOADED"
-SmoothFrame:SetScript("OnEvent", function() end)

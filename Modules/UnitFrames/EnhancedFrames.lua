@@ -10,6 +10,20 @@ local MAX_PARTY_MEMBERS = MAX_PARTY_MEMBERS
 local GetCVar = GetCVar
 local EnhancedFrames = CreateFrame("Frame")
 
+local EnhancedFrames_Style_PlayerFrame
+local EnhancedFrames_Style_TargetFrame
+local EnhancedFrames_BossTargetFrame_Style
+local EnhancedFrames_UpdateTextStringWithValues
+local EnhancedFrames_PlayerFrame_ToPlayerArt
+local EnhancedFrames_PlayerFrame_ToVehicleArt
+local EnhancedFrames_TargetFrame_Update
+local EnhancedFrames_Target_Classification
+local EnhancedFrames_TargetFrame_CheckFaction
+local EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt
+local EnhancedPartyFrames_PartyMemberFrame_ToVehicleArt
+local EnableEnhancedFrames
+local EnhancedFrames_StartUp
+
 -- EVENT LISTENER TO MAKE SURE WE ENABLE THE ADDON AT THE RIGHT TIME
 local hasInitialized = false
 function EnhancedFrames:PLAYER_ENTERING_WORLD()
@@ -22,10 +36,9 @@ function EnhancedFrames:PLAYER_ENTERING_WORLD()
 			EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt(_G["PartyMemberFrame"..i])
 		end
 	end
-	--EnableEnhancedPartyFrames()
 end
 
-function EnableEnhancedFrames()
+EnableEnhancedFrames = function()
 	-- GENERIC STATUS TEXT HOOK
 	hooksecurefunc("TextStatusBar_UpdateTextString", EnhancedFrames_UpdateTextStringWithValues)
 
@@ -60,7 +73,7 @@ function EnableEnhancedFrames()
 	TextStatusBar_UpdateTextString(PlayerFrame.manabar)
 end
 
-function EnhancedFrames_Style_PlayerFrame()
+EnhancedFrames_Style_PlayerFrame = function()
 	if not InCombatLockdown() then
 		PlayerName:SetWidth(0.01)
 
@@ -74,7 +87,7 @@ function EnhancedFrames_Style_PlayerFrame()
 	PlayerStatusTexture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-Player-Status")
 end
 
-function EnhancedFrames_Style_TargetFrame(self)
+EnhancedFrames_Style_TargetFrame = function(self)
 	if not InCombatLockdown() then
 		local classification = UnitClassification(self.unit)
 		if (classification == "minus") then
@@ -98,7 +111,7 @@ function EnhancedFrames_Style_TargetFrame(self)
 	end
 end
 
-function EnhancedFrames_BossTargetFrame_Style(self)
+EnhancedFrames_BossTargetFrame_Style = function(self)
 	if not self then return end
 
 	if self.borderTexture then
@@ -108,7 +121,7 @@ function EnhancedFrames_BossTargetFrame_Style(self)
 	EnhancedFrames_Style_TargetFrame(self)
 end
 
-function EnhancedFrames_UpdateTextStringWithValues(textStatusBar)
+EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
 	local textString = textStatusBar.TextString
 	if(textString) then
 		local value = textStatusBar:GetValue()
@@ -158,20 +171,20 @@ function EnhancedFrames_UpdateTextStringWithValues(textStatusBar)
 	end
 end
 
-function EnhancedFrames_PlayerFrame_ToPlayerArt(self)
+EnhancedFrames_PlayerFrame_ToPlayerArt = function(self)
 	if not InCombatLockdown() then
 		EnhancedFrames_Style_PlayerFrame()
 	end
 end
 
-function EnhancedFrames_PlayerFrame_ToVehicleArt(self)
+EnhancedFrames_PlayerFrame_ToVehicleArt = function(self)
 	if not InCombatLockdown() then
 		PlayerFrameHealthBar:SetHeight(12)
 		PlayerFrameHealthBarText:SetPoint("CENTER", 50, 3)
 	end
 end
 
-function EnhancedFrames_TargetFrame_Update(self)
+EnhancedFrames_TargetFrame_Update = function(self)
 	-- Set back color of health bar
 	-- UnitIsTapDenied doesn't exist in WotLK, use UnitIsTapped and UnitIsTappedByPlayer instead
 	if (not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit)) then
@@ -180,7 +193,7 @@ function EnhancedFrames_TargetFrame_Update(self)
 	end
 end
 
-function EnhancedFrames_Target_Classification(self, forceNormalTexture)
+EnhancedFrames_Target_Classification = function(self, forceNormalTexture)
 	local texture
 	local classification = UnitClassification(self.unit)
 	if (classification == "worldboss" or classification == "elite") then
@@ -201,7 +214,7 @@ function EnhancedFrames_Target_Classification(self, forceNormalTexture)
 	self.nameBackground:Hide()
 end
 
-function EnhancedFrames_TargetFrame_CheckFaction(self)
+EnhancedFrames_TargetFrame_CheckFaction = function(self)
 	local factionGroup = UnitFactionGroup(self.unit)
 	if (UnitIsPVPFreeForAll(self.unit)) then
 		self.pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA")
@@ -219,7 +232,7 @@ function EnhancedFrames_TargetFrame_CheckFaction(self)
 	EnhancedFrames_Style_TargetFrame(self)
 end
 
-function EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt(self)
+EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt = function(self)
 	if not InCombatLockdown() then
 		if self.healthbar and self.healthbar.TextString then
 			self.healthbar.TextString:SetPoint("CENTER", self.healthbar, "CENTER", 0, 1)
@@ -259,16 +272,18 @@ function EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt(self)
 end
 
 -- UPDATE SETTINGS SPECIFIC TO PARTY MEMBER UNIT FRAMES WHEN IN VEHICLES
-function EnhancedPartyFrames_PartyMemberFrame_ToVehicleArt(self)
+EnhancedPartyFrames_PartyMemberFrame_ToVehicleArt = function(self)
 	if not InCombatLockdown() then
+		local tex = "Interface\\Addons\\budsUI\\Media\\Unitframes\\VehiclePartyFrame"
 		for i = 1, 4 do
-			_G["PartyMemberFrame"..i.."VehicleTexture"]:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\VehiclePartyFrame")
+			local f = _G["PartyMemberFrame"..i.."VehicleTexture"]
+			if f then f:SetTexture(tex) end
 		end
 	end
 end
 
 -- BOOTSTRAP
-function EnhancedFrames_StartUp(self)
+EnhancedFrames_StartUp = function(self)
 	self:SetScript("OnEvent", function(self, event) self[event](self) end)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 end

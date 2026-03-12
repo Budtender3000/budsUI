@@ -34,7 +34,6 @@ CastBars:SetScript("OnEvent", function(self, event, addon)
 		CastingBarFrame:ClearAllPoints()
 		CastingBarFrame:SetScale(C.Unitframe.CastBarScale)
 		CastingBarFrame:SetPoint("CENTER", PlayerCastbarAnchor, "CENTER", 0, -3)
-		-- CastingBarFrame.SetPoint = K.Noop
 
 		-- Style CastingBarFrame
 		CastingBarFrameBorder:SetTexture("Interface\\CastingBar\\UI-CastingBar-Border-Small")
@@ -60,13 +59,12 @@ CastBars:SetScript("OnEvent", function(self, event, addon)
 		TargetFrameSpellBar:ClearAllPoints()
 		TargetFrameSpellBar:SetPoint("CENTER", TargetCastbarAnchor, "CENTER", 0, 0)
 		TargetFrameSpellBar:SetScale(C.Unitframe.CastBarScale)
-		-- TargetFrameSpellBar.SetPoint = K.Noop
 
 		-- Castbar Timer
 		CastingBarFrame.timer = CastingBarFrame:CreateFontString(nil)
 		if C.Unitframe.Outline then
 			CastingBarFrame.timer:SetFont(C.Media.Font, C.Media.Font_Size + 2, C.Media.Font_Style)
-			CastingBarFrame.timer:SetShadowOffset(0, -0)
+			CastingBarFrame.timer:SetShadowOffset(0, 0)
 		else
 			CastingBarFrame.timer:SetFont(C.Media.Font, C.Media.Font_Size + 2)
 			CastingBarFrame.timer:SetShadowOffset(K.Mult, -K.Mult)
@@ -77,7 +75,7 @@ CastBars:SetScript("OnEvent", function(self, event, addon)
 		TargetFrameSpellBar.timer = TargetFrameSpellBar:CreateFontString(nil)
 		if C.Unitframe.Outline then
 			TargetFrameSpellBar.timer:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-			TargetFrameSpellBar.timer:SetShadowOffset(0, -0)
+			TargetFrameSpellBar.timer:SetShadowOffset(0, 0)
 		else
 			TargetFrameSpellBar.timer:SetFont(C.Media.Font, C.Media.Font_Size)
 			TargetFrameSpellBar.timer:SetShadowOffset(K.Mult, -K.Mult)
