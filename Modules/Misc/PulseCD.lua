@@ -143,7 +143,7 @@ frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 
 function frame:COMBAT_LOG_EVENT_UNFILTERED(...)
 	local _, event, _, _, sourceFlags, _, _, _, spellID = ...
-	if eventType == "SPELL_CAST_SUCCESS" then
+	if event == "SPELL_CAST_SUCCESS" then
 		if (bit.band(sourceFlags, COMBATLOG_OBJECT_TYPE_PET) == COMBATLOG_OBJECT_TYPE_PET and bit.band(sourceFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE) then
 			local name = GetSpellInfo(spellID)
 			local index = GetPetActionIndexByName(name)

@@ -124,7 +124,7 @@ local function GuildBankFrame_Update ()
 	local tab = GetCurrentGuildBankTab()
 
 	for i = 1, MAX_GUILDBANK_SLOTS_PER_TAB do
-		local button = _G["GuildBankColumn" .. math.ceil((i - 0.5) / NUM_SLOTS_PER_GUILDBANK_GROUP) .. "Button" .. math.fmod(i, NUM_SLOTS_PER_GUILDBANK_GROUP)]
+		local button = _G["GuildBankColumn" .. ceil((i - 0.5) / NUM_SLOTS_PER_GUILDBANK_GROUP) .. "Button" .. fmod(i, NUM_SLOTS_PER_GUILDBANK_GROUP)]
 
 		if ( button and button:IsShown() ) then
 			local texture, _, locked = GetGuildBankItemInfo(tab, i)

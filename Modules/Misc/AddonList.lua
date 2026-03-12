@@ -62,7 +62,7 @@ local makeList = function()
 
 	local oldb
 
-	for i,v in pairs(self.addons) do
+	for i,v in ipairs(self.addons) do
 		local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo(v)
 
 		if name then
@@ -130,7 +130,7 @@ DisableAllButton:SetScript("OnClick", function() DisableAllAddOns() makeList() e
 -- Slash command
 SLASH_ADDONLIST1 = "/addons"
 SlashCmdList.ADDONLIST = function(msg)
-	if InCombatLockdown() and not IsShown then K.Print("|cffffe02e"..ERR_NOT_IN_COMBAT.."|r") return end
+	if InCombatLockdown() and not AddonList:IsShown() then K.Print("|cffffe02e"..ERR_NOT_IN_COMBAT.."|r") return end
 	PlaySound("igMainMenuOption")
 	-- WoW 3.3.5 Compatibility: GameMenuFrame may not exist in older versions
 	if GameMenuFrame and GameMenuFrame:IsShown() then
@@ -153,7 +153,7 @@ if GameMenuFrame then
 	end
 
 	AddonListButton:SetScript("OnClick", function()
-		if InCombatLockdown() and not IsShown then K.Print("|cffffe02e"..ERR_NOT_IN_COMBAT.."|r") return end
+		if InCombatLockdown() and not AddonList:IsShown() then K.Print("|cffffe02e"..ERR_NOT_IN_COMBAT.."|r") return end
 		PlaySound("igMainMenuOption")
 		HideUIPanel(GameMenuFrame)
 		if not AddonList or not AddonList:IsShown() then
