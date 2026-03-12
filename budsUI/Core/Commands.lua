@@ -160,8 +160,11 @@ SLASH_TEST_ACHIEVEMENT1 = "/testa"
 local grid
 SlashCmdList.GRIDONSCREEN = function()
 	if grid then
-		grid:Hide()
-		grid = nil
+		if grid:IsShown() then
+			grid:Hide()
+		else
+			grid:Show()
+		end
 	else
 		grid = CreateFrame("Frame", nil, UIParent)
 		grid:SetAllPoints(UIParent)

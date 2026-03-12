@@ -1,4 +1,4 @@
-# budsUI
+ # budsUI
 
 <div align="center">
   <img src="Media/assets/budsui_logo.png" alt="budsUI Logo" width="800" />

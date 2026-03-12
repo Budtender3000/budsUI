@@ -12,7 +12,6 @@ local CORNER_SIZE = 12
 local OFFSET_SIZE = 6
 local BORDER_LAYER = "OVERLAY"
 
-local borderedObjects = {}
 
 local sections = {"TOPLEFT", "TOP", "TOPRIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT", "LEFT", "RIGHT"}
 
@@ -144,7 +143,6 @@ function K.CreateBorder(self, size, offset, parent, layer)
 		self.SetBackdropBorderColor = SetBackdropBorderColor
 	end
 
-	tinsert(borderedObjects, self)
 
 	self:SetBackdropBorderColor()
 	self:SetBorderParent(parent)

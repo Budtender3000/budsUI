@@ -254,16 +254,15 @@ K.Delay = function(delay, func, ...)
 			local count = #waitTable
 			local i = 1
 			while(i <= count) do
-				local waitRecord = tremove(waitTable,i)
-				local d = tremove(waitRecord,1)
-				local f = tremove(waitRecord,1)
-				local p = tremove(waitRecord,1)
+				local waitRecord = waitTable[i]
+				local d = waitRecord[1]
 				if(d > elapse) then
-					tinsert(waitTable, i, {d-elapse, f, p})
+					waitRecord[1] = d - elapse
 					i = i + 1
 				else
+					tremove(waitTable, i)
 					count = count - 1
-					f(unpack(p))
+					waitRecord[2](unpack(waitRecord[3]))
 				end
 			end
 		end)
