@@ -44,10 +44,11 @@ A comprehensive, full UI-replacement AddOn for **World of Warcraft 3.3.5 (Wrath 
 
 ## Installation
 
-1. Download the latest release from [GitHub](https://github.com/Budtender3000/budsUI)
-2. Extract **both** `budsUI` and `budsUI_Config` folders into:
+1. Download the latest release from [GitHub Releases](https://github.com/Budtender3000/budsUI/releases)
+2. Extract the ZIP and copy **both** subfolders into your AddOns directory:
    ```
-   World of Warcraft/Interface/AddOns/
+   World of Warcraft/Interface/AddOns/budsUI/
+   World of Warcraft/Interface/AddOns/budsUI_Config/
    ```
 3. Launch the game and log in — an installation wizard runs automatically on first login
 4. Use `/buds` to open the configuration panel at any time
