@@ -41,6 +41,8 @@ local function Timer_OnSizeChanged(self, width, height)
 	end
 
 	self.fontScale = fontScale
+	self.effectiveScale = self.fontScale * self:GetEffectiveScale() / UIParent:GetScale()
+	
 	if fontScale < MIN_SCALE and not override then
 		self:Hide()
 	else
@@ -60,7 +62,9 @@ local function Timer_OnUpdate(self, elapsed)
 	local remain = self.duration - (GetTime() - self.start)
 
 	if remain > 0.05 then
-		if (self.fontScale * self:GetEffectiveScale() / UIParent:GetScale()) < MIN_SCALE then
+		local effectiveScale = self.effectiveScale or (self.fontScale * self:GetEffectiveScale() / UIParent:GetScale())
+		self.effectiveScale = effectiveScale
+		if effectiveScale < MIN_SCALE then
 			self.text:SetText('')
 			self.nextUpdate = 500
 		else

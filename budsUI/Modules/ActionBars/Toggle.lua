@@ -218,6 +218,15 @@ local LockCheck = function(i)
 		ToggleBar[i].Text:SetText("L")
 		ToggleBar[i].Text:SetTextColor(0.85, 0.27, 0.27)
 	end
+	
+	if not InCombatLockdown() then
+		local locked = SavedOptionsPerChar.BarsLocked == true
+		for j = 1, 4 do
+			if ToggleBar[j] then
+				ToggleBar[j]:EnableMouse(not locked)
+			end
+		end
+	end
 end
 
 for i = 1, 5 do
@@ -363,19 +372,6 @@ for i = 1, 5 do
 			end
 		else
 			K:UIFrameFadeOut(ToggleBar[i], 1, ToggleBar[i]:GetAlpha(), 0)
-		end
-	end)
-
-	ToggleBar[i]:SetScript("OnUpdate", function()
-		if InCombatLockdown() then return end
-		if SavedOptionsPerChar.BarsLocked == true then
-			for i = 1, 4 do
-				ToggleBar[i]:EnableMouse(false)
-			end
-		elseif SavedOptionsPerChar.BarsLocked == false then
-			for i = 1, 4 do
-				ToggleBar[i]:EnableMouse(true)
-			end
 		end
 	end)
 end
