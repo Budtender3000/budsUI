@@ -250,7 +250,7 @@ K.Delay = function(delay, func, ...)
 	end
 	if(waitFrame == nil) then
 		waitFrame = CreateFrame("Frame", "WaitFrame", UIParent)
-		waitFrame:SetScript("onUpdate", function (self, elapse)
+		waitFrame:SetScript("OnUpdate", function (self, elapse)
 			local count = #waitTable
 			local i = 1
 			while(i <= count) do

@@ -12,7 +12,7 @@ local CORNER_SIZE = 12
 local OFFSET_SIZE = 6
 local BORDER_LAYER = "OVERLAY"
 
-borderedObjects = {}
+local borderedObjects = {}
 
 local sections = {"TOPLEFT", "TOP", "TOPRIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT", "LEFT", "RIGHT"}
 

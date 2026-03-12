@@ -59,7 +59,7 @@ end
 
 -- Disband party or raid (by Monolit)
 SlashCmdList["GROUPDISBAND"] = function()
-	SendChatMessage(L_INFO_DISBAND, "RAID" or "PARTY")
+	SendChatMessage(L_INFO_DISBAND, GetNumRaidMembers() > 0 and "RAID" or "PARTY")
 	if UnitInRaid("player") then
 		for i = 1, GetNumRaidMembers() do
 			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)

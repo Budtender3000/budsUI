@@ -67,13 +67,19 @@ frame:RegisterEvent("PARTY_MEMBERS_CHANGED")
 frame:RegisterEvent("CHAT_MSG_ADDON")
 frame:SetScript("OnEvent", Check)
 
--- Whisper UI version
+-- Whisper UI version (rate-limited: 10s cooldown per sender)
 local Whisper = CreateFrame("Frame")
+local whisperCooldowns = {}
+local WHISPER_COOLDOWN = 10
 Whisper:RegisterEvent("CHAT_MSG_WHISPER")
 Whisper:SetScript("OnEvent", function(self, event, text, name, ...)
 	if text:lower():match("ui_version") then
 		if event == "CHAT_MSG_WHISPER" then
-			K.Delay(2, SendChatMessage, "budsUI "..K.Version, "WHISPER", nil, name)
+			local now = GetTime()
+			if not whisperCooldowns[name] or (now - whisperCooldowns[name]) >= WHISPER_COOLDOWN then
+				whisperCooldowns[name] = now
+				K.Delay(2, SendChatMessage, "budsUI "..K.Version, "WHISPER", nil, name)
+			end
 		end
 	end
 end)

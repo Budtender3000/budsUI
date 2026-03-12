@@ -114,13 +114,10 @@ function K:UIFrameFadeOut(frame, timeToFade, startAlpha, endAlpha)
 end
 
 function K:tDeleteItem(table, item)
-	local index = 1
-	while table[index] do
-		if ( item == table[index] ) then
-			tremove(table, index)
+	for i = #table, 1, -1 do
+		if table[i] == item then
+			tremove(table, i)
 			break
-		else
-			index = index + 1
 		end
 	end
 end

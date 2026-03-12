@@ -1,4 +1,4 @@
-﻿local K, C, L, _ = select(2, ...):unpack()
+local K, C, L, _ = select(2, ...):unpack()
 if C.Tooltip.Enable ~= true then return end
 
 local _G = _G
@@ -84,6 +84,19 @@ local function Hex(color)
 	return string.format('|cff%02x%02x%02x', color.r * 255, color.g * 255, color.b * 255)
 end
 
+-- Fallback reaction colors (standard WoW UnitReaction indices 1-8)
+local FACTION_BAR_COLORS = {
+	[1] = {r = 0.8,  g = 0.13, b = 0.13}, -- Hated
+	[2] = {r = 0.8,  g = 0.13, b = 0.13}, -- Hostile
+	[3] = {r = 0.75, g = 0.27, b = 0.00}, -- Unfriendly
+	[4] = {r = 0.90, g = 0.70, b = 0.00}, -- Neutral
+	[5] = {r = 0.00, g = 0.75, b = 0.30}, -- Friendly
+	[6] = {r = 0.00, g = 0.75, b = 0.30}, -- Honored
+	[7] = {r = 0.00, g = 0.75, b = 0.30}, -- Revered
+	[8] = {r = 0.00, g = 0.75, b = 0.30}, -- Exalted
+}
+local ReactionColors = BETTER_FACTION_BAR_COLORS or FACTION_BAR_COLORS
+
 local function GetColor(unit)
 	if(UnitIsPlayer(unit) and not UnitHasVehicleUI(unit)) then
 		local _, class = UnitClass(unit)
@@ -92,7 +105,7 @@ local function GetColor(unit)
 		local r,g,b = color.r, color.g, color.b
 		return Hex(color), r, g, b
 	else
-		local color = BETTER_FACTION_BAR_COLORS[UnitReaction("player", unit)]
+		local color = ReactionColors[UnitReaction("player", unit)]
 		if not color then return end
 		local r,g,b = color.r, color.g, color.b
 		return Hex(color), r, g, b
@@ -357,7 +370,8 @@ local BorderColor = function(self)
 		healthBarBG:SetBackdropBorderColor(r, g, b)
 		healthBar:SetStatusBarColor(r, g, b)
 	elseif reaction then
-		local c = BETTER_FACTION_BAR_COLORS[reaction]
+		local c = ReactionColors[reaction]
+		if not c then return end
 		r, g, b = c.r, c.g, c.b
 		self:SetBackdropBorderColor(r, g, b)
 		healthBarBG:SetBackdropBorderColor(r, g, b)
