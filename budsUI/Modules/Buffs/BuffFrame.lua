@@ -9,17 +9,6 @@ else
 	rowbuffs = 16
 end
 
-local GetFormattedTime = function(s)
-	if s >= 86400 then
-		return format("%dd", floor(s/86400 + 0.5))
-	elseif s >= 3600 then
-		return format("%dh", floor(s/3600 + 0.5))
-	elseif s >= 60 then
-		return format("%dm", floor(s/60 + 0.5))
-	end
-	return floor(s + 0.5)
-end
-
 local BuffsAnchor = CreateFrame("Frame", "BuffsAnchor", UIParent)
 BuffsAnchor:SetPoint(unpack(C.Position.PlayerBuffs))
 BuffsAnchor:SetSize((15 * C.Aura.BuffSize) + 42, (C.Aura.BuffSize * 2) + 3)
@@ -121,15 +110,26 @@ local function StyleBuffs(buttonName, index, debuff)
 	if border then border:Hide() end
 end
 
-function UpdateFlash(self, elapsed)
-	local index = self:GetID()
+local function UpdateFlash(self, elapsed)
 	self:SetAlpha(1)
 end
 
 local UpdateDuration = function(auraButton, timeLeft)
 	local duration = auraButton.duration
 	if SHOW_BUFF_DURATIONS == "1" and timeLeft then
-		duration:SetFormattedText(GetFormattedTime(timeLeft))
+		local timeLeftInt = math.floor(timeLeft + 0.5)
+		if duration.lastTime ~= timeLeftInt then
+			if timeLeftInt >= 86400 then
+				duration:SetText(string.format("%dd", math.floor(timeLeftInt/86400 + 0.5)))
+			elseif timeLeftInt >= 3600 then
+				duration:SetText(string.format("%dh", math.floor(timeLeftInt/3600 + 0.5)))
+			elseif timeLeftInt >= 60 then
+				duration:SetText(string.format("%dm", math.floor(timeLeftInt/60 + 0.5)))
+			else
+				duration:SetText(timeLeftInt)
+			end
+			duration.lastTime = timeLeftInt
+		end
 		duration:Show()
 	else
 		duration:Hide()

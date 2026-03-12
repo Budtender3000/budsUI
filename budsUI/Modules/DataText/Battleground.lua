@@ -1,4 +1,4 @@
-﻿local K, C, L, _ = select(2, ...):unpack()
+local K, C, L, _ = select(2, ...):unpack()
 if C.ActionBar.SplitBars == true then return end
 
 local unpack = unpack
@@ -121,16 +121,16 @@ local function OnEvent(self, event)
 		local _, instanceType = IsInInstance()
 		if instanceType == "pvp" then
 			bgframe:Show()
+			Stat:SetScript("OnUpdate", Update)
 		else
 			Text1:SetText("")
 			Text2:SetText("")
 			Text3:SetText("")
 			bgframe:Hide()
+			Stat:SetScript("OnUpdate", nil)
 		end
 	end
 end
 
 Stat:RegisterEvent("PLAYER_ENTERING_WORLD")
 Stat:SetScript("OnEvent", OnEvent)
-Stat:SetScript("OnUpdate", Update)
-Update(Stat, 2)

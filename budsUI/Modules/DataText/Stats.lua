@@ -50,7 +50,7 @@ end
 local memoryTable = {}
 local function RebuildAddonList(self)
 	local addOnCount = GetNumAddOns()
-	if (addOnCount == #memoryTable) or self.tooltip == true then return end
+	if addOnCount == #memoryTable then return end
 
 	-- Number of loaded addons changed, create new memoryTable for all addons
 	memoryTable = {}
@@ -83,23 +83,22 @@ local function UpdateMemory()
 end
 
 -- Build DataText
-local int = 30
+local int = 1
 
 local function Update(self, t)
 	int = int - t
 
 	if int < 0 then
-		RebuildAddonList(self)
-		local total = UpdateMemory()
 		Text:SetText(floor(GetFramerate())..K.RGBToHex(K.Color.r, K.Color.g, K.Color.b).." fps|r & "..select(3, GetNetStats())..K.RGBToHex(K.Color.r, K.Color.g, K.Color.b).." ms|r")
-		int = 30
+		int = 1
 	end
 end
+
 -- Setup Tooltip
-Stat:SetScript("OnMouseDown", function () Update(Stat, 30) end)
 Stat:SetScript("OnEnter", function(self)
 	if not InCombatLockdown() then
 		self.tooltip = true
+		RebuildAddonList(self)
 		local anchor, panel, xoff, yoff = "ANCHOR_BOTTOMLEFT", self:GetParent(), 0, 5
 		local bw_in, bw_out, latencyHome = GetNetStats()
 		ms_combined = latencyHome
@@ -144,5 +143,4 @@ Stat:SetScript("OnMouseDown", function(self, btn)
 end)
 Stat:SetScript("OnLeave", function(self) self.tooltip = false GameTooltip:Hide() end)
 Stat:SetScript("OnUpdate", Update)
-Stat:SetScript("OnEvent", function(self, event) --[[ collectgarbage("collect") --]] end)
-Update(Stat, 20)
+Update(Stat, 1)
