@@ -7,7 +7,6 @@ if C.PowerBar.Maelstrom ~= true then return end
 
 local select = select
 local CreateFrame = CreateFrame
-local GetTime = GetTime
 
 local IMAGE_PATH = "Interface\\AddOns\\budsUI\\Media\\Maelstrom\\maelstrom"
 
@@ -25,6 +24,9 @@ local killList = {
 local MaelstromSpellIDs = {
 	[1153817] = true, -- Ascension: Maelstrom Weapon
 }
+
+-- Cached spell name for O(1) lookup
+local MAELSTROM_NAME = GetSpellInfo(1153817)
 
 local MaelstromAnchor = CreateFrame("Frame", "MaelstromAnchor", UIParent)
 local size = C.PowerBar.MaelstromSize or 256
@@ -97,34 +99,52 @@ for i = 1, 10 do
     f.textures[i]:Hide()
 end
 
+local currentActiveTexture = 0
 local function ShowOnlyStackTexture(stacks)
-    for i = 1, 10 do
-        if i == stacks then
-            f.textures[i]:Show()
-        else
-            f.textures[i]:Hide()
-        end
+    if currentActiveTexture == stacks then return end
+
+    if currentActiveTexture > 0 and f.textures[currentActiveTexture] then
+        f.textures[currentActiveTexture]:Hide()
     end
+
+    if stacks > 0 and f.textures[stacks] then
+        f.textures[stacks]:Show()
+    end
+
+    currentActiveTexture = stacks
 end
 
 local function HideAllStackTextures()
-    for i = 1, 10 do
-        f.textures[i]:Hide()
+    if currentActiveTexture > 0 and f.textures[currentActiveTexture] then
+        f.textures[currentActiveTexture]:Hide()
     end
+    currentActiveTexture = 0
 end
 
 local lastStacks = 0
 local function UpdateStacks()
 	local stacks = 0
-	for i = 1, 40 do
-		-- WotLK 3.3.5 UnitBuff returns: name, rank, icon, count, debuffType, duration, expires, caster, ..., spellId
-		local name, _, _, count, _, _, _, _, _, _, spellId = UnitBuff("player", i)
-		if not name then break end
-		if MaelstromSpellIDs[spellId] then
-			stacks = count or 1
-			break
-		end
-	end
+    
+    if MAELSTROM_NAME then
+        local _, _, _, count = UnitBuff("player", MAELSTROM_NAME)
+        if count then
+            stacks = count
+        elseif UnitBuff("player", MAELSTROM_NAME) then
+            -- Buff exists but count is nil/0 (meaning 1 stack in some contexts, 
+            -- but Maelstrom should have a count)
+            stacks = 1
+        end
+    else
+        -- Fallback to loop only if GetSpellInfo failed at load time
+        for i = 1, 40 do
+            local name, _, _, count, _, _, _, _, _, _, spellId = UnitBuff("player", i)
+            if not name then break end
+            if MaelstromSpellIDs[spellId] then
+                stacks = count or 1
+                break
+            end
+        end
+    end
 
     -- show pop when stacks increase
     if stacks > lastStacks and stacks > 0 then
@@ -172,15 +192,17 @@ local function ApplySurgicalFix()
         end
         return
     end
-    SpellActivationOverlayFrame.__budsUIMaelstromHooked = true
 
     local originalShow = SpellActivationOverlayFrame.ShowOverlay
     SpellActivationOverlayFrame.ShowOverlay = function(self, spellID, ...)
         if killList[spellID] then
+            -- Effectively suppress Blizzard's overlay
+            if self.HideOverlays then self:HideOverlays(spellID) end
             return
         end
         return originalShow(self, spellID, ...)
     end
+    SpellActivationOverlayFrame.__budsUIMaelstromHooked = true
 
     if SpellActivationOverlayFrame.HideOverlays then
         for id in pairs(killList) do
