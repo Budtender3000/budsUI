@@ -18,6 +18,13 @@
 
 budsUI ist ein vollständiger UI-Ersatz für World of Warcraft 3.3.5, der das veraltete Blizzard-Interface durch ein modernes, anpassbares Design ersetzt. Mit über 100 Konfigurationsoptionen kannst du dein Interface genau nach deinen Wünschen gestalten.
 
+---
+
+## 📸 Screenshot
+
+![budsUI Screenshot](budsUI/Media/assets/budsui_shot.jpg)
+
+---
 ### ✨ Hauptfeatures
 
 - 🎯 **Action Bars** - 5 anpassbare Bars mit Cooldown-Tracking und Range-Anzeige
@@ -254,12 +261,6 @@ Für technische Details siehe [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATI
 Dieses Projekt ist unter der [MIT-Lizenz](LICENSE) lizenziert.
 
 Siehe auch: [Lizenzen der verwendeten Bibliotheken](budsUI/Licenses/)
-
----
-
-## 📸 Screenshot
-
-![budsUI Screenshot](budsUI/Media/assets/budsui_shot.jpg)
 
 ---
 
