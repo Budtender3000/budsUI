@@ -257,6 +257,12 @@ Siehe auch: [Lizenzen der verwendeten Bibliotheken](budsUI/Licenses/)
 
 ---
 
+## 📸 Screenshot
+
+![budsUI Screenshot](budsUI/Media/assets/budsui_shot.jpg)
+
+---
+
 <div align="center">
   
   **Viel Spaß mit budsUI! 🎮**
