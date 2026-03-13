@@ -24,6 +24,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Deprecated `InstallUI` function (replaced by the new multi-step wizard)
 
+## [0.4.0] - 2026-03-13
+
+### Added
+- "Save to BudtenderPreset.lua" button in Profile Settings (Developer Mode only)
+- Exports current settings to SavedVariables for external script processing
+- `export_budtender_preset.sh` script to automatically update BudtenderPreset.lua from SavedVariables
+- `EXPORT_PRESET_README.md` with detailed instructions for the export workflow
+
 ### Changed
 - Redesigned installation wizard with multi-step interface
 - Added budsUI logo to installation wizard
