@@ -156,10 +156,23 @@ C["Loot"] = {
 -- Minimap Options
 C["Minimap"] = {
 	["CollectButtons"] = true,
+	["CollectDelay"] = 5,
 	["Enable"] = true,
 	["Ping"] = true,
 	["Size"] = 150,
+	["SizeFarm"] = 300,
+	["SizeNormal"] = 144,
+	["Offsets"] = {
+		["Mail"] = {6, 10},
+		["Battlefield"] = {4, -4},
+		["Calendar"] = {0, 5},
+		["LFG"] = {2, -2},
+		["Clock"] = {0, -5},
+		["RightClick"] = {0, 0, -160, 0},
+	}
 }
+
+
 -- Miscellaneous Options
 C["Misc"] = {
 	["AFKCamera"] = false,

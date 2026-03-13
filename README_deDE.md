@@ -153,6 +153,7 @@ Fortgeschrittene Nutzer können direkt `budsUI/Config/Settings.lua` bearbeiten.
 - Farm-Modus (vergrößerte Minimap)
 - Rechtsklick-Menü
 - "Wer hat gepingt?"-Anzeige
+- **Aktionsleisten-Sperre** - Spezieller Button ("L"/"U") zum Schalten des Leisten-Edit-Modus
 
 </details>
 

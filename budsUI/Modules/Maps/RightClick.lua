@@ -57,9 +57,9 @@ Minimap:SetScript("OnMouseUp", function(self, button)
 	local position = self:GetPoint()
 	if(button == "MiddleButton" or (button == "RightButton" and IsShiftKeyDown())) then
 		if(position:match("LEFT")) then
-			EasyMenu(menuList, menuFrame, "cursor", 0, 0, "MENU", 2)
+			EasyMenu(menuList, menuFrame, "cursor", C.Minimap.Offsets.RightClick[1], C.Minimap.Offsets.RightClick[2], "MENU", 2)
 		else
-			EasyMenu(menuList, menuFrame, "cursor", -160, 0, "MENU", 2)
+			EasyMenu(menuList, menuFrame, "cursor", C.Minimap.Offsets.RightClick[3], C.Minimap.Offsets.RightClick[4], "MENU", 2)
 		end
 	elseif(button == "RightButton") then
 		local xoff = -1

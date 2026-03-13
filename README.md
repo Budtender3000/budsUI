@@ -153,6 +153,7 @@ Advanced users can directly edit `budsUI/Config/Settings.lua`.
 - Farm mode (enlarged minimap)
 - Right-click menu
 - "Who pinged?" display
+- **Action Bar Lock** - Special button ("L"/"U") to toggle bar edit mode
 
 </details>
 

@@ -61,7 +61,7 @@ MinimapBackdrop:SetSize(MinimapAnchor:GetWidth(), MinimapAnchor:GetWidth())
 
 -- Mail
 Mail:ClearAllPoints()
-Mail:SetPoint("TOPRIGHT", Minimap, 6, 10)
+Mail:SetPoint("TOPRIGHT", Minimap, unpack(C.Minimap.Offsets.Mail))
 Mail:SetFrameLevel(Minimap:GetFrameLevel() + 2)
 Mail:SetScale(1.2)
 MailBorder:Hide()
@@ -69,7 +69,7 @@ MailIcon:SetTexture("Interface\\Addons\\budsUI\\Media\\Textures\\Mail")
 
 MiniMapBattlefieldFrame:SetParent(Minimap)
 MiniMapBattlefieldFrame:ClearAllPoints()
-MiniMapBattlefieldFrame:SetPoint("BOTTOMRIGHT", 4, -4)
+MiniMapBattlefieldFrame:SetPoint("BOTTOMRIGHT", unpack(C.Minimap.Offsets.Battlefield))
 
 MiniMapInstanceDifficulty:ClearAllPoints()
 MiniMapInstanceDifficulty:SetParent(Minimap)
@@ -78,12 +78,12 @@ MiniMapInstanceDifficulty:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 0, 0)
 -- Invites icon
 GameTimeCalendarInvitesTexture:ClearAllPoints()
 GameTimeCalendarInvitesTexture:SetParent(Minimap)
-GameTimeCalendarInvitesTexture:SetPoint("BOTTOM", 0, 5)
+GameTimeCalendarInvitesTexture:SetPoint("BOTTOM", unpack(C.Minimap.Offsets.Calendar))
 
 -- Default LFG icon
 local function UpdateLFG()
 	MiniMapLFGFrame:ClearAllPoints()
-	MiniMapLFGFrame:SetPoint("BOTTOMRIGHT", Minimap, "BOTTOMRIGHT", 2, -2)
+	MiniMapLFGFrame:SetPoint("BOTTOMRIGHT", Minimap, "BOTTOMRIGHT", unpack(C.Minimap.Offsets.LFG))
 	MiniMapLFGFrameBorder:Hide()
 end
 hooksecurefunc("MiniMapLFG_UpdateIsShown", UpdateLFG)
@@ -107,7 +107,7 @@ ClockFrame:Hide()
 ClockTime:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
 ClockTime:SetShadowOffset(0, 0)
 TimeManagerClockButton:ClearAllPoints()
-TimeManagerClockButton:SetPoint("BOTTOM", Minimap, "BOTTOM", 0, -5)
+TimeManagerClockButton:SetPoint("BOTTOM", Minimap, "BOTTOM", unpack(C.Minimap.Offsets.Clock))
 TimeManagerClockButton:SetScript("OnShow", nil)
 TimeManagerClockButton:Hide()
 TimeManagerClockButton:SetScript("OnClick", function(self, button)

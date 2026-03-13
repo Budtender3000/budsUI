@@ -3,8 +3,8 @@ if C.Minimap.Enable ~= true then return end
 
 -- Minimap Farmmode
 local farm = false
-local minisize = 144
-local farmsize = 300
+local minisize = C.Minimap.SizeNormal
+local farmsize = C.Minimap.SizeFarm
 function SlashCmdList.FARMMODE(msg, editbox)
 	if farm == false then
 		if InCombatLockdown() then
