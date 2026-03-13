@@ -12,7 +12,7 @@ C["Media"] = {
 	["Combat_Font_Size"] = 16,
 	["Combat_Font_Size_Style"] = "OUTLINE",
 	["Font"] = [[Interface\AddOns\budsUI\Media\Fonts\Normal.ttf]],
-	["Font_Size"] = 14,
+	["Font_Size"] = 12,
 	["Font_Style"] = "OUTLINE",
 	["Glow"] = [[Interface\AddOns\budsUI\Media\Textures\GlowTex.tga]],
 	["Overlay_Color"] = {0/255, 0/255, 0/255, 0.8},
@@ -86,7 +86,7 @@ C["Blizzard"] = {
 }
 -- Buffs & Debuffs Options
 C["Aura"] = {
-	["Enable"] = true,
+	["Enable"] = false,
 	["BuffSize"] = 32,
 	["CastBy"] = false,
 	["ClassColorBorder"] = false,

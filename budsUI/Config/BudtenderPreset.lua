@@ -36,7 +36,7 @@ K.BudtenderPreset = {
 		["BuffSize"] = 32,
 		["CastBy"] = false,
 		["ClassColorBorder"] = false,
-		["Enable"] = true,
+		["Enable"] = false,
 	},
 	["Automation"] = {
 		["AutoCollapse"] = true,
