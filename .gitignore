@@ -6,10 +6,10 @@
 
 # Kiro/IDE
 .kiro/
-
+.gemini/
 # Developer documentation (not for end users)
 budsUI/VERSION_COMPATIBILITY.md
-
+GEMINI.md
 # OS specific
 .DS_Store
 Thumbs.db

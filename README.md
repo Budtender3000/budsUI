@@ -13,7 +13,7 @@ A comprehensive, full UI-replacement AddOn for **World of Warcraft 3.3.5 (Wrath 
 
 ## ⚠️ Development Status
 
-> **Version 0.2.0 — Active Development**
+> **Version 0.3.0 — Active Development**
 
 - Tested sporadically; may contain bugs and unexpected behaviour
 - Features and APIs are subject to change
