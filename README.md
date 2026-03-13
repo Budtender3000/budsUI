@@ -5,7 +5,7 @@
   
   ### Modernes UI für World of Warcraft 3.3.5 (WotLK)
   
-  [![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/Budtender3000/budsUI/releases)
+  [![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)](https://github.com/Budtender3000/budsUI/releases)
   [![WoW](https://img.shields.io/badge/WoW-3.3.5-orange.svg)](https://ascension.gg)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   

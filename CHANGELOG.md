@@ -7,13 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.0] - 2026-03-13
+## [0.5.0] - 2026-03-13
 
 ### Added
-- "Save to BudtenderPreset.lua" button in Profile Settings (Developer Mode only)
-- Exports current settings to SavedVariables for external script processing
-- `export_budtender_preset.sh` script to automatically update BudtenderPreset.lua from SavedVariables
-- `EXPORT_PRESET_README.md` with detailed instructions for the export workflow
+- Clamp UI scale calculation to prevent extreme values
+- Named constants for chat channel assignments for better readability
+- New UI screenshot section in README.md
+- New walkthrough artifact for better progress tracking
+
+### Changed
+- Improved Filger frame creation and spell definitions
+- Added configuration validation for better stability
+- Enhanced spell info error handling
+- Relocated screenshot section in README.md for better visibility
+
+### Removed
+- Deprecated `InstallUI` function (replaced by the new multi-step wizard)
 
 ### Changed
 - Redesigned installation wizard with multi-step interface
@@ -90,7 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored item info extraction for grey selling
 - Optimized target name retrieval
 
-[Unreleased]: https://github.com/Budtender3000/budsUI/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/Budtender3000/budsUI/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Budtender3000/budsUI/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Budtender3000/budsUI/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Budtender3000/budsUI/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Budtender3000/budsUI/releases/tag/v0.2.0
