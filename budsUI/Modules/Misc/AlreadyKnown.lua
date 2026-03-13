@@ -21,9 +21,11 @@ local knowncolor = { r = 0.1, g = 1.0, b = 0.2 }
 local tooltip = CreateFrame("GameTooltip")
 tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 
+-- Move knowns to module scope so it can be accessed by throttled function
+local knowns = {}
+
 local IsAlreadyKnown
 do
-	local knowns = {}
 
 	-- things we have to care. please let me know if any lack or surplus here.
 	local weapon, armor, container, consumable, glyph, trade_goods, recipe, gem, miscallaneous, quest = GetAuctionItemClasses()
