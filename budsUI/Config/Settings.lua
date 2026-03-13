@@ -203,6 +203,17 @@ C["PowerBar"] = {
 	["MaelstromSize"] = 256,
 	["MaelstromPulse"] = true,
 	["MaelstromPulseAt"] = 5,
+	["MaelstromSpellID"] = 1153817, -- Ascension: Maelstrom Weapon
+	["MaelstromKillList"] = {
+		[344179] = true,
+		[187881] = true,
+		[467442] = true,
+		[170586] = true,
+		[170587] = true,
+		[170588] = true,
+		[187890] = true,
+		[170585] = true,
+	},
 	["Mana"] = true,
 	["Rage"] = true,
 	["Rune"] = true,

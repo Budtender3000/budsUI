@@ -1,7 +1,10 @@
 local K, C, L, _ = select(2, ...):unpack()
--- We allow this to load for any class in case of ascension, but maybe it should be Shaman only normally. 
--- For now we let it load for all classes to support Ascension WoW random builds.
--- if K.Class ~= "SHAMAN" and K.Level > 10 then return end
+-- Optional Server Detection: Check if Ascension client by looking for the custom spell
+local MAELSTROM_SPELL_ID = C.PowerBar.MaelstromSpellID or 1153817
+local isAscension = GetSpellInfo(MAELSTROM_SPELL_ID) ~= nil
+
+-- Vanilla/WotLK standard behavior: only load for Shamans
+if not isAscension and K.Class ~= "SHAMAN" and K.Level > 10 then return end
 
 if C.PowerBar.Maelstrom ~= true then return end
 
@@ -10,23 +13,14 @@ local CreateFrame = CreateFrame
 
 local IMAGE_PATH = "Interface\\AddOns\\budsUI\\Media\\Maelstrom\\maelstrom"
 
-local killList = {
-    [344179] = true,
-    [187881] = true,
-    [467442] = true,
-    [170586] = true,
-    [170587] = true,
-    [170588] = true,
-    [187890] = true,
-    [170585] = true,
-}
+local killList = C.PowerBar.MaelstromKillList or {}
 
 local MaelstromSpellIDs = {
-	[1153817] = true, -- Ascension: Maelstrom Weapon
+	[MAELSTROM_SPELL_ID] = true,
 }
 
 -- Cached spell name for O(1) lookup
-local MAELSTROM_NAME = GetSpellInfo(1153817)
+local MAELSTROM_NAME = GetSpellInfo(MAELSTROM_SPELL_ID)
 
 local MaelstromAnchor = CreateFrame("Frame", "MaelstromAnchor", UIParent)
 local size = C.PowerBar.MaelstromSize or 256
@@ -95,7 +89,14 @@ f.textures = {}
 for i = 1, 10 do
     f.textures[i] = f:CreateTexture(nil, "OVERLAY")
     f.textures[i]:SetAllPoints(f)
-    f.textures[i]:SetTexture(IMAGE_PATH .. i .. ".blp")
+    local texPath = IMAGE_PATH .. i .. ".blp"
+    f.textures[i]:SetTexture(texPath)
+    
+    -- Simple validation: GetTexture might return nil if path is invalid/missing in some clients
+    if not f.textures[i]:GetTexture() then
+        print("|cffff0000budsUI Error: Maelstrom texture missing - " .. texPath .. "|r")
+    end
+    
     f.textures[i]:Hide()
 end
 
