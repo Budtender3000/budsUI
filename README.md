@@ -20,9 +20,17 @@ budsUI is a complete UI replacement for World of Warcraft 3.3.5, replacing the o
 
 ---
 
-## 📸 Screenshot
+## 📸 Screenshots
 
-![budsUI Screenshot](budsUI/Media/assets/budsui_shot.jpg)
+<div align="center">
+  <img src="budsUI/Media/assets/budsui_shot.jpg" alt="budsUI Screenshot" width="49%">
+  <img src="budsUI/Media/assets/budsui_shot_worldmap.jpg" alt="budsUI Worldmap" width="49%">
+  
+  <img src="budsUI/Media/assets/budsui_shot_group.jpg" alt="budsUI Group Raid" width="99%">
+  
+  <img src="budsUI/Media/assets/budsui_shot_battleground.jpg" alt="budsUI Battleground" width="49%">
+  <img src="budsUI/Media/assets/budsui_shot_battleground2.jpg" alt="budsUI Battleground 2" width="49%">
+</div>
 
 ---
 ### ✨ Main Features
