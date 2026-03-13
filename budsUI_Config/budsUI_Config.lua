@@ -373,6 +373,26 @@ StaticPopupDialogs["RESET_ALL"] = {
 
 local function SetValue(group, option, value)
 	local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
+	
+	-- Branching logic: If modifying "Budtender Preset", create a new profile automatically
+	if activeProfile == "Budtender Preset" then
+		activeProfile = "Budtender Preset (Modified)"
+		if not GUIConfigAll.Profiles[activeProfile] then
+			GUIConfigAll.Profiles[activeProfile] = {}
+			-- Clone current Budtender Preset to the new modified profile
+			if GUIConfigAll.Profiles["Budtender Preset"] then
+				for g, opts in pairs(GUIConfigAll.Profiles["Budtender Preset"]) do
+					GUIConfigAll.Profiles[activeProfile][g] = {}
+					for o, v in pairs(opts) do
+						GUIConfigAll.Profiles[activeProfile][g][o] = v
+					end
+				end
+			end
+		end
+		GUIConfigAll.CharacterMap[realm.."-"..name] = activeProfile
+		Print("Profil 'Budtender Preset' geschützt. Änderungen wurden in '" .. activeProfile .. "' gespeichert.")
+	end
+
 	if not GUIConfigAll.Profiles then GUIConfigAll.Profiles = { ["Budtender Preset"] = {} } end
 	if not GUIConfigAll.Profiles[activeProfile] then GUIConfigAll.Profiles[activeProfile] = {} end
 	if not GUIConfigAll.Profiles[activeProfile][group] then GUIConfigAll.Profiles[activeProfile][group] = {} end
@@ -785,6 +805,19 @@ end
 			btn:SetPoint("TOPLEFT", 20, -offset)
 			btn:SetWidth(200)
 			btn:SetScript("OnClick", function()
+				-- Reset logic: If "Budtender Preset" is clicked while already active or just selected, reset it to hardcoded defaults
+				if pName == "Budtender Preset" then
+					GUIConfigAll.Profiles["Budtender Preset"] = {}
+					if K.BudtenderPreset then
+						for group, options in pairs(K.BudtenderPreset) do
+							GUIConfigAll.Profiles["Budtender Preset"][group] = {}
+							for option, value in pairs(options) do
+								GUIConfigAll.Profiles["Budtender Preset"][group][option] = value
+							end
+						end
+					end
+					Print("Profil 'Budtender Preset' wurde auf Werkseinstellungen zurückgesetzt.")
+				end
 				GUIConfigAll.CharacterMap[realm.."-"..name] = pName
 				ReloadUI()
 			end)
