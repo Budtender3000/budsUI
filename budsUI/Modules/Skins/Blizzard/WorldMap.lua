@@ -109,8 +109,19 @@ local function SetupWorldMapLayout()
 		end)
 		resizer:RegisterForDrag("LeftButton")
 		
-		WorldMapFrame.Resizer = resizer
 	end
+	
+	-- MouseWheel Zoom
+	WorldMapFrame:EnableMouseWheel(true)
+	WorldMapFrame:SetScript("OnMouseWheel", function(self, delta)
+		local currentScale = self:GetScale()
+		local newScale = currentScale + (delta * 0.05)
+		newScale = math.max(0.4, math.min(1.5, newScale))
+
+		self:SetScale(newScale)
+		WorldMapTooltip:SetScale(1 / newScale)
+		SaveWorldMapSettings()
+	end)
 
 	WorldMapFrame:EnableKeyboard(false)
 	WorldMapFrame:SetAttribute("UIPanelLayout-area", "center")
