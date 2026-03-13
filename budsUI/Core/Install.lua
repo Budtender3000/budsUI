@@ -60,7 +60,7 @@ local function InstallStep2_Graphics()
 	
 	local screenHeight = K.ScreenHeight or tonumber(match(({GetScreenResolutions()})[GetCurrentResolution()] or "", "%d+x(%d+)"))
 	if screenHeight and screenHeight > 0 then
-		K.SafeSetCVar("uiScale", 768 / screenHeight)
+		K.SafeSetCVar("uiScale", max(0.64, min(1.0, 768 / screenHeight)))
 	end
 end
 
@@ -187,10 +187,10 @@ local function InstallStep5_ChatWindows()
 	ChatFrame_AddMessageGroup(ChatFrame5, "BG_ALLIANCE")
 	ChatFrame_AddMessageGroup(ChatFrame5, "BG_NEUTRAL")
 	
-	-- Add channels to correct frames (using channel numbers)
-	ChatFrame_AddChannel(ChatFrame1, 1) -- General
-	ChatFrame_RemoveChannel(ChatFrame1, 2) -- Trade from Frame1
-	ChatFrame_AddChannel(ChatFrame4, 2) -- Trade to Frame4
+	-- Add channels to correct frames (using channel names)
+	ChatFrame_AddChannel(ChatFrame1, GENERAL)
+	ChatFrame_RemoveChannel(ChatFrame1, TRADE)
+	ChatFrame_AddChannel(ChatFrame4, TRADE)
 	
 	-- Enable class colors
 	local channels = {"SAY", "EMOTE", "YELL", "GUILD", "OFFICER", "GUILD_ACHIEVEMENT", "ACHIEVEMENT", 
@@ -244,17 +244,7 @@ local function InstallStep7_Finalize()
 	SavedOptionsPerChar.BottomBars = C.ActionBar.BottomBars
 end
 
--- Complete installation (old function for compatibility)
-local function InstallUI()
-	InstallStep1_Interface()
-	InstallStep2_Graphics()
-	InstallStep3_Combat()
-	InstallStep4_Chat()
-	InstallStep5_ChatWindows()
-	InstallStep6_Misc()
-	InstallStep7_Finalize()
-	StaticPopup_Show("RELOAD_UI")
-end
+
 
 local function DisableUI()
 	DisableAddOn("budsUI")
