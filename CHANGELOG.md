@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-03-13
+
 ### Added
 - "Save to BudtenderPreset.lua" button in Profile Settings (Developer Mode only)
 - Exports current settings to SavedVariables for external script processing
@@ -88,6 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored item info extraction for grey selling
 - Optimized target name retrieval
 
-[Unreleased]: https://github.com/Budtender3000/budsUI/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Budtender3000/budsUI/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Budtender3000/budsUI/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Budtender3000/budsUI/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Budtender3000/budsUI/releases/tag/v0.2.0
