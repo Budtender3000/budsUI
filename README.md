@@ -3,20 +3,20 @@
 <div align="center">
   <img src="budsUI/Media/assets/budsui_logo.png" alt="budsUI Logo" width="400">
   
-  ### Modernes UI für World of Warcraft 3.3.5 (WotLK)
+  ### Modern UI for World of Warcraft 3.3.5 (WotLK)
   
   [![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)](https://github.com/Budtender3000/budsUI/releases)
   [![WoW](https://img.shields.io/badge/WoW-3.3.5-orange.svg)](https://ascension.gg)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   
-  **Speziell entwickelt für [Ascension.gg](https://ascension.gg) Classless Server**
+  **Specially developed for [Ascension.gg](https://ascension.gg) Classless Server**
 </div>
 
 ---
 
-## 🎮 Was ist budsUI?
+## 🎮 What is budsUI?
 
-budsUI ist ein vollständiger UI-Ersatz für World of Warcraft 3.3.5, der das veraltete Blizzard-Interface durch ein modernes, anpassbares Design ersetzt. Mit über 100 Konfigurationsoptionen kannst du dein Interface genau nach deinen Wünschen gestalten.
+budsUI is a complete UI replacement for World of Warcraft 3.3.5, replacing the outdated Blizzard interface with a modern, customizable design. With over 100 configuration options, you can style your interface exactly the way you want.
 
 ---
 
@@ -25,249 +25,249 @@ budsUI ist ein vollständiger UI-Ersatz für World of Warcraft 3.3.5, der das ve
 ![budsUI Screenshot](budsUI/Media/assets/budsui_shot.jpg)
 
 ---
-### ✨ Hauptfeatures
+### ✨ Main Features
 
-- 🎯 **Action Bars** - 5 anpassbare Bars mit Cooldown-Tracking und Range-Anzeige
-- 👤 **Unit Frames** - Moderne Spieler-, Target- und Party-Frames
-- 💬 **Chat-System** - Verbessertes Chat mit URL-Erkennung und Spam-Filter
-- 🗺️ **Minimap** - Kompakte Minimap mit Button-Sammler und Farm-Modus
-- 🎒 **Taschen** - Übersichtliche Taschen mit Item-Quality-Glow
-- 💡 **Tooltips** - Erweiterte Tooltips mit Item-Level, Spell-IDs und mehr
-- ⚡ **Automation** - Auto-Repair, Auto-Invite, Auto-Release und vieles mehr
-- 🔔 **Ankündigungen** - Interrupt-, Sapped- und Pull-Countdown-Meldungen
-- 🎨 **Skins** - Unterstützung für DBM, Recount, Skada, WeakAuras
+- 🎯 **Action Bars** - 5 customizable bars with cooldown tracking and range display
+- 👤 **Unit Frames** - Modern player, target, and party frames
+- 💬 **Chat System** - Enhanced chat with URL recognition and spam filter
+- 🗺️ **Minimap** - Compact minimap with button collector and farm mode
+- 🎒 **Bags** - Organized bags with item quality glow
+- 💡 **Tooltips** - Enhanced tooltips with item level, spell IDs, and more
+- ⚡ **Automation** - Auto-repair, auto-invite, auto-release, and much more
+- 🔔 **Announcements** - Interrupt, sapped, and pull countdown messages
+- 🎨 **Skins** - Support for DBM, Recount, Skada, WeakAuras
 
 ---
 
 ## 📦 Installation
 
-### Schritt 1: Download
-- Lade die neueste Version von [Releases](https://github.com/Budtender3000/budsUI/releases) herunter
-- Oder klone das Repository: `git clone https://github.com/Budtender3000/budsUI.git`
+### Step 1: Download
+- Download the latest version from [Releases](https://github.com/Budtender3000/budsUI/releases)
+- Or clone the repository: `git clone https://github.com/Budtender3000/budsUI.git`
 
-### Schritt 2: Installation
-1. Entpacke das Archiv
-2. Kopiere den `budsUI` Ordner nach `World of Warcraft/Interface/AddOns/`
-3. Starte WoW neu
+### Step 2: Installation
+1. Extract the archive
+2. Copy the `budsUI` folder to `World of Warcraft/Interface/AddOns/`
+3. Restart WoW
 
-### Schritt 3: Konfiguration (empfohlen)
-Für die beste Erfahrung installiere auch **budsUI_Config** für eine grafische Konfigurationsoberfläche:
-- Download: [budsUI_Config](https://github.com/Budtender3000/budsUI_Config) (separates Addon)
-- Kopiere nach `Interface/AddOns/`
+### Step 3: Configuration (recommended)
+For the best experience, also install **budsUI_Config** for a graphical configuration interface:
+- Download: [budsUI_Config](https://github.com/Budtender3000/budsUI_Config) (separate addon)
+- Copy to `Interface/AddOns/`
 
-### Schritt 4: Erste Schritte
-Beim ersten Login erscheint automatisch der Installations-Wizard, der:
-- Optimale UI-Einstellungen konfiguriert
-- Chat-Fenster einrichtet
-- Standard-Positionen festlegt
+### Step 4: Getting Started
+Upon first login, the installation wizard will automatically appear, which:
+- Configures optimal UI settings
+- Sets up chat windows
+- Defines default positions
 
 ---
 
-## 🎮 Verwendung
+## 🎮 Usage
 
-### Wichtige Befehle
+### Important Commands
 
 ```
-/buds              - Öffnet das Konfigurationsmenü
-/moveui            - Aktiviert Frame-Positionierung (Drag & Drop)
-/moveui reset      - Setzt alle Positionen zurück
-/rl                - UI neu laden (nach Änderungen erforderlich)
-/installui         - Installations-Wizard erneut ausführen
-/resetui           - Alle Einstellungen zurücksetzen
+/buds              - Opens the configuration menu
+/moveui            - Enables frame positioning (Drag & Drop)
+/moveui reset      - Resets all positions
+/rl                - Reload UI (required after changes)
+/installui         - Run installation wizard again
+/resetui           - Reset all settings
 ```
 
-### Weitere nützliche Befehle
+### Other Useful Commands
 
 ```
 /rc                - Ready Check
-/align             - Zeigt Positionierungs-Grid
-/frame             - Frame-Inspector (zeigt Frame-Infos unter Cursor)
-/boost             - Setzt Grafik auf Minimum (Performance-Modus)
-/cc                - Chat leeren
+/align             - Shows positioning grid
+/frame             - Frame inspector (shows frame info under cursor)
+/boost             - Sets graphics to minimum (performance mode)
+/cc                - Clear chat
 ```
 
-[Vollständige Befehlsliste](TECHNICAL_DOCUMENTATION.md#befehle)
+[Complete Command List](TECHNICAL_DOCUMENTATION.md#commands)
 
 ---
 
-## ⚙️ Konfiguration
+## ⚙️ Configuration
 
-### Via GUI (empfohlen)
-Mit installiertem **budsUI_Config**:
-1. Tippe `/buds` im Chat
-2. Navigiere durch die Kategorien
-3. Ändere Einstellungen nach Wunsch
-4. Tippe `/rl` um Änderungen zu übernehmen
+### Via GUI (recommended)
+With **budsUI_Config** installed:
+1. Type `/buds` in chat
+2. Navigate through the categories
+3. Change settings as desired
+4. Type `/rl` to apply changes
 
-### Via Lua-Datei
-Fortgeschrittene Nutzer können direkt `budsUI/Config/Settings.lua` bearbeiten.
+### Via Lua File
+Advanced users can directly edit `budsUI/Config/Settings.lua`.
 
-> ⚠️ **Wichtig:** Nach jeder Änderung muss das UI mit `/rl` neu geladen werden!
+> ⚠️ **Important:** After every change, the UI must be reloaded with `/rl`!
 
 ---
 
-## 🔧 Module
+## 🔧 Modules
 
 <details>
-<summary><b>Action Bars</b> - Anpassbare Aktionsleisten</summary>
+<summary><b>Action Bars</b> - Customizable action bars</summary>
 
-- 5 frei positionierbare Bars
+- 5 freely positionable bars
 - Pet Bar & Shapeshift Bar
-- Totem Bar (für Schamanen)
-- Range-Färbung (rot = außer Reichweite)
-- Cooldown-Text auf Buttons
-- Split-Bar-Layout verfügbar
+- Totem Bar (for Shamans)
+- Range coloring (red = out of range)
+- Cooldown text on buttons
+- Split bar layout available
 
 </details>
 
 <details>
-<summary><b>Unit Frames</b> - Spieler- und Gruppen-Frames</summary>
+<summary><b>Unit Frames</b> - Player and group frames</summary>
 
-> ⚠️ Standardmäßig deaktiviert! Aktiviere in den Einstellungen.
+> ⚠️ Disabled by default! Enable in settings.
 
-- Spieler, Target, Focus, Pet
-- Party & Arena Frames
-- Castbars mit Verzögerungsanzeige
-- Smooth Health/Power Bars
-- Aura-Anzeige
-
-</details>
-
-<details>
-<summary><b>Chat</b> - Verbessertes Chat-System</summary>
-
-- Restyled Chat-Frames
-- URL-Erkennung und Kopier-Funktion
-- Chat-Kopier-Funktion (`/copychat`)
-- Spam-Filter
-- Whisper-Sounds
-- `/tt` Befehl (Tell-to-Target)
+- Player, Target, Focus, Pet
+- Party & Arena frames
+- Castbars with delay display
+- Smooth Health/Power bars
+- Aura display
 
 </details>
 
 <details>
-<summary><b>Minimap</b> - Kompakte Minimap</summary>
+<summary><b>Chat</b> - Enhanced chat system</summary>
 
-- Modernes Design
-- Button-Sammler (alle Minimap-Buttons in einem Dropdown)
-- Farm-Modus (vergrößerte Minimap)
-- Rechtsklick-Menü
-- "Wer hat gepingt?"-Anzeige
-
-</details>
-
-<details>
-<summary><b>Tooltips</b> - Erweiterte Tooltips</summary>
-
-- Item-Level-Anzeige
-- Spell-IDs
-- Item-Count (Anzahl im Inventar)
-- Achievement-Fortschritt
-- Talent-Spezialisierung
-- PvP-Rating
-- Instance-Lock-Info
+- Restyled chat frames
+- URL recognition and copy function
+- Chat copy function (`/copychat`)
+- Spam filter
+- Whisper sounds
+- `/tt` command (Tell-to-Target)
 
 </details>
 
 <details>
-<summary><b>Automation</b> - Quality-of-Life-Features</summary>
+<summary><b>Minimap</b> - Compact minimap</summary>
 
-- Auto-Invite (Keyword: "inv")
-- Auto-Release bei Tod
-- Auto-Repair (nutzt Guild-Bank wenn verfügbar)
-- Auto-Verkauf grauer Items
-- Auto-Decline Duels
-- Auto-Screenshots bei Achievements
-- Combat-Logging
+- Modern design
+- Button collector (all minimap buttons in one dropdown)
+- Farm mode (enlarged minimap)
+- Right-click menu
+- "Who pinged?" display
 
 </details>
 
 <details>
-<summary><b>Ankündigungen</b> - Automatische Chat-Meldungen</summary>
+<summary><b>Tooltips</b> - Enhanced tooltips</summary>
 
-- Interrupt-Ankündigungen
-- "Ich bin gesappt"-Meldung
-- Pull-Countdown
-- Feast & Portal-Alerts
-- Bad-Gear-Warnung
+- Item level display
+- Spell IDs
+- Item count (amount in inventory)
+- Achievement progress
+- Talent specialization
+- PvP rating
+- Instance lock info
 
 </details>
 
 <details>
-<summary><b>Klassen-Module</b> - Klassenspezifische Features</summary>
+<summary><b>Automation</b> - Quality-of-life features</summary>
 
-- **Schamane:** Maelstrom Weapon Stack-Counter mit Animationen
-- **Jäger:** Hunter-Utilities
-
-> 💡 Wegen Ascension's Classless-System laden alle Module für alle Klassen
+- Auto-invite (Keyword: "inv")
+- Auto-release on death
+- Auto-repair (uses Guild Bank if available)
+- Auto-sell gray items
+- Auto-decline duels
+- Auto-screenshots for achievements
+- Combat logging
 
 </details>
 
-[Vollständige Modul-Dokumentation](TECHNICAL_DOCUMENTATION.md#module)
+<details>
+<summary><b>Announcements</b> - Automatic chat messages</summary>
+
+- Interrupt announcements
+- "I'm sapped" message
+- Pull countdown
+- Feast & Portal alerts
+- Bad gear warning
+
+</details>
+
+<details>
+<summary><b>Class Modules</b> - Class-specific features</summary>
+
+- **Shaman:** Maelstrom Weapon stack counter with animations
+- **Hunter:** Hunter utilities
+
+> 💡 Due to Ascension's classless system, all modules load for all classes.
+
+</details>
+
+[Complete Module Documentation](TECHNICAL_DOCUMENTATION.md#modules)
 
 ---
 
-## ⚠️ Bekannte Einschränkungen
+## ⚠️ Known Limitations
 
-- **Unit Frames sind standardmäßig deaktiviert** - Muss manuell in den Einstellungen aktiviert werden
-- **Einstellungen erfordern UI-Reload** - Keine Echtzeit-Änderungen möglich
-- **Minimale Bildschirmbreite: 1200px** - Addon deaktiviert sich bei kleineren Auflösungen
-- **Ascension.gg-spezifisch** - Einige Features sind auf Ascension zugeschnitten (z.B. Maelstrom Weapon Spell-ID)
-
----
-
-## 🐛 Probleme melden
-
-Hast du einen Bug gefunden? [Erstelle ein Issue](https://github.com/Budtender3000/budsUI/issues) mit:
-- Beschreibung des Problems
-- Schritte zur Reproduktion
-- Screenshots (falls relevant)
-- Lua-Errors (aktiviere mit `/luaerror on`)
+- **Unit Frames are disabled by default** - Must be manually enabled in settings
+- **Settings require UI reload** - No real-time changes possible
+- **Minimum screen width: 1200px** - Addon disables itself at smaller resolutions
+- **Ascension.gg specific** - Some features are tailored for Ascension (e.g., Maelstrom Weapon spell ID)
 
 ---
 
-## 🤝 Mitwirken
+## 🐛 Report Issues
 
-Contributions sind willkommen! 
-
-1. Fork das Repository
-2. Erstelle einen Feature-Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit deine Änderungen (`git commit -m 'Add some AmazingFeature'`)
-4. Push zum Branch (`git push origin feature/AmazingFeature`)
-5. Öffne einen Pull Request
-
-Für technische Details siehe [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
+Found a bug? [Create an issue](https://github.com/Budtender3000/budsUI/issues) with:
+- Description of the problem
+- Steps to reproduce
+- Screenshots (if relevant)
+- Lua errors (enable with `/luaerror on`)
 
 ---
 
-## 📚 Dokumentation
+## 🤝 Contributing
 
-- **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Vollständige technische Dokumentation für Entwickler
-- **[CHANGELOG.md](CHANGELOG.md)** - Versionshistorie und Änderungen
-- **[INTERVIEW_NOTES.md](INTERVIEW_NOTES.md)** - Detaillierte Code-Analyse
+Contributions are welcome! 
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a pull request
+
+For technical details, see [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
 
 ---
 
-## 💖 Credits & Lizenz
+## 📚 Documentation
 
-### Basiert auf
-- **[KkthnxUI](https://github.com/kkthnx-wow/KkthnxUI)** von Josh "Kkthnx" Russell
-- **[ShestakUI](https://github.com/Shestak/ShestakUI)** von Shestak
+- **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Full technical documentation for developers
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
+- **[INTERVIEW_NOTES.md](INTERVIEW_NOTES.md)** - Detailed code analysis
 
-### Port & Anpassung
-- **[Budtender3000](https://github.com/Budtender3000)** - Ascension.gg Port & Features
+---
 
-### Lizenz
-Dieses Projekt ist unter der [MIT-Lizenz](LICENSE) lizenziert.
+## 💖 Credits & License
 
-Siehe auch: [Lizenzen der verwendeten Bibliotheken](budsUI/Licenses/)
+### Based on
+- **[KkthnxUI](https://github.com/kkthnx-wow/KkthnxUI)** by Josh "Kkthnx" Russell
+- **[ShestakUI](https://github.com/Shestak/ShestakUI)** by Shestak
+
+### Port & Customization
+- **[Budtender3000](https://github.com/Budtender3000)** - Ascension.gg port & features
+
+### License
+This project is licensed under the [MIT License](LICENSE).
+
+See also: [Licenses of used libraries](budsUI/Licenses/)
 
 ---
 
 <div align="center">
   
-  **Viel Spaß mit budsUI! 🎮**
+  **Have fun with budsUI! 🎮**
   
-  [⭐ Star das Projekt](https://github.com/Budtender3000/budsUI) • [🐛 Bug melden](https://github.com/Budtender3000/budsUI/issues) • [💬 Discord](https://ascension.gg)
+  [⭐ Star the project](https://github.com/Budtender3000/budsUI) • [🐛 Report a bug](https://github.com/Budtender3000/budsUI/issues) • [💬 Discord](https://ascension.gg)
   
 </div>
