@@ -49,7 +49,7 @@ local placed = {
 
 local SetPosition = function(mover)
 	local ap, _, rp, x, y = mover:GetPoint()
-	SavedPositions[mover.frame:GetName()] = {ap, "UIParent", rp, x, y}
+	C.MoverPositions[mover.frame:GetName()] = {ap, "UIParent", rp, x, y}
 end
 
 local OnDragStart = function(self)
@@ -100,7 +100,7 @@ end
 local InitMove = function(msg)
 	if InCombatLockdown() then print("|cffffe02e"..ERR_NOT_IN_COMBAT.."|r") return end
 	if msg and (msg == "reset" or msg == "куыуе") then
-		SavedPositions = {}
+		C.MoverPositions = {}
 		for i, v in pairs(placed) do
 			if _G[v] then
 				_G[v]:SetUserPlaced(false)
@@ -134,7 +134,7 @@ local RestoreUI = function(self)
 		end)
 		return
 	end
-	for frame_name, point in pairs(SavedPositions) do
+	for frame_name, point in pairs(C.MoverPositions) do
 		if _G[frame_name] then
 			_G[frame_name]:ClearAllPoints()
 			_G[frame_name]:SetPoint(unpack(point))

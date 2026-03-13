@@ -1,5 +1,5 @@
-﻿local K, C, L, _ = select(2, ...):unpack()
-if C.Automation.AutoInvite ~= true then return end
+local K, C, L, _ = select(2, ...):unpack()
+if SavedOptionsPerChar.AutoInvite ~= true then return end
 
 local _G = _G
 local format = string.format
@@ -18,7 +18,7 @@ local AutoInvite = CreateFrame("Frame")
 local InviteWhisper = CreateFrame("Frame")
 
 -- Accept invites from guild members or friend list(by ALZA)
-if C.Automation.AutoInvite == true then
+if SavedOptionsPerChar.AutoInvite == true then
 	local CheckFriend = function(name)
 		for i = 1, GetNumFriends() do
 			if GetFriendInfo(i) == name then

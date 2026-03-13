@@ -42,6 +42,7 @@ local ALLOWED_GROUPS = {
 	["Tooltip"] = 19,
 	["Unitframe"] = 20,
 	["Profiles"] = 21,
+	["MoverPositions"] = 22,
 }
 
 local function Local(o)
@@ -859,23 +860,18 @@ end
 		end)
 		frame.saveBtn = saveBtn
 
-		local budBtn = frame.budBtn or NormalButton(L_GUI_PROFILES_BUDTENDER, frame)
-		budBtn:SetPoint("TOPLEFT", 20, -offset - 100)
-		budBtn:SetWidth(250)
-		budBtn:SetScript("OnClick", function()
-			-- Save current settings TO the Budtender Preset
-			GUIConfigAll.Profiles["Budtender Preset"] = {}
-			for group, options in pairs(C) do
-				if type(options) == "table" and ALLOWED_GROUPS[group] then
-					GUIConfigAll.Profiles["Budtender Preset"][group] = {}
-					for option, value in pairs(options) do
-						GUIConfigAll.Profiles["Budtender Preset"][group][option] = value
-					end
-				end
-			end
-			Print("Settings saved as new Budtender Preset (Default for all chars)")
+		-- Budtender Preset settings are now locked and hardcoded.
+		-- Overhead save/overwrite functionality removed.
+
+		local resetBtn = frame.resetBtn or NormalButton(L_GUI_PROFILES_RESET or "Reset Profile", frame)
+		resetBtn:SetPoint("TOPLEFT", 20, -offset - 140)
+		resetBtn:SetWidth(250)
+		resetBtn:SetScript("OnClick", function()
+			local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
+			GUIConfigAll.Profiles[activeProfile] = {} -- Total wipe of custom settings for this profile
+			Print("Profile '" .. activeProfile .. "' has been reset to defaults. Reload UI to apply.")
 		end)
-		frame.budBtn = budBtn
+		frame.resetBtn = resetBtn
 	end
 
 	local profilesFrame = CreateFrame("Frame", "UIConfigProfiles", UIConfigGroup)

@@ -11,14 +11,30 @@ if not GUIConfigAll.Profiles then
 	GUIConfigAll.Profiles["Default"] = {}
 	GUIConfigAll.Profiles["Budtender Preset"] = {}
 	-- Migration: Move old global settings to Budtender Preset profile
-	if GUIConfigSettings then
-		for k, v in pairs(GUIConfigSettings) do
-			GUIConfigAll.Profiles["Budtender Preset"][k] = v
+	-- Initialize Budtender Preset with hardcoded settings
+	GUIConfigAll.Profiles["Budtender Preset"] = {}
+	if K.BudtenderPreset then
+		for group, options in pairs(K.BudtenderPreset) do
+			GUIConfigAll.Profiles["Budtender Preset"][group] = {}
+			for option, value in pairs(options) do
+				GUIConfigAll.Profiles["Budtender Preset"][group][option] = value
+			end
 		end
-		GUIConfigSettings = nil
+	end
+	GUIConfigSettings = nil
+end
+-- Ensure Budtender Preset is always available (even if wiped)
+if not GUIConfigAll.Profiles["Budtender Preset"] or next(GUIConfigAll.Profiles["Budtender Preset"]) == nil then
+	GUIConfigAll.Profiles["Budtender Preset"] = {}
+	if K.BudtenderPreset then
+		for group, options in pairs(K.BudtenderPreset) do
+			GUIConfigAll.Profiles["Budtender Preset"][group] = {}
+			for option, value in pairs(options) do
+				GUIConfigAll.Profiles["Budtender Preset"][group][option] = value
+			end
+		end
 	end
 end
-if not GUIConfigAll.Profiles["Budtender Preset"] then GUIConfigAll.Profiles["Budtender Preset"] = {} end
 if not GUIConfigAll.CharacterMap then GUIConfigAll.CharacterMap = {} end
 
 local realmKey = K.Realm.."-"..K.Name
@@ -47,9 +63,17 @@ local profileSettings = GUIConfigAll.Profiles[activeProfile]
 if profileSettings then
 	for group, options in pairs(profileSettings) do
 		if C[group] then
-			for option, value in pairs(options) do
-				if C[group][option] ~= nil then
+			if group == "MoverPositions" then
+				-- Special handling for movers: we want to overwrite the entire table
+				C[group] = {}
+				for option, value in pairs(options) do
 					C[group][option] = value
+				end
+			else
+				for option, value in pairs(options) do
+					if C[group][option] ~= nil then
+						C[group][option] = value
+					end
 				end
 			end
 		end

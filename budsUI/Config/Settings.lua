@@ -273,3 +273,5 @@ C["Unitframe"] = {
 	["Scale"] = 1.2,
 	["SmallAuraSize"] = 22,
 }
+-- Mover positions (integrated with profiles)
+C["MoverPositions"] = {}
