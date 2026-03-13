@@ -25,14 +25,14 @@ bgframe:EnableMouse(true)
 bgframe:SetScript("OnEnter", function(self)
 	local numScores = GetNumBattlefieldScores()
 	for i = 1, numScores do
-		local name, _, _, deaths, _, _, _, _, _, _, damageDone, healingDone = GetBattlefieldScore(i)
-		if name and name == K.Name then
+		local name, killingBlows, honorableKills, deaths, honorGained, faction, race, class, classToken, damageDone, healingDone = GetBattlefieldScore(i)
+		if not name then break end
+		if name == K.Name then
 			local curmapid = GetCurrentMapAreaID()
 			SetMapToCurrentZone()
 			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 4)
 			GameTooltip:ClearLines()
 			GameTooltip:SetPoint("BOTTOM", self, "TOP", 0, 1)
-			GameTooltip:ClearLines()
 			GameTooltip:AddDoubleLine(STATISTICS, classcolor..name.."|r")
 			GameTooltip:AddLine(" ")
 			GameTooltip:AddDoubleLine(HONORABLE_KILLS..":", honorableKills, 1, 1, 1)
@@ -43,7 +43,7 @@ bgframe:SetScript("OnEnter", function(self)
 			if curmapid == IOC or curmapid == AB then
 				GameTooltip:AddDoubleLine(L_DATATEXT_BASESASSAULTED, GetBattlefieldStatData(i, 1), 1, 1, 1)
 				GameTooltip:AddDoubleLine(L_DATATEXT_BASESDEFENDED, GetBattlefieldStatData(i, 2), 1, 1, 1)
-			elseif curmapid == WSG or curmapid then
+			elseif curmapid == WSG then
 				GameTooltip:AddDoubleLine(L_DATATEXT_FLAGSCAPTURED, GetBattlefieldStatData(i, 1), 1, 1, 1)
 				GameTooltip:AddDoubleLine(L_DATATEXT_FLAGSRETURNED, GetBattlefieldStatData(i, 2), 1, 1, 1)
 			elseif curmapid == EOTS then
@@ -58,6 +58,7 @@ bgframe:SetScript("OnEnter", function(self)
 				GameTooltip:AddDoubleLine(L_DATATEXT_GATESDESTROYED, GetBattlefieldStatData(i, 2), 1, 1, 1)
 			end
 			GameTooltip:Show()
+			break
 		end
 	end
 end)
@@ -95,20 +96,21 @@ local int = 2
 local function Update(self, t)
 	int = int - t
 	if int < 0 then
-		local dmgtxt
 		RequestBattlefieldScoreData()
 		local numScores = GetNumBattlefieldScores()
 		for i = 1, numScores do
 			local name, killingBlows, _, _, honorGained, _, _, _, _, _, damageDone, healingDone = GetBattlefieldScore(i)
-			if healingDone > damageDone then
-				dmgtxt = (classcolor..SHOW_COMBAT_HEALING.." :|r "..K.ShortValue(healingDone))
-			else
-				dmgtxt = (classcolor..DAMAGE.." :|r "..K.ShortValue(damageDone))
-			end
 			if name and name == K.Name then
+				local dmgtxt
+				if healingDone > damageDone then
+					dmgtxt = (classcolor..SHOW_COMBAT_HEALING.." :|r "..K.ShortValue(healingDone))
+				else
+					dmgtxt = (classcolor..DAMAGE.." :|r "..K.ShortValue(damageDone))
+				end
 				Text1:SetText(dmgtxt)
 				Text2:SetText(classcolor..COMBAT_HONOR_GAIN.." :|r "..format("%d", honorGained))
 				Text3:SetText(classcolor..KILLING_BLOWS.." :|r "..killingBlows)
+				break
 			end
 		end
 		int = 2

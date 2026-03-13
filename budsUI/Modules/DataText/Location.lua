@@ -28,8 +28,12 @@ Minimap:SetScript("OnLeave",function()
 end)
 
 local Zone_Update = function()
+	local zoneName = GetMinimapZoneText()
+	if not zoneName then return end
+	
 	local PvP = GetZonePVPInfo()
-	MinimapZone_Text:SetText(GetMinimapZoneText())
+	MinimapZone_Text:SetText(zoneName)
+	
 	if PvP == "friendly" then
 		MinimapZone_Text:SetTextColor(0.1, 1.0, 0.1)
 	elseif PvP == "sanctuary" then

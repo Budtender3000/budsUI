@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **DataText Module - Critical Bug Fixes:**
+  - Fixed logic bug in Battleground.lua where unknown battlegrounds incorrectly displayed WSG statistics
+  - Fixed global variable pollution in Stats.lua (ms_combined now properly scoped)
+  - Removed misleading garbage collection message in Stats.lua
+  - Added nil-checks for API returns in Location.lua and Battleground.lua to prevent errors during zone transitions
+  - Removed duplicate function calls in Battleground.lua and Stats.lua
+
+### Changed
+- **DataText Module - Performance Improvements:**
+  - Optimized Battleground statistics loop with early break (50-95% performance improvement in 40-player battlegrounds)
+  - Improved LFD toggle behavior in Stats.lua by removing redundant calls
+
 ## [0.6.0] - 2026-03-13
 
 ### Added

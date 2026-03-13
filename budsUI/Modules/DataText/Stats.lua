@@ -101,7 +101,7 @@ Stat:SetScript("OnEnter", function(self)
 		RebuildAddonList(self)
 		local anchor, panel, xoff, yoff = "ANCHOR_BOTTOMLEFT", self:GetParent(), 0, 5
 		local bw_in, bw_out, latencyHome = GetNetStats()
-		ms_combined = latencyHome
+		local ms_combined = latencyHome
 		GameTooltip:SetOwner(self, anchor, xoff, yoff)
 		GameTooltip:ClearLines()
 		local totalMemory = UpdateMemory()
@@ -131,14 +131,7 @@ end)
 -- Button Functionality
 Stat:SetScript("OnMouseDown", function(self, btn)
 	if (btn == "LeftButton") then
-		if not LFDQueueFrame then ToggleFrame(LFDParentFrame) end
 		ToggleFrame(LFDParentFrame)
-		UpdateAddOnMemoryUsage()
-		local Before = gcinfo()
-		-- collectgarbage("collect") -- Removed for performance, Lua will handle this
-		UpdateAddOnMemoryUsage()
-		local After = gcinfo()
-		K.Print(L_DATATEXT_MEMORY_CLEANED..formatMem(Before-After))
 	end
 end)
 Stat:SetScript("OnLeave", function(self) self.tooltip = false GameTooltip:Hide() end)
