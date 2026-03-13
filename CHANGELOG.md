@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- "Save to BudtenderPreset.lua" button in Profile Settings (Developer Mode only)
+- Exports current settings to SavedVariables for external script processing
+- `export_budtender_preset.sh` script to automatically update BudtenderPreset.lua from SavedVariables
+- `EXPORT_PRESET_README.md` with detailed instructions for the export workflow
+
+### Changed
+- Redesigned installation wizard with multi-step interface
+- Added budsUI logo to installation wizard
+- Split 40+ CVARs into 6 logical installation steps:
+  - Step 1: Interface settings (action bars, quests, loot)
+  - Step 2: Graphics & Camera (UI scale, camera distance, screenshots)
+  - Step 3: Combat & Tooltips (buffs, threat, nameplates)
+  - Step 4: Chat settings (scroll, style, filters)
+  - Step 5: Chat windows layout (3 windows with custom message groups)
+  - Step 6: Miscellaneous (minimap, tips, tutorials)
+- Installation wizard now shows progress bar and step-by-step descriptions
+- Added skip option during installation
+- Improved user experience with back/forward navigation through steps
+
 ## [0.3.0] - 2026-03-13
 
 ### Added

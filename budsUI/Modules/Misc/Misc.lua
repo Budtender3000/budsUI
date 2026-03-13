@@ -42,23 +42,33 @@ WorldStateAlwaysUpFrame:ClearAllPoints()
 WorldStateAlwaysUpFrame:SetPoint("TOP", UIParent, 0, -10)
 
 hooksecurefunc("WorldStateAlwaysUpFrame_Update", function()
-	for i = 1, NUM_ALWAYS_UP_UI_FRAMES do
-		local frame = _G["AlwaysUpFrame"..i]
+	-- Delay execution to ensure all child frames are created by Blizzard/DBM first
+	K.Delay(0.1, function()
+		for i = 1, NUM_ALWAYS_UP_UI_FRAMES do
+			local frame = _G["AlwaysUpFrame"..i]
+			if not frame then return end
 
-		local text = _G["AlwaysUpFrame"..i.."Text"]
-		text:ClearAllPoints()
-		text:SetPoint("CENTER", frame, "CENTER", 0, 0)
-		text:SetJustifyH("CENTER")
-		text:SetFont(C.Media.Font, C.Media.Font_Size)
+			local text = _G["AlwaysUpFrame"..i.."Text"]
+			if text then
+				text:ClearAllPoints()
+				text:SetPoint("CENTER", frame, "CENTER", 0, 0)
+				text:SetJustifyH("CENTER")
+				text:SetFont(C.Media.Font, C.Media.Font_Size)
+			end
 
-		local icon = _G["AlwaysUpFrame"..i.."Icon"]
-		icon:ClearAllPoints()
-		icon:SetPoint("RIGHT", text, "LEFT", 12, -8)
+			local icon = _G["AlwaysUpFrame"..i.."Icon"]
+			if icon then
+				icon:ClearAllPoints()
+				icon:SetPoint("RIGHT", text, "LEFT", 12, -8)
+			end
 
-		local dynamicIcon = _G["AlwaysUpFrame"..i.."DynamicIconButton"]
-		dynamicIcon:ClearAllPoints()
-		dynamicIcon:SetPoint("LEFT", text, "RIGHT", 0, 0)
-	end
+			local dynamicIcon = _G["AlwaysUpFrame"..i.."DynamicIconButton"]
+			if dynamicIcon then
+				dynamicIcon:ClearAllPoints()
+				dynamicIcon:SetPoint("LEFT", text, "RIGHT", 0, 0)
+			end
+		end
+	end)
 end)
 
 -- Vehicle Indicator

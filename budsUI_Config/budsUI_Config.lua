@@ -371,6 +371,48 @@ StaticPopupDialogs["RESET_ALL"] = {
 	preferredIndex = 3,
 }
 
+StaticPopupDialogs["SAVE_TO_BUDTENDER_PRESET"] = {
+	text = "Save current settings to BudtenderPreset.lua?\n\nThis will save your settings to SavedVariables.\n\nAfter logout, run the export script to update BudtenderPreset.lua.",
+	OnAccept = function()
+		local K, C, L, _ = budsUI:unpack()
+		
+		if not C then
+			print("|cffff0000Error:|r Could not access budsUI configuration!")
+			return
+		end
+		
+		-- Save to SavedVariables for external script to read
+		if not SavedOptions then SavedOptions = {} end
+		SavedOptions.BudtenderPresetExport = {}
+		
+		for group, options in pairs(C) do
+			if type(options) == "table" and group ~= "Media" and group ~= "Position" then
+				SavedOptions.BudtenderPresetExport[group] = {}
+				for option, value in pairs(options) do
+					-- Deep copy to avoid reference issues
+					if type(value) == "table" then
+						SavedOptions.BudtenderPresetExport[group][option] = {}
+						for k, v in pairs(value) do
+							SavedOptions.BudtenderPresetExport[group][option][k] = v
+						end
+					else
+						SavedOptions.BudtenderPresetExport[group][option] = value
+					end
+				end
+			end
+		end
+		
+		print("|cff388bdb=== Settings saved to SavedVariables ===|r")
+		print("|cffffe02eLogout and run:|r |cff388bdb./export_budtender_preset.sh|r")
+		print("|cffffe02eThis will update BudtenderPreset.lua with your current settings.|r")
+	end,
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	timeout = 0,
+	whileDead = 1,
+	preferredIndex = 3,
+}
+
 local function SetValue(group, option, value)
 	local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
 	
@@ -896,15 +938,38 @@ end
 		-- Budtender Preset settings are now locked and hardcoded.
 		-- Overhead save/overwrite functionality removed.
 
-		local resetBtn = frame.resetBtn or NormalButton(L_GUI_PROFILES_RESET or "Reset Profile", frame)
-		resetBtn:SetPoint("TOPLEFT", 20, -offset - 140)
-		resetBtn:SetWidth(250)
-		resetBtn:SetScript("OnClick", function()
-			local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
-			GUIConfigAll.Profiles[activeProfile] = {} -- Total wipe of custom settings for this profile
-			Print("Profile '" .. activeProfile .. "' has been reset to defaults. Reload UI to apply.")
-		end)
-		frame.resetBtn = resetBtn
+		-- Save to BudtenderPreset.lua button (Developer Mode only)
+		local K, C, L, _ = budsUI:unpack()
+		if C and C.General and C.General.DeveloperMode then
+			local saveToBudtenderBtn = frame.saveToBudtenderBtn or NormalButton("Save to BudtenderPreset.lua", frame)
+			saveToBudtenderBtn:SetPoint("TOPLEFT", 20, -offset - 140)
+			saveToBudtenderBtn:SetWidth(250)
+			saveToBudtenderBtn:SetScript("OnClick", function()
+				StaticPopup_Show("SAVE_TO_BUDTENDER_PRESET")
+			end)
+			frame.saveToBudtenderBtn = saveToBudtenderBtn
+			
+			local resetBtn = frame.resetBtn or NormalButton(L_GUI_PROFILES_RESET or "Reset Profile", frame)
+			resetBtn:SetPoint("TOPLEFT", 20, -offset - 170)
+			resetBtn:SetWidth(250)
+			resetBtn:SetScript("OnClick", function()
+				local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
+				GUIConfigAll.Profiles[activeProfile] = {} -- Total wipe of custom settings for this profile
+				Print("Profile '" .. activeProfile .. "' has been reset to defaults. Reload UI to apply.")
+			end)
+			frame.resetBtn = resetBtn
+		else
+			-- No developer mode - only show reset button
+			local resetBtn = frame.resetBtn or NormalButton(L_GUI_PROFILES_RESET or "Reset Profile", frame)
+			resetBtn:SetPoint("TOPLEFT", 20, -offset - 140)
+			resetBtn:SetWidth(250)
+			resetBtn:SetScript("OnClick", function()
+				local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
+				GUIConfigAll.Profiles[activeProfile] = {} -- Total wipe of custom settings for this profile
+				Print("Profile '" .. activeProfile .. "' has been reset to defaults. Reload UI to apply.")
+			end)
+			frame.resetBtn = resetBtn
+		end
 	end
 
 	local profilesFrame = CreateFrame("Frame", "UIConfigProfiles", UIConfigGroup)
