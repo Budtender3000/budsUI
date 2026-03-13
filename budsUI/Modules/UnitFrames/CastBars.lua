@@ -13,13 +13,21 @@ local CastBars = CreateFrame("Frame", nil, UIParent)
 -- Anchors
 local PlayerCastbarAnchor = CreateFrame("Frame", "PlayerCastbarAnchor", UIParent)
 if not InCombatLockdown() then
-	PlayerCastbarAnchor:SetSize(CastingBarFrame:GetWidth() * C.Unitframe.CastBarScale, CastingBarFrame:GetHeight() * 2)
+	local width = CastingBarFrame:GetWidth()
+	local height = CastingBarFrame:GetHeight()
+	if width == 0 then width = 150 end
+	if height == 0 then height = 24 end
+	PlayerCastbarAnchor:SetSize(width * C.Unitframe.CastBarScale, height * 2)
 	PlayerCastbarAnchor:SetPoint(unpack(C.Position.UnitFrames.PlayerCastBar))
 end
 
 local TargetCastbarAnchor = CreateFrame("Frame", "TargetCastbarAnchor", UIParent)
 if not InCombatLockdown() then
-	TargetCastbarAnchor:SetSize(TargetFrameSpellBar:GetWidth() * C.Unitframe.CastBarScale, TargetFrameSpellBar:GetHeight() * 2)
+	local width = TargetFrameSpellBar:GetWidth()
+	local height = TargetFrameSpellBar:GetHeight()
+	if width == 0 then width = 150 end
+	if height == 0 then height = 24 end
+	TargetCastbarAnchor:SetSize(width * C.Unitframe.CastBarScale, height * 2)
 	TargetCastbarAnchor:SetPoint(unpack(C.Position.UnitFrames.TargetCastBar))
 end
 
@@ -82,6 +90,12 @@ CastBars:SetScript("OnEvent", function(self, event, addon)
 		end
 		TargetFrameSpellBar.timer:SetPoint("LEFT", TargetFrameSpellBar, "RIGHT", 8, 2)
 		TargetFrameSpellBar.updateDelay = 0.1
+
+		-- Lock positions to prevent Blizzard overrides (Safe for 3.3.5)
+		CastingBarFrame.ClearAllPoints = K.Noop
+		CastingBarFrame.SetPoint = K.Noop
+		TargetFrameSpellBar.ClearAllPoints = K.Noop
+		TargetFrameSpellBar.SetPoint = K.Noop
 
 		self:UnregisterEvent("ADDON_LOADED")
 	end
