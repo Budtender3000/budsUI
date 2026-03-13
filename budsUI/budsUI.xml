@@ -7,7 +7,6 @@
 	<Script file="Config\Settings.lua"/>
 	<Script file="Config\BudtenderPreset.lua"/>
 	<Script file="Config\Positions.lua"/>
-	<Script file="Config\Fonts.lua"/>
 	<Script file="Config\Profiles.lua"/>
 
 	<Script file="Core\GUI.lua"/>

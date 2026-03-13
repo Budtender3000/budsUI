@@ -14,6 +14,16 @@ local GetSpellInfo = GetSpellInfo
 local GetInventoryItemLink = GetInventoryItemLink
 local GetSpellCooldown = GetSpellCooldown
 
+local P_BUFF_ICON_Anchor = K.Frames.P_BUFF_ICON_Anchor
+local P_PROC_ICON_Anchor = K.Frames.P_PROC_ICON_Anchor
+local SPECIAL_P_BUFF_ICON_Anchor = K.Frames.SPECIAL_P_BUFF_ICON_Anchor
+local T_DEBUFF_ICON_Anchor = K.Frames.T_DEBUFF_ICON_Anchor
+local T_BUFF_Anchor = K.Frames.T_BUFF_Anchor
+local PVE_PVP_DEBUFF_Anchor = K.Frames.PVE_PVP_DEBUFF_Anchor
+local PVE_PVP_CC_Anchor = K.Frames.PVE_PVP_CC_Anchor
+local COOLDOWN_Anchor = K.Frames.COOLDOWN_Anchor
+local T_DE_BUFF_BAR_Anchor = K.Frames.T_DE_BUFF_BAR_Anchor
+
 P_BUFF_ICON_Anchor:SetPoint(unpack(C.Position.Filger.PlayerBuffIcon))
 P_BUFF_ICON_Anchor:SetSize(C.Filger.BuffsSize, C.Filger.BuffsSize)
 

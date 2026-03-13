@@ -275,3 +275,34 @@ C["Unitframe"] = {
 }
 -- Mover positions (integrated with profiles)
 C["MoverPositions"] = {}
+
+-- Config Validation to prevent UI breakage from invalid user input
+local function ValidateConfig()
+	-- General limits
+	if type(C.General.UIScale) == "number" then
+		C.General.UIScale = math.max(0.4, math.min(1.2, C.General.UIScale))
+	else
+		C.General.UIScale = 0.71
+	end
+	
+	if type(C.General.BubbleFontSize) == "number" then
+		C.General.BubbleFontSize = math.max(8, math.min(32, C.General.BubbleFontSize))
+	else
+		C.General.BubbleFontSize = 12
+	end
+
+	-- Media limits
+	if type(C.Media.Font_Size) == "number" then
+		C.Media.Font_Size = math.max(8, math.min(32, C.Media.Font_Size))
+	else
+		C.Media.Font_Size = 12
+	end
+
+	if type(C.Media.Combat_Font_Size) == "number" then
+		C.Media.Combat_Font_Size = math.max(8, math.min(64, C.Media.Combat_Font_Size))
+	else
+		C.Media.Combat_Font_Size = 16
+	end
+end
+
+ValidateConfig()

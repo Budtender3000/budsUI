@@ -8,13 +8,14 @@ local GetSpellInfo = GetSpellInfo
 --	Take the number ID at the end of the URL, and add it to the list
 ----------------------------------------------------------------------------------------
 local function SpellName(id)
-	local name, _, _, _, _, _, _, _, _ = GetSpellInfo(id)
-	if(not name) then
-		print(" SpellID is not valid: "..id..". Please check for an updated version, if none exists report this to Kkthnx.")
-		return "Impale"
-	else
-		return name
+	local name = GetSpellInfo(id)
+	if not name then
+		if K.DeveloperMode then
+			print("|cffFF0000budsUI:|r Invalid SpellID: "..tostring(id))
+		end
+		return nil
 	end
+	return name
 end
 
 K.DebuffWhiteList = {
