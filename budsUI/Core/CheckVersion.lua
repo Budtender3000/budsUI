@@ -62,10 +62,27 @@ end
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-frame:RegisterEvent("RAID_ROSTER_UPDATE")
-frame:RegisterEvent("PARTY_MEMBERS_CHANGED")
 frame:RegisterEvent("CHAT_MSG_ADDON")
-frame:SetScript("OnEvent", Check)
+
+local function UpdateGroupEvents()
+	local numParty, numRaid = GetNumPartyMembers(), GetNumRaidMembers()
+	if numRaid > 0 or numParty > 0 then
+		frame:RegisterEvent("RAID_ROSTER_UPDATE")
+		frame:RegisterEvent("PARTY_MEMBERS_CHANGED")
+	else
+		frame:UnregisterEvent("RAID_ROSTER_UPDATE")
+		frame:UnregisterEvent("PARTY_MEMBERS_CHANGED")
+	end
+end
+
+frame:SetScript("OnEvent", function(self, event, ...)
+	if event == "PLAYER_ENTERING_WORLD" then
+		UpdateGroupEvents()
+	elseif event == "RAID_ROSTER_UPDATE" or event == "PARTY_MEMBERS_CHANGED" then
+		UpdateGroupEvents()
+	end
+	Check(self, event, ...)
+end)
 
 -- Whisper UI version (rate-limited: 10s cooldown per sender)
 local Whisper = CreateFrame("Frame")

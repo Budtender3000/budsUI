@@ -33,6 +33,14 @@ K.Print = function(...)
 	print("|cff388bdbbudsUI|r:", ...)
 end
 
+K.SafeSetCVar = function(cvar, value)
+	if GetCVar(cvar) ~= nil then
+		local success = pcall(SetCVar, cvar, value)
+		return success
+	end
+	return false
+end
+
 K.SetFontString = function(parent, fontName, fontHeight, fontStyle)
 	local fs = parent:CreateFontString(nil, "OVERLAY")
 	fs:SetFont(fontName, fontHeight, fontStyle)
@@ -131,18 +139,17 @@ local function CheckRole(self, event, unit)
 	end
 	-- Unregister useless events
 	if event == "PLAYER_ENTERING_WORLD" then
-		if K.Class ~= "WARRIOR" and  K.Class ~= "DRUID" then
-			RoleUpdater:UnregisterEvent("UPDATE_BONUS_ACTIONBAR")	
+		if K.Class ~= "WARRIOR" and K.Class ~= "DRUID" and K.Class ~= "PALADIN" and K.Class ~= "DEATHKNIGHT" then
+			RoleUpdater:UnregisterEvent("UPDATE_BONUS_ACTIONBAR")
 		end
 		RoleUpdater:UnregisterEvent("PLAYER_ENTERING_WORLD")
 	end
-end	
+end
 RoleUpdater:RegisterEvent("PLAYER_ENTERING_WORLD")
 RoleUpdater:RegisterEvent("UNIT_AURA")
 RoleUpdater:RegisterEvent("UPDATE_BONUS_ACTIONBAR")
 RoleUpdater:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 RoleUpdater:RegisterEvent("CHARACTER_POINTS_CHANGED")
-RoleUpdater:RegisterEvent("UNIT_INVENTORY_CHANGED")
 RoleUpdater:SetScript("OnEvent", CheckRole)
 CheckRole()
 

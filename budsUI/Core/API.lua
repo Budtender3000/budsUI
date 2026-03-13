@@ -225,6 +225,9 @@ end
 
 -- Merge budsUI API with WoWs API
 local function AddAPI(object)
+	if object.budsUIEnhanced then return end
+	if object:IsProtected() then return end
+
 	local mt = getmetatable(object).__index
 	if not object.CreateOverlay then mt.CreateOverlay = CreateOverlay end
 	if not object.CreateBorder then mt.CreateBorder = CreateBorder end
@@ -239,6 +242,8 @@ local function AddAPI(object)
 	if not object.FontString then mt.FontString = FontString end
 	if not object.Kill then mt.Kill = Kill end
 	if not object.StripTextures then mt.StripTextures = StripTextures end
+
+	object.budsUIEnhanced = true
 end
 
 local Handled = {["Frame"] = true}
@@ -249,9 +254,10 @@ AddAPI(Object:CreateFontString())
 
 Object = EnumerateFrames()
 while Object do
-	if not Handled[Object:GetObjectType()] then
+	local objType = Object:GetObjectType()
+	if not Handled[objType] then
 		AddAPI(Object)
-		Handled[Object:GetObjectType()] = true
+		Handled[objType] = true
 	end
 
 	Object = EnumerateFrames(Object)

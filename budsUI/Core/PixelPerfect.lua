@@ -18,13 +18,13 @@ PixelPerfect:SetScript("OnEvent", function(self, event)
 	-- Enable UIScale for budsUI
 	local UseUIScale = GetCVar("useUiScale")
 	if (UseUIScale ~= "1") then
-		SetCVar("useUiScale", 1)
+		pcall(SetCVar, "useUiScale", 1)
 	end
 
 	-- Multisample need to be at 1 for pixel perfectness
 	if (C.General.MultisampleCheck) and (gxMultisample ~= "1") then
 		local gxMultisample = GetCVar("gxMultisample")
-		SetMultisampleFormat(1)
+		pcall(SetMultisampleFormat, 1)
 	end
 
 	-- UIScale Security
@@ -34,7 +34,7 @@ PixelPerfect:SetScript("OnEvent", function(self, event)
 	-- Set our new UIScale now if it doesn"t match Blizzard saved UIScale.
 	if (format("%.2f", GetCVar("uiScale")) ~= format("%.2f", C.General.UIScale)) then
 		-- Set new UIScale
-		SetCVar("uiScale", C.General.UIScale)
+		pcall(SetCVar, "uiScale", C.General.UIScale)
 	end
 
 	-- Allow 4K and WQHD Resolution to have an UIScale lower than 0.64, which is

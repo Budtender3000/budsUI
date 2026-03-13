@@ -79,6 +79,10 @@ function K:UIFrameFade(frame, fadeInfo)
 	if not frame:IsProtected() then
 		frame:Show()
 	end
+    
+	if #FADEFRAMES >= 50 then
+		return
+	end
 
 	local index = 1
 	while FADEFRAMES[index] do

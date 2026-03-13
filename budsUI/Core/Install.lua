@@ -32,42 +32,42 @@ local Install = CreateFrame("Frame", nil, UIParent)
 
 -- Simple Install
 local function InstallUI()
-	SetCVar("ConsolidateBuffs", 0)
-	SetCVar("ConversationMode", "inline")
-	SetCVar("RotateMinimap", 0)
-	SetCVar("ShowAllSpellRanks", 0) -- No one needs this shit.
-	SetCVar("ShowClassColorInNameplate", 1)
-	SetCVar("SpamFilter", 0)
-	SetCVar("UberTooltips", 1)
-	SetCVar("WholeChatWindowClickable", 0)
-	SetCVar("alwaysShowActionBars", 1)
-	SetCVar("autoDismount", 1)
-	SetCVar("autoQuestProgress", 1)
-	SetCVar("autoQuestWatch", 1)
-	SetCVar("buffDurations", 1)
-	SetCVar("cameraDistanceMax", 50)
-	SetCVar("chatMouseScroll", 1)
-	SetCVar("chatStyle", "classic", "chatStyle") -- https://goo.gl/3v6Mwj
-	SetCVar("colorblindMode", 0)
-	SetCVar("gameTip", 0)
-	SetCVar("lockActionBars", 1)
-	SetCVar("lootUnderMouse", 0)
-	SetCVar("mapQuestDifficulty", 1)
-	SetCVar("maxfpsbk", 0)
-	SetCVar("removeChatDelay", 1)
-	SetCVar("screenshotQuality", 10)
-	SetCVar("scriptErrors", 0)
-	SetCVar("showLootSpam", 1)
-	SetCVar("showNewbieTips", 0)
-	SetCVar("showTutorials", 0)
-	SetCVar("taintLog", 0)
-	SetCVar("threatWarning", 3)
-	SetCVar("useUiScale", 1)
+	K.SafeSetCVar("ConsolidateBuffs", 0)
+	K.SafeSetCVar("ConversationMode", "inline")
+	K.SafeSetCVar("RotateMinimap", 0)
+	K.SafeSetCVar("ShowAllSpellRanks", 0) -- No one needs this shit.
+	K.SafeSetCVar("ShowClassColorInNameplate", 1)
+	K.SafeSetCVar("SpamFilter", 0)
+	K.SafeSetCVar("UberTooltips", 1)
+	K.SafeSetCVar("WholeChatWindowClickable", 0)
+	K.SafeSetCVar("alwaysShowActionBars", 1)
+	K.SafeSetCVar("autoDismount", 1)
+	K.SafeSetCVar("autoQuestProgress", 1)
+	K.SafeSetCVar("autoQuestWatch", 1)
+	K.SafeSetCVar("buffDurations", 1)
+	K.SafeSetCVar("cameraDistanceMax", 50)
+	K.SafeSetCVar("chatMouseScroll", 1)
+	K.SafeSetCVar("chatStyle", "classic", "chatStyle") -- https://goo.gl/3v6Mwj
+	K.SafeSetCVar("colorblindMode", 0)
+	K.SafeSetCVar("gameTip", 0)
+	K.SafeSetCVar("lockActionBars", 1)
+	K.SafeSetCVar("lootUnderMouse", 0)
+	K.SafeSetCVar("mapQuestDifficulty", 1)
+	K.SafeSetCVar("maxfpsbk", 0)
+	K.SafeSetCVar("removeChatDelay", 1)
+	K.SafeSetCVar("screenshotQuality", 10)
+	K.SafeSetCVar("scriptErrors", 0)
+	K.SafeSetCVar("showLootSpam", 1)
+	K.SafeSetCVar("showNewbieTips", 0)
+	K.SafeSetCVar("showTutorials", 0)
+	K.SafeSetCVar("taintLog", 0)
+	K.SafeSetCVar("threatWarning", 3)
+	K.SafeSetCVar("useUiScale", 1)
 	local screenHeight = K.ScreenHeight or tonumber(match(({GetScreenResolutions()})[GetCurrentResolution()] or "", "%d+x(%d+)"))
 	if screenHeight and screenHeight > 0 then
-		SetCVar("uiScale", 768 / screenHeight)
+		K.SafeSetCVar("uiScale", 768 / screenHeight)
 	end
-	SetCVar("violenceLevel", 5)
+	K.SafeSetCVar("violenceLevel", 5)
 
 	InterfaceOptionsControlsPanelAutoLootKeyDropDown:SetValue("SHIFT")
 	InterfaceOptionsControlsPanelAutoLootKeyDropDown:RefreshValue()
@@ -76,7 +76,7 @@ local function InstallUI()
 	InterfaceOptionsCombatPanelSelfCastKeyDropDown:RefreshValue()
 
 	if C.General.DeveloperMode == true then
-		SetCVar("scriptErrors", 1)
+		K.SafeSetCVar("scriptErrors", 1)
 	end
 
 	FCF_ResetChatWindows()
@@ -297,9 +297,9 @@ Install:SetScript("OnEvent", function(self, event, addon)
 	end
 
 	-- Create empty CVar if they don't exist
-	if not SavedOptions then SavedOptions = {} end
-	if not SavedPositions then SavedPositions = {} end
-	if not SavedOptionsPerChar then SavedOptionsPerChar = {} end
+	if type(SavedOptions) ~= "table" then SavedOptions = {} end
+	if type(SavedPositions) ~= "table" then SavedPositions = {} end
+	if type(SavedOptionsPerChar) ~= "table" then SavedOptionsPerChar = {} end
 	if SavedOptionsPerChar.AutoInvite == nil then SavedOptionsPerChar.AutoInvite = false end
 	if SavedOptionsPerChar.BarsLocked == nil then SavedOptionsPerChar.BarsLocked = false end
 	if SavedOptionsPerChar.SplitBars == nil then SavedOptionsPerChar.SplitBars = true end
@@ -307,14 +307,14 @@ Install:SetScript("OnEvent", function(self, event, addon)
 	if SavedOptionsPerChar.BottomBars == nil then SavedOptionsPerChar.BottomBars = C.ActionBar.BottomBars end
 
 	if K.ScreenWidth < 1200 then
-		SetCVar("useUiScale", 0)
+		K.SafeSetCVar("useUiScale", 0)
 		StaticPopup_Show("DISABLE_UI")
 	else
 		-- Is this causing crashes?
 		if C.General.MultisampleCheck == true then
 			local Multisample = GetCVar("gxMultisample")
 			if Multisample ~= "1" then
-				SetCVar("gxMultisample", 1)
+				K.SafeSetCVar("gxMultisample", 1)
 				StaticPopup_Show("RESTART_GFX")
 			end
 		end

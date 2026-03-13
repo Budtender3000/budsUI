@@ -148,7 +148,7 @@ L_MAP_FARMMODE = "|cff388bdbFarmMode|r"
 L_MINIMAP_FARMMODE_ON = "|cffffe02eFarmmode is now|r |cFF008000enabled|r"
 L_MINIMAP_FARMMODE_OFF = "|cffffe02eFarmmode is now|r |cFFFF0000disabled|r"
 -- Misc Localization
-L_MISC_UI_OUTDATED = "Your version of |cff388bdbbudsUI|r is out of date. You can download the latest version from |cffffe02ewww.github.com/Kkthnx|r"
+L_MISC_UI_OUTDATED = "Your version of |cff388bdbbudsUI|r is out of date. You can download the latest version from |cffffe02ewww.github.com/Budtender3000/budsUI/releases|r"
 L_MISC_UNDRESS = "Undress"
 L_MISC_REPAIR = "Warning! You need to do a repair of your equipment as soon as possible!"
 -- Popup Localization

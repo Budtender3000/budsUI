@@ -163,5 +163,3 @@ function K.CreateBorder(self, size, offset, parent, layer)
 
 	return true
 end
-
-_G.CreateBorder = K.CreateBorder

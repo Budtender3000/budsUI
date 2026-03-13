@@ -153,7 +153,7 @@ L_MAP_FARMMODE = "|cff388bdbFarm-Modus|r"
 L_MINIMAP_FARMMODE_ON = "|cffffe02eFarm-Modus|r: |cFF008000Aktiviert|r."
 L_MINIMAP_FARMMODE_OFF = "|cffffe02eFarm-Modus|r: |cFFFF0000Deaktiviert|r."
 -- Misc Localization
-L_MISC_UI_OUTDATED = "Deine Version von |cff388bdbbudsUI|r ist veraltet. Du kannst die neueste Version von www.github.com/Budtender3000/budsUI herunterladen"
+L_MISC_UI_OUTDATED = "Deine Version von |cff388bdbbudsUI|r ist veraltet. Du kannst die neueste Version von www.github.com/Budtender3000/budsUI/releases herunterladen"
 L_MISC_UNDRESS = "Ausziehen"
 -- Popup Localization
 L_POPUP_ARMORY = "|cffE8CB3BArmory|r"
