@@ -1,20 +1,15 @@
 local K, C, L, _ = select(2, ...):unpack()
 if C.Bag.Enable ~= true then return end
 
-local match = string.match
 local tonumber = tonumber
 local select = select
 local ipairs = ipairs
 local floor = math.floor
-local setmetatable = setmetatable
-local collectgarbage = collectgarbage
 local wipe = table.wipe
-local GetCoinTextureString = GetCoinTextureString
 local CreateFrame, UIParent = CreateFrame, UIParent
 local GetContainerItemCooldown = GetContainerItemCooldown
 local GetItemInfo = GetItemInfo
 local GetItemQualityColor = GetItemQualityColor
-local GetName = GetName
 local GetContainerNumFreeSlots = GetContainerNumFreeSlots
 
 --[[
@@ -32,6 +27,11 @@ local ST_SOULBAG = 2
 local ST_SPECIAL = 3
 local ST_QUIVER = 4
 local bag_bars = 0
+
+-- Extracted constants (previously hardcoded magic numbers)
+local HEARTHSTONE_ID = 6948
+local SORT_MAX_ITERATIONS = 100
+local FRAME_POOL_MAX_SIZE = 120
 local hide_soulbag = C.Bag.HideSoulBag
 
 -- Hide bags options in default interface
@@ -60,7 +60,7 @@ local function Stuffing_OnShow()
 	Stuffing:Layout()
 	Stuffing:SearchReset()
 	PlaySound("igBackPackOpen")
-	collectgarbage("collect")
+	-- collectgarbage removed: forced GC on every bag-open caused frame-drops
 end
 
 local function StuffingBank_OnHide()
@@ -121,13 +121,17 @@ function Stuffing:SlotUpdate(b)
 	end
 
 	if(clink) then
-		b.name, _, b.rarity = GetItemInfo(clink)
-
-		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(b.bag, b.slot)
-		if isQuestItem or questId or isActive then
-			b.qitem = true
+		local name, _, rarity = GetItemInfo(clink)
+		if name then
+			b.name, b.rarity = name, rarity
+			local isQuestItem, questId, isActive = GetContainerItemQuestInfo(b.bag, b.slot)
+			if isQuestItem or questId or isActive then
+				b.qitem = true
+			else
+				b.qitem = nil
+			end
 		else
-			b.qitem = nil
+			b.name, b.rarity, b.qitem = nil, nil, nil
 		end
 	else
 		b.name, b.rarity, b.qitem = nil, nil, nil
@@ -341,27 +345,31 @@ function Stuffing:SearchUpdate(str)
 		end
 		if b.name then
 			local ilink = GetContainerItemLink(b.bag, b.slot)
-			local name, _, _, _, minLevel, _, _, _, equipSlot = GetItemInfo(ilink)
-			equipSlot = (equipSlot and _G[equipSlot]) or ""
-			
-			local match = string.find(string.lower(b.name), str) or string.find(string.lower(equipSlot), str)
-			
-			if not match then
-				if minLevel and minLevel > K.Level then
-					_G[b.frame:GetName().."IconTexture"]:SetVertexColor(0.5, 0.5, 0.5)
-				end
-				SetItemButtonDesaturated(b.frame, true)
-				b.frame:SetAlpha(0.2)
-				if b.Glow then b.Glow:Hide() end
-			else
-				if minLevel and minLevel > K.Level then
-					_G[b.frame:GetName().."IconTexture"]:SetVertexColor(1, 0.1, 0.1)
-				end
-				SetItemButtonDesaturated(b.frame, false)
-				b.frame:SetAlpha(1)
-				if b.Glow then
-					b.Glow:Show()
-					b.Glow:SetVertexColor(0.8, 0.8, 0.3)
+			if ilink then
+				local name, _, _, _, minLevel, _, _, _, equipSlot = GetItemInfo(ilink)
+				if name then
+					equipSlot = (equipSlot and _G[equipSlot]) or ""
+
+					local match = string.find(string.lower(b.name), str) or string.find(string.lower(equipSlot), str)
+
+					if not match then
+						if minLevel and minLevel > K.Level then
+							_G[b.frame:GetName().."IconTexture"]:SetVertexColor(0.5, 0.5, 0.5)
+						end
+						SetItemButtonDesaturated(b.frame, true)
+						b.frame:SetAlpha(0.2)
+						if b.Glow then b.Glow:Hide() end
+					else
+						if minLevel and minLevel > K.Level then
+							_G[b.frame:GetName().."IconTexture"]:SetVertexColor(1, 0.1, 0.1)
+						end
+						SetItemButtonDesaturated(b.frame, false)
+						b.frame:SetAlpha(1)
+						if b.Glow then
+							b.Glow:Show()
+							b.Glow:SetVertexColor(0.8, 0.8, 0.3)
+						end
+					end
 				end
 			end
 		end
@@ -984,27 +992,30 @@ function Stuffing:BAG_CLOSED(id)
 	if b then
 		table.remove(self.bags, id)
 		b:Hide()
-		table.insert(trashBag, #trashBag + 1, b)
+		if #trashBag < FRAME_POOL_MAX_SIZE then
+			table.insert(trashBag, #trashBag + 1, b)
+		end
 	end
 
-	while true do
-		local changed = false
-
-		for i, v in ipairs(self.buttons) do
-			if v.bag == id then
-				v.frame:Hide()
-				v.frame.lock = false
-
-				table.insert(trashButton, #trashButton + 1, v.frame)
-				table.remove(self.buttons, i)
-
-				v = nil
-				changed = true
+	-- Reverse iteration: safe to table.remove without skipping elements
+	for i = #self.buttons, 1, -1 do
+		local v = self.buttons[i]
+		if v.bag == id then
+			-- Clean up scripts and cooldowns before recycling
+			v.frame:SetScript("OnUpdate", nil)
+			v.frame:SetScript("OnEnter", nil)
+			v.frame:SetScript("OnLeave", nil)
+			if v.cooldown then
+				v.cooldown:Hide()
 			end
-		end
 
-		if not changed then
-			break
+			v.frame:Hide()
+			v.frame.lock = false
+
+			if #trashButton < FRAME_POOL_MAX_SIZE then
+				table.insert(trashButton, #trashButton + 1, v.frame)
+			end
+			table.remove(self.buttons, i)
 		end
 	end
 end
@@ -1110,7 +1121,10 @@ function Stuffing:SortOnUpdate(e)
 
 	self.sortList = nil
 
-	if (not changed and not blocked) or self.itmax > 250 then
+	if (not changed and not blocked) or self.itmax > SORT_MAX_ITERATIONS then
+		if self.itmax > SORT_MAX_ITERATIONS then
+			K.Print("|cffffe02eBags: Sort timed out after " .. SORT_MAX_ITERATIONS .. " iterations.|r")
+		end
 		self:SetScript("OnUpdate", nil)
 		self.sortList = nil
 	end
@@ -1172,9 +1186,13 @@ function Stuffing:SortBags()
 
 			if v.name then
 				local _, cnt, _, _, _, _, clink = GetContainerItemInfo(v.bag, v.slot)
-				local n, _, q, iL, rL, c1, c2, _, Sl = GetItemInfo(clink)
-				if n == GetItemInfo(6948) then c1 = "1" end	-- Hearthstone
-				table.insert(st, {srcSlot = v, sslot = v.slot, sbag = v.bag, sort = q..c1..c2..rL..n..iL..Sl..(#self.buttons - i)})
+				if clink then
+					local n, _, q, iL, rL, c1, c2, _, Sl = GetItemInfo(clink)
+					if n then
+						if n == GetItemInfo(HEARTHSTONE_ID) then c1 = "1" end
+						table.insert(st, {srcSlot = v, sslot = v.slot, sbag = v.bag, sort = q..c1..c2..rL..n..iL..Sl..(#self.buttons - i)})
+					end
+				end
 			end
 		end
 	end
