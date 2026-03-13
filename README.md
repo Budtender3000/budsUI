@@ -1,315 +1,266 @@
- # budsUI
+# budsUI
 
 <div align="center">
   <img src="budsUI/Media/assets/budsui_logo.png" alt="budsUI Logo" width="400">
+  
+  ### Modernes UI für World of Warcraft 3.3.5 (WotLK)
+  
+  [![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/Budtender3000/budsUI/releases)
+  [![WoW](https://img.shields.io/badge/WoW-3.3.5-orange.svg)](https://ascension.gg)
+  [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+  
+  **Speziell entwickelt für [Ascension.gg](https://ascension.gg) Classless Server**
 </div>
 
-A comprehensive, full UI-replacement AddOn for **World of Warcraft 3.3.5 (Wrath of the Lich King)**, built for the [Ascension.gg](https://ascension.gg) classless server.
+---
 
-**Based on [KkthnxUI](https://github.com/kkthnx-wow/KkthnxUI) by Josh "Kkthnx" Russell & Shestak**  
-**Port & Customization by [Budtender3000](https://github.com/Budtender3000)**
+## 🎮 Was ist budsUI?
+
+budsUI ist ein vollständiger UI-Ersatz für World of Warcraft 3.3.5, der das veraltete Blizzard-Interface durch ein modernes, anpassbares Design ersetzt. Mit über 100 Konfigurationsoptionen kannst du dein Interface genau nach deinen Wünschen gestalten.
+
+### ✨ Hauptfeatures
+
+- 🎯 **Action Bars** - 5 anpassbare Bars mit Cooldown-Tracking und Range-Anzeige
+- 👤 **Unit Frames** - Moderne Spieler-, Target- und Party-Frames
+- 💬 **Chat-System** - Verbessertes Chat mit URL-Erkennung und Spam-Filter
+- 🗺️ **Minimap** - Kompakte Minimap mit Button-Sammler und Farm-Modus
+- 🎒 **Taschen** - Übersichtliche Taschen mit Item-Quality-Glow
+- 💡 **Tooltips** - Erweiterte Tooltips mit Item-Level, Spell-IDs und mehr
+- ⚡ **Automation** - Auto-Repair, Auto-Invite, Auto-Release und vieles mehr
+- 🔔 **Ankündigungen** - Interrupt-, Sapped- und Pull-Countdown-Meldungen
+- 🎨 **Skins** - Unterstützung für DBM, Recount, Skada, WeakAuras
 
 ---
 
-## ⚠️ Development Status
+## 📦 Installation
 
-> **Version 0.3.0 — Active Development**
+### Schritt 1: Download
+- Lade die neueste Version von [Releases](https://github.com/Budtender3000/budsUI/releases) herunter
+- Oder klone das Repository: `git clone https://github.com/Budtender3000/budsUI.git`
 
-- Tested sporadically; may contain bugs and unexpected behaviour
-- Features and APIs are subject to change
-- Always back up your `WTF/` folder before updating
-- Report bugs via [GitHub Issues](https://github.com/Budtender3000/budsUI/issues)
+### Schritt 2: Installation
+1. Entpacke das Archiv
+2. Kopiere den `budsUI` Ordner nach `World of Warcraft/Interface/AddOns/`
+3. Starte WoW neu
 
----
+### Schritt 3: Konfiguration (empfohlen)
+Für die beste Erfahrung installiere auch **budsUI_Config** für eine grafische Konfigurationsoberfläche:
+- Download: [budsUI_Config](https://github.com/Budtender3000/budsUI_Config) (separates Addon)
+- Kopiere nach `Interface/AddOns/`
 
-## Features
-
-| Category | What it does |
-|---|---|
-| **Unit Frames** | Tweaks to Blizzard Player/Target/Focus/Party/Pet/Arena frames |
-| **Action Bars** | Custom bars (Bar 1–5, Pet, Shapeshift, Totem) with range & cooldown highlighting |
-| **Chat** | Restyled chat frames, copy-chat/URL, filters, sounds, TellTarget |
-| **Tooltips** | Item level, spell ID, PvP rating, instance lock info and more |
-| **Buffs** | Restyled buff frame with aura-source tracking |
-| **Maps** | Minimap styling, FarmMode, right-click menu, button collector |
-| **Loot** | Auto-confirm, auto-greed, group loot, loot filter |
-| **Skins** | Blizzard & third-party frame skins (DBM, Recount, Skada, WeakAuras) |
-| **Misc** | AFK camera, durability warning, aura tracker (Filger), garbage collection, PulseCD |
-| **Automation** | Auto-invite, auto-release, decline duel, combat logging, auto-repair/sell greys |
-| **Announcements** | Interrupt/sapped/pull countdown announcements, feast & portal alerts |
-| **Data Text** | Battleground, location, and stats info bars |
-| **Class Modules** | Hunter utilities, Shaman Maelstrom Weapon counter |
-| **Configuration** | In-game GUI via `budsUI_Config` (optional companion AddOn) |
+### Schritt 4: Erste Schritte
+Beim ersten Login erscheint automatisch der Installations-Wizard, der:
+- Optimale UI-Einstellungen konfiguriert
+- Chat-Fenster einrichtet
+- Standard-Positionen festlegt
 
 ---
 
-## Installation
+## 🎮 Verwendung
 
-1. Download the latest release from [GitHub Releases](https://github.com/Budtender3000/budsUI/releases)
-2. Extract the ZIP and copy **both** subfolders into your AddOns directory:
-   ```
-   World of Warcraft/Interface/AddOns/budsUI/
-   World of Warcraft/Interface/AddOns/budsUI_Config/
-   ```
-3. Launch the game and log in — an installation wizard runs automatically on first login
-4. Use `/buds` to open the configuration panel at any time
+### Wichtige Befehle
 
-> **Note:** Configuration changes require a UI reload (`/rl`) to take effect — there is no runtime toggle system.
-
----
-
-## Slash Commands
-
-| Command | Description |
-|---|---|
-| `/buds` · `/uihelp` | Open configuration GUI / show help |
-| `/rl` · `/reloadui` | Reload the UI |
-| `/rc` | Perform a Ready Check |
-| `/gm` | Open the GM ticket/help frame |
-| `/boost` · `/boostui` | Set video settings to minimum (performance mode) |
-| `/align` · `/grid` | Toggle alignment grid (positioning aid) |
-| `/luaerror on\|off` | Toggle Lua error display |
-| `/rd` | Disband group |
-| `/ss` · `/spec` | Switch specialisation |
-| `/toraid` · `/convert` | Convert party to raid |
-| `/teleport` | Teleport in/out of instance |
-| `/cc` · `/clearchat` | Clear chat window |
-| `/resetui` | Reset UI to defaults |
-| `/installui` | Re-run the installation wizard |
-| `/addons` | Open the AddOn list |
-| `/moveui` | Toggle frame movers (drag to reposition) |
-| `/moveui reset` | Reset all frame positions to default |
-| `/frame` | Frame inspector (name, parent, size, strata) |
-| `/framelist` | Frame stack inspector with chat-copy support |
-| `/texlist` | List textures on the frame under the cursor |
-| `/patch` · `/version` | Show game version and build info |
-
----
-
-## Architecture
-
-### Engine Pattern (`Core/Init.lua`)
-
-Every file shares a single engine namespace unpacked as four values:
-
-```lua
-local K, C, L, _ = select(2, ...):unpack()
+```
+/buds              - Öffnet das Konfigurationsmenü
+/moveui            - Aktiviert Frame-Positionierung (Drag & Drop)
+/moveui reset      - Setzt alle Positionen zurück
+/rl                - UI neu laden (nach Änderungen erforderlich)
+/installui         - Installations-Wizard erneut ausführen
+/resetui           - Alle Einstellungen zurücksetzen
 ```
 
-| Variable | Type | Purpose |
-|---|---|---|
-| `K` | Frame | The "Kernel" — event bus, utilities, the main addon object. Also a real `CreateFrame("Frame")` that receives events. |
-| `C` | Table | Config — all settings from `Config/Settings.lua` |
-| `L` | Table | Locale strings (enUS / deDE) |
-| `_` | Table | Taint-prevention slot (unused globals go here) |
+### Weitere nützliche Befehle
 
-The global alias `budsUI = Engine` allows external AddOns to interact with the engine. Player info is stored directly on the kernel frame: `K.Name`, `K.Class`, `K.Realm`, `K.Color`, `K.Version`, `K.ScreenWidth`, etc.
+```
+/rc                - Ready Check
+/align             - Zeigt Positionierungs-Grid
+/frame             - Frame-Inspector (zeigt Frame-Infos unter Cursor)
+/boost             - Setzt Grafik auf Minimum (Performance-Modus)
+/cc                - Chat leeren
+```
 
-### Load Order (`budsUI.xml`)
-
-The load order is **implicit** — there is no explicit dependency system. The XML file determines the exact sequence (82 Lua files):
-
-1. `Core/Init.lua` — Engine bootstrap
-2. Locales (enUS, deDE)
-3. Config (Settings, Positions, Fonts, Profiles)
-4. `Core/GUI.lua`, `Core/PixelPerfect.lua`
-5. Internal libs (oGlow, LibStub, CallbackHandler-1.0, LibSharedMedia-3.0)
-6. `Media/Media.lua`, `Core/Colors.lua`
-7. Config filter tables (Announcements, ChatSpam, Errors, FilgerSpells, Nameplates, NeedItems)
-8. Core modules (API, Functions, Animation, Install, Disable, Commands, WTF, Kill, CheckVersion, Border, Developer, Panels, Temp)
-9. Feature modules (UnitFrames, Misc, ActionBars, Announcements, Automation, Blizzard, Buffs, Chat, Class, DataText, Loot, Maps, Quests, Skins, Tooltip)
-10. `Core/Movers.lua` — **must load last** (requires all frame anchors to exist)
-
-### Configuration (`Config/Settings.lua`)
-
-All settings are static Lua tables under `C["ModuleName"]` (~100 options across 20+ groups). A UI reload is required for changes to take effect.
-
-**SavedVariables:**
-
-| Variable | Scope | Purpose |
-|---|---|---|
-| `SavedOptions` | Global | Addon-wide options |
-| `SavedOptionsPerChar` | Per-Character | Install flag, AutoInvite, BarsLocked, SplitBars, etc. |
-| `SavedPositions` | Per-Character | Frame positions (Mover system) |
-| `GUIConfigSettings` | Global (budsUI_Config) | GUI config overrides |
-| `GUIConfig` | Per-Char (budsUI_Config) | Character-specific GUI overrides |
-| `GUIConfigAll` | Global (budsUI_Config) | Per-realm/per-char toggle matrix |
-
-### API Extension (`Core/API.lua`)
-
-Injects helper methods into **all** existing Blizzard frame objects via metatable extension (using `EnumerateFrames()`). Key additions:
-
-- **Layout helpers:** `SetOutside()`, `SetInside()`
-- **Visuals:** `CreateBackdrop()`, `CreateBorder()`, `CreateOverlay()`, `CreatePixelShadow()`, `SetTemplate()`
-- **Utilities:** `FontString()`, `Kill()`, `StripTextures()`, `StyleButton()`, `CreatePanel()`
-
-> **⚠ Warning:** This is a global metatable modification. Any other AddOn that defines methods with the same names (`Kill`, `SetTemplate`, `StripTextures`, etc.) will collide.
-
-### Utility Library (`Core/Functions.lua`)
-
-| Function | Description |
-|---|---|
-| `K.ShortValue(n)` | Format large numbers (1k, 1m; 万/亿 for zh-CN) |
-| `K.RGBToHex(r,g,b)` | Convert RGB to hex colour string |
-| `K.FormatMoney(copper)` | Format copper into g/s/c |
-| `K.GetTimeInfo(s)` | Convert seconds to days/hours/minutes/seconds |
-| `K.Delay(delay, func)` | Deferred function call via OnUpdate frame |
-| `K.Round(n, dec)` | Round to decimal places |
-| `K.ShortenString(str, n, dots)` | UTF-8-aware string truncation |
-| `K.CheckChat(warning)` | Determine correct chat channel (RAID/PARTY/SAY) |
-| `CheckRole()` | Auto-detect player role (Tank/Melee/Caster) via buffs & stats |
-| `K.Mult` | Pixel-perfect scale multiplier (`768 / screenHeight / UIScale`) |
-
-### Addon Conflict Detection (`Core/Disable.lua`)
-
-budsUI automatically disables its own features when competing AddOns are detected:
-
-| Feature | Disabled when these AddOns are loaded |
-|---|---|
-| Minimap | SexyMap, wMinimap |
-| Unit Frames | Stuf, PitBull4, ShadowedUnitFrames, XPerl |
-| Nameplates | TidyPlates, Aloft, dNamePlates, caelNamePlates |
-| Action Bars | Dominos, Bartender4, RazerNaga |
-| Bags | AdiBags, ArkInventory, cargBags, Bagnon, Combuctor, TBag, BaudBag |
-| Chat | Prat-3.0, Chatter |
-| Tooltip | TipTac, FreebTip, bTooltip, PhoenixTooltip, Icetip, rTooltip |
-| Misc | QuestHelper, GnomishVendorShrinker, AlreadyKnown, BadBoy, NiceBubbles, ChatSounds, Doom_CooldownPulse |
+[Vollständige Befehlsliste](TECHNICAL_DOCUMENTATION.md#befehle)
 
 ---
 
-## Module Overview
+## ⚙️ Konfiguration
 
-### ActionBars (16 files)
-Full custom ActionBar system (Bar 1–5, Pet, Shapeshift, Totem) with range colouring, cooldown text, hotkey display, and split-bar layout option.
+### Via GUI (empfohlen)
+Mit installiertem **budsUI_Config**:
+1. Tippe `/buds` im Chat
+2. Navigiere durch die Kategorien
+3. Ändere Einstellungen nach Wunsch
+4. Tippe `/rl` um Änderungen zu übernehmen
 
-### Announcements (6 files)
-Situational chat announcements: BadGear, FeastsAndPortals, Interrupt, PullCountdown, SaySapped, Spells — using `K.CheckChat()` for automatic channel selection.
+### Via Lua-Datei
+Fortgeschrittene Nutzer können direkt `budsUI/Config/Settings.lua` bearbeiten.
 
-### Automation (7 files)
-AutoInvite, AutoRelease, DeclineDuel, LoggingCombat, Screenshots, SellGreyRepair, TabBinder.
-
-### Blizzard (14 files)
-Reskinning of Blizzard frames: Achievements, Bags, CombatText, DarkTextures, Durability, Errors, ExpBar, Fonts, Nameplates, and more. Includes `BlizzBugsSuck` — fixes for known Blizzard client bugs.
-
-### Buffs (2 files)
-Restyled buff frame with class-colour borders and aura-source (`CastBy`) tracking.
-
-### Chat (9 files)
-ChatFrames, ChatTabs, CopyChat, CopyUrl, Filters, MouseScroll, Sounds, SpamageMeters, TellTarget.
-
-### Class (2 files)
-Hunter utilities and Shaman Maelstrom Weapon stack counter.
-
-### DataText (3 files)
-Battleground stats, location info, and performance/stats data bars.
-
-### Loot (6 files)
-Auto-confirm BoP, auto-greed, group loot frames, loot filter.
-
-### Maps (5 files)
-Minimap restyling, FarmMode, right-click menu, button collector, ping notifications.
-
-### Misc (18 files)
-AFK camera, AlreadyKnown item overlay, aura tracker (Filger), durability warning, garbage collector, PulseCD cooldown flash, and more.
-
-### Quests (4 files)
-Quest log enhancements and quest tracking improvements.
-
-### Skins (via XML includes)
-Addon skins (DBM, Recount, Skada, Spy, WeakAuras) and Blizzard frame skins.
-
-### Tooltip (12 files)
-Achievement tooltips, HyperLink preview, InstanceLock, ItemCount, ItemIcons, ItemLevel, MultiItemRef, PvPRating, SpellID, Talents, and full tooltip restyling.
-
-### UnitFrames (7 files)
-Auras, CastBars, EnhancedFrames, HealthMinMax, Layout, PowerBar, SmoothBars — **disabled by default** (see Known Issues).
+> ⚠️ **Wichtig:** Nach jeder Änderung muss das UI mit `/rl` neu geladen werden!
 
 ---
 
-## Dependencies
+## 🔧 Module
 
-### Bundled Libraries (`Libs/`)
+<details>
+<summary><b>Action Bars</b> - Anpassbare Aktionsleisten</summary>
 
-| Library | Purpose |
-|---|---|
-| `LibStub` | Standard AddOn library management |
-| `CallbackHandler-1.0` | Event system for libraries |
-| `LibSharedMedia-3.0` | Shared fonts and texture registry |
-| `oGlow` | Item quality glow effects |
+- 5 frei positionierbare Bars
+- Pet Bar & Shapeshift Bar
+- Totem Bar (für Schamanen)
+- Range-Färbung (rot = außer Reichweite)
+- Cooldown-Text auf Buttons
+- Split-Bar-Layout verfügbar
 
-### Optional External AddOns
+</details>
 
-`budsUI_Config` is strongly recommended for configuration. The following AddOns are detected and integrated when present:
+<details>
+<summary><b>Unit Frames</b> - Spieler- und Gruppen-Frames</summary>
 
-- `Blizzard_CombatText`, `Blizzard_DebugTools`
-- `CLCRet`, `DBM-Core`, `Recount`, `Skada`, `Spy`, `WeakAuras`
+> ⚠️ Standardmäßig deaktiviert! Aktiviere in den Einstellungen.
 
-`Core/WTF.lua` pre-configures profiles for Grid, Bartender4, ButtonFacade, ThreatPlates, ClassTimer, and Nameplates on first install.
+- Spieler, Target, Focus, Pet
+- Party & Arena Frames
+- Castbars mit Verzögerungsanzeige
+- Smooth Health/Power Bars
+- Aura-Anzeige
+
+</details>
+
+<details>
+<summary><b>Chat</b> - Verbessertes Chat-System</summary>
+
+- Restyled Chat-Frames
+- URL-Erkennung und Kopier-Funktion
+- Chat-Kopier-Funktion (`/copychat`)
+- Spam-Filter
+- Whisper-Sounds
+- `/tt` Befehl (Tell-to-Target)
+
+</details>
+
+<details>
+<summary><b>Minimap</b> - Kompakte Minimap</summary>
+
+- Modernes Design
+- Button-Sammler (alle Minimap-Buttons in einem Dropdown)
+- Farm-Modus (vergrößerte Minimap)
+- Rechtsklick-Menü
+- "Wer hat gepingt?"-Anzeige
+
+</details>
+
+<details>
+<summary><b>Tooltips</b> - Erweiterte Tooltips</summary>
+
+- Item-Level-Anzeige
+- Spell-IDs
+- Item-Count (Anzahl im Inventar)
+- Achievement-Fortschritt
+- Talent-Spezialisierung
+- PvP-Rating
+- Instance-Lock-Info
+
+</details>
+
+<details>
+<summary><b>Automation</b> - Quality-of-Life-Features</summary>
+
+- Auto-Invite (Keyword: "inv")
+- Auto-Release bei Tod
+- Auto-Repair (nutzt Guild-Bank wenn verfügbar)
+- Auto-Verkauf grauer Items
+- Auto-Decline Duels
+- Auto-Screenshots bei Achievements
+- Combat-Logging
+
+</details>
+
+<details>
+<summary><b>Ankündigungen</b> - Automatische Chat-Meldungen</summary>
+
+- Interrupt-Ankündigungen
+- "Ich bin gesappt"-Meldung
+- Pull-Countdown
+- Feast & Portal-Alerts
+- Bad-Gear-Warnung
+
+</details>
+
+<details>
+<summary><b>Klassen-Module</b> - Klassenspezifische Features</summary>
+
+- **Schamane:** Maelstrom Weapon Stack-Counter mit Animationen
+- **Jäger:** Hunter-Utilities
+
+> 💡 Wegen Ascension's Classless-System laden alle Module für alle Klassen
+
+</details>
+
+[Vollständige Modul-Dokumentation](TECHNICAL_DOCUMENTATION.md#module)
 
 ---
 
-## Known Issues & Caveats
+## ⚠️ Bekannte Einschränkungen
 
-> These are documented quirks developers and users should be aware of.
-
-### Confirmed Bugs
-
-> No high-priority bugs are currently confirmed. [Report issues on GitHub](https://github.com/Budtender3000/budsUI/issues).
-
-### Other Caveats
-
-1. **Unit Frames disabled by default** — `C.Unitframe.Enable = false` in `Config/Settings.lua`. Enable manually before first use. (Filger is also auto-disabled when UnitFrames are off.)
-2. **Metatable injection** (`Core/API.lua`) — Methods are injected globally across all frames. May conflict with other AddOns using the same method names.
-3. **Frame enumeration on load** — `Core/API.lua` loops over all existing frames at load time. May increase load time in environments with many frames.
-4. **Lua errors hidden by default** — The installer sets `scriptErrors=0`. Use `/luaerror on` during development.
-5. **`K.Delay` memory note** — Active cleanup is implemented; cancelled delays are removed from the `waitTable` immediately.
-6. **WTF.lua profile keys** — Profile keys are now dynamically generated based on `UnitName` and `GetRealmName`.
-7. **`CheckRole()` is heuristic** — Role detection uses stat comparison and buff checks. Hybrid classes may be misidentified. Registers `UNIT_AURA` globally (fires on every aura update).
-8. **No error handling** — Almost no `pcall` usage in the entire addon. A single Lua error in a critical file can cascade.
-9. **Settings only apply after reload** — There is no runtime toggle mechanism. Every change requires `/rl`.
+- **Unit Frames sind standardmäßig deaktiviert** - Muss manuell in den Einstellungen aktiviert werden
+- **Einstellungen erfordern UI-Reload** - Keine Echtzeit-Änderungen möglich
+- **Minimale Bildschirmbreite: 1200px** - Addon deaktiviert sich bei kleineren Auflösungen
+- **Ascension.gg-spezifisch** - Einige Features sind auf Ascension zugeschnitten (z.B. Maelstrom Weapon Spell-ID)
 
 ---
 
-## Key Files Reference
+## 🐛 Probleme melden
 
-| File | Priority | Description |
-|---|---|---|
-| `Core/Init.lua` | ⭐⭐⭐ | Engine bootstrap — start here |
-| `Core/API.lua` | ⭐⭐⭐ | All reusable frame methods (metatable injection) |
-| `Core/Functions.lua` | ⭐⭐⭐ | Utility library |
-| `Config/Settings.lua` | ⭐⭐⭐ | All configuration options (~100 settings) |
-| `Config/Positions.lua` | ⭐⭐ | Pixel-accurate frame positions |
-| `Core/Install.lua` | ⭐⭐ | First-run setup & SavedVariables |
-| `Core/Commands.lua` | ⭐⭐ | All slash commands |
-| `Core/Disable.lua` | ⭐⭐ | Addon conflict detection & feature toggles |
-| `Core/Movers.lua` | ⭐⭐ | Frame-positioning GUI (must load last) |
-| `Modules/UnitFrames/Layout.lua` | ⭐⭐ | Core of the unit frame system |
-| `budsUI.xml` | ⭐⭐ | Load order = implicit dependencies |
-| `Core/WTF.lua` | ⭐ | Third-party AddOn profile configuration |
+Hast du einen Bug gefunden? [Erstelle ein Issue](https://github.com/Budtender3000/budsUI/issues) mit:
+- Beschreibung des Problems
+- Schritte zur Reproduktion
+- Screenshots (falls relevant)
+- Lua-Errors (aktiviere mit `/luaerror on`)
 
 ---
 
-## Project Scope
+## 🤝 Mitwirken
 
-- **Total size:** ~15,000–20,000 lines of Lua across 82 files
-- **Interface level:** `30300` (WoW 3.3.0 / WotLK)
-- **Locales:** English (enUS), German (deDE)
-- **Heritage:** Fork of KkthnxUI adapted for Ascension.gg's classless server
+Contributions sind willkommen! 
 
----
+1. Fork das Repository
+2. Erstelle einen Feature-Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit deine Änderungen (`git commit -m 'Add some AmazingFeature'`)
+4. Push zum Branch (`git push origin feature/AmazingFeature`)
+5. Öffne einen Pull Request
 
-## Credits
-
-- **Original UI:** [KkthnxUI](https://github.com/kkthnx-wow/KkthnxUI) by Josh "Kkthnx" Russell & Shestak
-- **3.3.5 Port & Customization:** [Budtender3000](https://github.com/Budtender3000)
-- **License:** MIT (see `Licenses/` folder)
+Für technische Details siehe [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
 
 ---
 
-## Support
+## 📚 Dokumentation
 
-- **GitHub:** [Budtender3000/budsUI](https://github.com/Budtender3000/budsUI)
-- **Issues:** [Report via GitHub Issues](https://github.com/Budtender3000/budsUI/issues)
+- **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Vollständige technische Dokumentation für Entwickler
+- **[CHANGELOG.md](CHANGELOG.md)** - Versionshistorie und Änderungen
+- **[INTERVIEW_NOTES.md](INTERVIEW_NOTES.md)** - Detaillierte Code-Analyse
 
-This project is licensed under the **MIT License**. budsUI is a derivative work of KkthnxUI, maintaining the original MIT license.  
-See `Licenses/KkthnxUI` for the original license text.
+---
+
+## 💖 Credits & Lizenz
+
+### Basiert auf
+- **[KkthnxUI](https://github.com/kkthnx-wow/KkthnxUI)** von Josh "Kkthnx" Russell
+- **[ShestakUI](https://github.com/Shestak/ShestakUI)** von Shestak
+
+### Port & Anpassung
+- **[Budtender3000](https://github.com/Budtender3000)** - Ascension.gg Port & Features
+
+### Lizenz
+Dieses Projekt ist unter der [MIT-Lizenz](LICENSE) lizenziert.
+
+Siehe auch: [Lizenzen der verwendeten Bibliotheken](budsUI/Licenses/)
+
+---
+
+<div align="center">
+  
+  **Viel Spaß mit budsUI! 🎮**
+  
+  [⭐ Star das Projekt](https://github.com/Budtender3000/budsUI) • [🐛 Bug melden](https://github.com/Budtender3000/budsUI/issues) • [💬 Discord](https://ascension.gg)
+  
+</div>
