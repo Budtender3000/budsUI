@@ -38,8 +38,8 @@ end
 if not GUIConfigAll.CharacterMap then GUIConfigAll.CharacterMap = {} end
 
 local realmKey = K.Realm.."-"..K.Name
-local activeProfile = GUIConfigAll.CharacterMap[realmKey] or "Budtender Preset"
-if not GUIConfigAll.Profiles[activeProfile] then activeProfile = "Budtender Preset" end
+local activeProfile = GUIConfigAll.CharacterMap[realmKey] or "Default"
+if not GUIConfigAll.Profiles[activeProfile] then activeProfile = "Default" end
 
 
 -- Migration: If this character had "Per Character" settings enabled, move them to a new profile

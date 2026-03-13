@@ -63,7 +63,10 @@ local function InstallUI()
 	SetCVar("taintLog", 0)
 	SetCVar("threatWarning", 3)
 	SetCVar("useUiScale", 1)
-	SetCVar("uiScale", 768 / match(({GetScreenResolutions()})[GetCurrentResolution()], "%d+x(%d+)"))
+	local screenHeight = K.ScreenHeight or tonumber(match(({GetScreenResolutions()})[GetCurrentResolution()] or "", "%d+x(%d+)"))
+	if screenHeight and screenHeight > 0 then
+		SetCVar("uiScale", 768 / screenHeight)
+	end
 	SetCVar("violenceLevel", 5)
 
 	InterfaceOptionsControlsPanelAutoLootKeyDropDown:SetValue("SHIFT")
@@ -87,7 +90,7 @@ local function InstallUI()
 	ChatFrame3:Show()
 
 	-- Setting chat frames
-	if C.Chat.Enable == true and not (select(4, GetAddOnInfo("Prat-3.0"))) or (select(4, GetAddOnInfo("Chatter"))) then
+	if C.Chat.Enable == true and not (select(4, GetAddOnInfo("Prat-3.0")) or select(4, GetAddOnInfo("Chatter"))) then
 		for i = 1, NUM_CHAT_WINDOWS do
 			local frame = _G[format("ChatFrame%s", i)]
 			local chatFrameId = frame:GetID()
@@ -197,6 +200,11 @@ local function InstallUI()
 	-- Reset saved variables on char
 	SavedPositions = {}
 	SavedOptionsPerChar = {}
+
+	-- Set default profile to Default
+	if not GUIConfigAll then GUIConfigAll = {} end
+	if not GUIConfigAll.CharacterMap then GUIConfigAll.CharacterMap = {} end
+	GUIConfigAll.CharacterMap[K.Realm.."-"..K.Name] = "Default"
 
 	SavedOptionsPerChar.Install = true
 	SavedOptionsPerChar.AutoInvite = false

@@ -164,7 +164,7 @@ L_POPUP_SETTINGS_ALL = "Einstellungen für alle unterstützten Addons anwenden? 
 L_POPUP_SETTINGS_BW = "Position der |cff388bdbBigWigs|r Elemente muss angepasst werden."
 L_POPUP_SETTINGS_DBM = "Position der |cff388bdbDBM|r Balken muss angepasst werden."
 L_POPUP_BOOSTUI = "|cfff02c35WARNUNG:|r Dies optimiert die Performance durch Reduzierung der Grafikeinstellungen. Nur anwenden bei |cfff02c35FPS|r Problemen!|r"
-L_POPUP_RELOADUI = "Installation abgeschlossen. Bitte klicke 'Akzeptieren' um das UI neu zu laden. Viel Spaß mit |cff388bdbbudsUI|r!|n|nBesuche: |cff388bdbwww.github.com/Budtender3000/budsUI|r!"
+L_POPUP_RELOADUI = "Installation abgeschlossen. Bitte klicke 'Akzeptieren' um das UI neu zu laden. Viel Spaß mit |cff388bdbbudsUI|r!|n|nBesuche: |cff388bdbwww.github.com/Budtender3000/budsUI|r!|n|nCredits: |cff388bdbwww.github.com/Kkthnx-Wow|r"
 -- Reputation Standing Localization
 L_REPUTATION_EXALTED = "Ehrfürchtig"
 L_REPUTATION_FRIENDLY = "Freundlich"

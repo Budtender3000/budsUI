@@ -26,6 +26,11 @@ Engine[1].ScreenWidth = tonumber(string.match(Engine[1].Resolution, "(%d+)x+%d")
 Engine[1].VersionNumber = tonumber(Engine[1].Version)
 Engine[1].WoWPatch, Engine[1].WoWBuild, Engine[1].WoWPatchReleaseDate, Engine[1].TocVersion = GetBuildInfo()
 
+-- Initialize SavedVariables
+if not SavedOptions then SavedOptions = {} end
+if not SavedOptionsPerChar then SavedOptionsPerChar = {} end
+if not SavedPositions then SavedPositions = {} end
+
 SLASH_RELOADUI1, SLASH_RELOADUI2 = "/rl", "/reloadui"
 SlashCmdList["RELOADUI"] = ReloadUI
 
