@@ -16,7 +16,7 @@ local buttons = {
 	"MiniMapBattlefieldFrame",
 	"MiniMapMailFrame",
 	"MiniMapTrackingButton",
-	"MinimMap",
+	"Minimap",
 	"QuestMapPOI",
 	"Spy_MapNoteList_mini",
 	"TimeManagerClockButton",
@@ -28,9 +28,9 @@ local buttons = {
 local function SkinButton(f)
 	if not f or f:GetObjectType() ~= "Button" then return end
 
-	for i, buttons in pairs(buttons) do
+	for i, name in pairs(buttons) do
 		if f:GetName() ~= nil then
-			if f:GetName():match(buttons) then return end
+			if f:GetName():match(name) then return end
 		end
 	end
 
@@ -75,7 +75,6 @@ frame:SetScript("OnEvent", function(self, event)
 
 	if WIM3MinimapButton and WIM3MinimapButton:GetNumRegions() < 9 then
 		SkinButton(WIM3MinimapButton)
-		SkinButton(WIM3MinimapButton)
 	end
-	self = nil
+	self:UnregisterAllEvents()
 end)

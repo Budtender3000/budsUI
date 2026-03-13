@@ -29,11 +29,11 @@ local function skinbubble(frame)
 		frame:SetClampedToScreen(false)
 		frame:SetFrameStrata("BACKGROUND")
 		frame.text:SetFont(C.Media.Font, C.General.BubbleFontSize)
-		frame.text:SetShadowOffset(K.Mult * UIParent:GetScale() or 1 * UIParent:GetScale(), -K.Mult * UIParent:GetScale() or -1 * UIParent:GetScale())
+		frame.text:SetShadowOffset((K.Mult or 1) * UIParent:GetScale(), -(K.Mult or 1) * UIParent:GetScale())
 	else
 		frame:SetBackdrop(nil)
 		frame.text:SetFont(C.Media.Font, C.General.BubbleFontSize)
-		frame.text:SetShadowOffset(K.Mult * UIParent:GetScale() or 1 * UIParent:GetScale(), -K.Mult * UIParent:GetScale() or -1 * UIParent:GetScale())
+		frame.text:SetShadowOffset((K.Mult or 1) * UIParent:GetScale(), -(K.Mult or 1) * UIParent:GetScale())
 		frame:SetClampedToScreen(false)
 		frame:SetFrameStrata("BACKGROUND")
 	end
@@ -45,7 +45,7 @@ end
 local function ischatbubble(frame)
 	for i = 1, frame:GetNumRegions() do
 		local region = select(i, frame:GetRegions())
-		if (region.GetTexture and region:GetTexture() and type(region:GetTexture() == "string") and strlower(region:GetTexture()) == [[interface\tooltips\chatbubble-background]]) then return true end
+		if (region.GetTexture and region:GetTexture() and type(region:GetTexture()) == "string" and strlower(region:GetTexture()) == [[interface\tooltips\chatbubble-background]]) then return true end
 	end
 	return false
 end
@@ -69,8 +69,10 @@ chatbubblehook:SetScript("OnUpdate", function(chatbubblehook, elapsed)
 		end
 
 		for i, frame in next, bubbles do
-			local r, g, b = frame.text:GetTextColor()
-			frame:SetBackdropBorderColor(r, g, b)
+			if frame:GetBackdrop() then
+				local r, g, b = frame.text:GetTextColor()
+				frame:SetBackdropBorderColor(r, g, b)
+			end
 		end
 	end
 end)

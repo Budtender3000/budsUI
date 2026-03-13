@@ -198,7 +198,7 @@ C["PowerBar"] = {
 	["FontOutline"] = false,
 	["Height"] = 4,
 	["DKRuneBar"] = false,
-	["Combo"] = true,
+	["Combo"] = false,
 	["Maelstrom"] = true,
 	["MaelstromSize"] = 256,
 	["MaelstromPulse"] = true,
@@ -215,15 +215,15 @@ C["PowerBar"] = {
 		[170585] = true,
 	},
 	["Mana"] = true,
-	["Rage"] = true,
-	["Rune"] = true,
-	["RuneCooldown"] = true,
+	["Rage"] = false,
+	["Rune"] = false,
+	["RuneCooldown"] = false,
 	["ValueAbbreviate"] = true,
 	["Width"] = 200,
 }
 -- PulseCD Options
 C["PulseCD"] = {
-	["Enable"] = false,
+	["Enable"] = true,
 	["Size"] = 75,
 	["Sound"] = false,
 	["AnimationScale"] = 1.5,
@@ -235,12 +235,14 @@ C["Skins"] = {
 	["Spy"] = false,
 	["ChatBubble"] = true,
 	["CLCRet"] = false,
-	["DBM"] = false,
+	["DBM"] = true,
 	["MinimapButtons"] = true,
 	["Recount"] = false,
 	["Skada"] = false,
 	["WeakAuras"] = false,
-	["WorldMap"] = false,
+	["WorldMap"] = true,
+	["WorldMapScale"] = 0.80,
+	["WorldMapScaleMini"] = 1.20,
 }
 -- Tooltip Options
 C["Tooltip"] = {
@@ -262,7 +264,7 @@ C["Tooltip"] = {
 	["Talents"] = false,
 	["Target"] = true,
 	["Title"] = true,
-	["WhoTargetting"] = false,
+	["WhoTargetting"] = true,
 }
 -- Unitframe Options
 C["Unitframe"] = {
