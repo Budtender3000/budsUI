@@ -6,6 +6,9 @@ local CreateFrame = CreateFrame
 
 --	Setup MultiBarBottomRight as bar #5 by Tukz
 local bar = CreateFrame("Frame", "Bar5Holder", UIParent)
+local size = C.ActionBar.ButtonSize
+local space = C.ActionBar.ButtonSpace
+
 if C.ActionBar.RightBars < 3 then
 	if C.ActionBar.SplitBars == true then
 		bar:SetAllPoints(SplitBarLeft)
@@ -31,7 +34,7 @@ for i = 1, 12 do
 		elseif i == 10 then
 			b:SetPoint("BOTTOMLEFT", SplitBarRight, "BOTTOMLEFT", 0, 0)
 		else
-			b:SetPoint("LEFT", b2, "RIGHT", C.ActionBar.ButtonSpace, 0)
+			b:SetPoint("LEFT", b2, "RIGHT", space, 0)
 		end
 	else
 		if i == 1 then
@@ -42,9 +45,9 @@ for i = 1, 12 do
 			end
 		else
 			if C.ActionBar.RightBars < 3 then
-				b:SetPoint("LEFT", b2, "RIGHT", C.ActionBar.ButtonSpace, 0)
+				b:SetPoint("LEFT", b2, "RIGHT", space, 0)
 			else
-				b:SetPoint("TOP", b2, "BOTTOM", 0, -C.ActionBar.ButtonSpace)
+				b:SetPoint("TOP", b2, "BOTTOM", 0, -space)
 			end
 		end
 	end

@@ -267,18 +267,18 @@ SlashCmdList.MOUSEOVERBIND = function()
 		}
 
 		-- Registering
-		local shapeshift = ShapeshiftButton1:GetScript("OnClick")
-		local pet = PetActionButton1:GetScript("OnClick")
-		local button = ActionButton1:GetScript("OnClick")
+		local shapeshift = ShapeshiftButton1 and ShapeshiftButton1:GetScript("OnClick")
+		local pet = PetActionButton1 and PetActionButton1:GetScript("OnClick")
+		local button = ActionButton1 and ActionButton1:GetScript("OnClick")
 
 		local function register(val)
-			if val.IsProtected and val.GetObjectType and val.GetScript and val:GetObjectType() == "CheckButton" and val:IsProtected() then
+			if val and val.IsProtected and val.GetObjectType and val.GetScript and val:GetObjectType() == "CheckButton" and val:IsProtected() then
 				local script = val:GetScript("OnClick")
-				if script == button then
+				if script and button and script == button then
 					val:HookScript("OnEnter", function(self) bind:Update(self) end)
-				elseif script == shapeshift then
+				elseif script and shapeshift and script == shapeshift then
 					val:HookScript("OnEnter", function(self) bind:Update(self, "STANCE") end)
-				elseif script == pet then
+				elseif script and pet and script == pet then
 					val:HookScript("OnEnter", function(self) bind:Update(self, "PET") end)
 				end
 			end
@@ -298,10 +298,16 @@ SlashCmdList.MOUSEOVERBIND = function()
 		local function registermacro()
 			for i = 1, 36 do
 				local b = _G["MacroButton"..i]
-				b:HookScript("OnEnter", function(self) bind:Update(self, "MACRO") end)
+				if b then
+					b:HookScript("OnEnter", function(self) bind:Update(self, "MACRO") end)
+				end
 			end
-			MacroFrameTab1:HookScript("OnMouseUp", function() localmacros = 0 end)
-			MacroFrameTab2:HookScript("OnMouseUp", function() localmacros = 1 end)
+			if MacroFrameTab1 then
+				MacroFrameTab1:HookScript("OnMouseUp", function() localmacros = 0 end)
+			end
+			if MacroFrameTab2 then
+				MacroFrameTab2:HookScript("OnMouseUp", function() localmacros = 1 end)
+			end
 		end
 
 		if not IsAddOnLoaded("Blizzard_MacroUI") then

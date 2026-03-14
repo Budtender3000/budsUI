@@ -44,6 +44,7 @@ bar:RegisterEvent("PLAYER_CONTROL_GAINED")
 bar:RegisterEvent("PLAYER_CONTROL_LOST")
 bar:RegisterEvent("PLAYER_FARSIGHT_FOCUS_CHANGED")
 bar:RegisterEvent("PLAYER_LOGIN")
+bar:RegisterEvent("PLAYER_REGEN_ENABLED")
 bar:RegisterEvent("UNIT_AURA")
 bar:RegisterEvent("UNIT_FLAGS")
 bar:RegisterEvent("UNIT_PET")
@@ -60,9 +61,16 @@ bar:SetScript("OnEvent", function(self, event, arg1)
 	elseif event == "PET_BAR_UPDATE_COOLDOWN" then
 		PetActionBar_UpdateCooldowns()
 	elseif event == "PET_BAR_HIDE" or event == "PET_BAR_UPDATE_USABLE" then
-		-- Skip styling during combat to prevent taint on SetSize
-		if not InCombatLockdown() then
+		if InCombatLockdown() then
+			self.needsStyling = true
+		else
 			K.StylePet()
+			self.needsStyling = false
+		end
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		if self.needsStyling then
+			K.StylePet()
+			self.needsStyling = false
 		end
 	end
 end)

@@ -11,8 +11,22 @@ local NUM_PET_ACTION_SLOTS = NUM_PET_ACTION_SLOTS
 local hooksecurefunc = hooksecurefunc
 
 local function StyleNormalButton(self)
+	if not self then return end
 	local name = self:GetName()
-	if name:match("MultiCast") then return end
+	if not name or name:match("MultiCast") then return end
+	
+	if self.isSkinned then
+		local border = _G[name.."Border"]
+		if border and self.backdrop then
+			if border:IsShown() and C.ActionBar.EquipBorder then
+				self.backdrop:SetBackdropBorderColor(.08, .70, 0)
+			else
+				self.backdrop:SetBackdropBorderColor(unpack(C.Media.Border_Color))
+			end
+		end
+		return 
+	end
+
 	local button = self
 	local icon = _G[name.."Icon"]
 	local count = _G[name.."Count"]
@@ -23,19 +37,29 @@ local function StyleNormalButton(self)
 	local normal = _G[name.."NormalTexture"]
 	local float = _G[name.."FloatingBG"]
 
-	flash:SetTexture("")
+	if flash then flash:SetTexture("") end
 	button:SetNormalTexture("")
 
-	if (float) then
+	if float then
 		float:Kill()
 	end
 
-	count:ClearAllPoints()
-	count:SetPoint("BOTTOMRIGHT", 0, 2)
-	count:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
+	if count then
+		count:ClearAllPoints()
+		count:SetPoint("BOTTOMRIGHT", 0, 2)
+		count:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
+	end
 
-	hotkey:ClearAllPoints()
-	hotkey:SetPoint("TOPRIGHT", 0, -2)
+	if hotkey then
+		hotkey:ClearAllPoints()
+		hotkey:SetPoint("TOPRIGHT", 0, -2)
+		if C.ActionBar.Hotkey then
+			hotkey:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
+		else
+			hotkey:SetText("")
+			hotkey:Kill()
+		end
+	end
 
 	if macroName then
 		if C.ActionBar.Macro == true then
@@ -49,34 +73,23 @@ local function StyleNormalButton(self)
 		end
 	end
 
-	if hotkey then
-		if C.ActionBar.Hotkey then
-			hotkey:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-			-- hotkey.ClearAllPoints = K.Noop
-			-- hotkey.SetPoint = K.Noop
-		else
-			hotkey:SetText("")
-			hotkey:Kill()
-		end
+	if self:GetHeight() ~= C.ActionBar.ButtonSize and not InCombatLockdown() then
+		self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
 	end
+	
+	-- Skip backdrop creation during combat to prevent taint
+	if InCombatLockdown() then return end
+	
+	button:CreateBackdrop()
+	button.backdrop:SetOutside()
 
-	if not button.isSkinned then
-		if self:GetHeight() ~= C.ActionBar.ButtonSize and not InCombatLockdown() then
-			self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
-		end
-		-- Skip backdrop creation during combat to prevent taint
-		if InCombatLockdown() then return end
-		button:CreateBackdrop()
-		button.backdrop:SetOutside()
-
+	if icon then
 		icon:SetTexCoord(unpack(K.TexCoords))
 		icon:SetInside()
-		icon:SetDrawLayer("BORDER", 7) -- ??
-
-		button.isSkinned = true
+		icon:SetDrawLayer("BORDER", 7)
 	end
 
-	if border and button.isSkinned then
+	if border then
 		border:SetTexture("")
 		if border:IsShown() and C.ActionBar.EquipBorder then
 			button.backdrop:SetBackdropBorderColor(.08, .70, 0)
@@ -85,7 +98,7 @@ local function StyleNormalButton(self)
 		end
 	end
 
-	if not button.shadow and button.isSkinned then
+	if not button.shadow then
 		button:CreateBlizzShadow(5)
 	end
 
@@ -94,15 +107,19 @@ local function StyleNormalButton(self)
 		normal:SetPoint("TOPLEFT")
 		normal:SetPoint("BOTTOMRIGHT")
 	end
+	
+	button.isSkinned = true
 end
 
 local function StyleSmallButton(normal, button, icon, name, pet)
+	if not button then return end
 	local flash = _G[name.."Flash"]
 	button:SetNormalTexture("")
-	-- button.SetNormalTexture = K.Noop
 
-	flash:SetTexture(204/255, 204/255, 204/255, 0.5)
-	flash:SetInside()
+	if flash then
+		flash:SetTexture(204/255, 204/255, 204/255, 0.5)
+		flash:SetInside()
+	end
 
 	if not button.isSkinned then
 		-- Skip all sizing and styling during combat to prevent taint
@@ -112,21 +129,29 @@ local function StyleSmallButton(normal, button, icon, name, pet)
 		button:CreateBackdrop()
 		button.backdrop:SetOutside()
 
-		icon:SetTexCoord(unpack(K.TexCoords))
-		icon:SetInside()
-		icon:SetDrawLayer("BORDER", 7)
+		if icon then
+			icon:SetTexCoord(unpack(K.TexCoords))
+			icon:SetInside()
+			icon:SetDrawLayer("BORDER", 7)
+		end
 
 		if pet then
 			local autocast = _G[name.."AutoCastable"]
-			autocast:SetSize((C.ActionBar.ButtonSize * 2) - 10, (C.ActionBar.ButtonSize * 2) - 10)
-			autocast:ClearAllPoints()
-			autocast:SetPoint("CENTER", button, 0, 0)
+			if autocast then
+				autocast:SetSize((C.ActionBar.ButtonSize * 2) - 10, (C.ActionBar.ButtonSize * 2) - 10)
+				autocast:ClearAllPoints()
+				autocast:SetPoint("CENTER", button, 0, 0)
+			end
 
 			local shine = _G[name.."Shine"]
-			shine:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
+			if shine then
+				shine:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
+			end
 
 			local cooldown = _G[name.."Cooldown"]
-			cooldown:SetSize(C.ActionBar.ButtonSize - 2, C.ActionBar.ButtonSize - 2)
+			if cooldown then
+				cooldown:SetSize(C.ActionBar.ButtonSize - 2, C.ActionBar.ButtonSize - 2)
+			end
 		end
 
 		button.isSkinned = true
