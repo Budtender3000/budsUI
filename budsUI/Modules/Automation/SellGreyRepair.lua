@@ -1,7 +1,6 @@
 local K, C, L, _ = select(2, ...):unpack()
 if C.Automation.SellGreyRepair ~= true then return end
 
-local format = string.format
 local format, strsub = string.format, string.sub
 local select = select
 local CanGuildBankRepair = CanGuildBankRepair

@@ -1,4 +1,5 @@
 -- Localization for enUS & enGB clients
+local K, C, L, _ = select(2, ...):unpack()
 
 -- AdddonManager Localization
 L_ADDON_DISABLE_ALL = "Disable all"
@@ -188,6 +189,7 @@ L_TOOLTIP_SPELL_ID = "Spell ID:"
 L_TOOLTIP_UNIT_DEAD = "|cffd94545Dead|r"
 L_TOOLTIP_UNIT_GHOST = "|cff999999Ghost|r"
 L_TOOLTIP_WHO_TARGET = "Targeted By"
+-- L["Done By"] = "By: "
 -- Total Memory Localization
 L_TOTALMEMORY_USAGE = "Total Memory Usage:"
 -- WowHead Link Localization

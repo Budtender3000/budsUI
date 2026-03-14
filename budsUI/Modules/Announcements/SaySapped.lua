@@ -5,15 +5,11 @@ if C.Announcements.SaySapped ~= true then return end
 local sapSpellName = GetSpellInfo(6770)
 
 local SaySapped = CreateFrame("Frame")
+local playerGUID = UnitGUID("player")
+
 SaySapped:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 SaySapped:SetScript("OnEvent", function(self, event, ...)
-	local _, subEvent, _, sourceName, _, _, destName, destFlags, spellID, spellName = ...
-	
-	-- Note: combat log args in 3.3.5: timestamp, eventType, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, ...
-	-- Actually destGUID is arg 6, we should fix this argument unpacking!
-	local timestamp, subEvent, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellID, spellName = ...
-
-local playerGUID = UnitGUID("player")
+	local _, subEvent, _, sourceName, _, destGUID, destName, destFlags, spellID, spellName = ...
 
 	-- Short-circuit evaluation: Check target identity and event type first
 	if (destGUID == playerGUID) and (subEvent == "SPELL_AURA_APPLIED" or subEvent == "SPELL_AURA_REFRESH") then

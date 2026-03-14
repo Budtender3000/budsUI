@@ -1,5 +1,5 @@
 local K, C, L, _ = select(2, ...):unpack()
-if C.Automation.LoggingCombat ~= true or K.Realm == "Blackrock [PvP only]" then return end
+if C.Automation.LoggingCombat ~= true then return end
 
 local IsInInstance = IsInInstance
 local CreateFrame = CreateFrame

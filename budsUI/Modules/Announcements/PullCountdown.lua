@@ -57,7 +57,7 @@ end
 
 SlashCmdList.PULLCOUNTDOWN = function(msg)
 	if tonumber(msg) ~= nil then
-		frame.Pull(msg)
+		frame.Pull(tonumber(msg))
 	else
 		frame.Pull()
 	end

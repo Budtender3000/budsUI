@@ -27,6 +27,7 @@ function CalcBonusRep(factionName)
 		["Nazgrel's Fervor"] = {faction = "Thrallmar", bonusAmt = 0.10},
 		["Trollbane's Command"] = {faction = "Honor Hold", bonusAmt = 0.10},
 		["A'dal's Song of Battle"] = {faction = "Sha'tar", bonusAmt = 0.10},
+		["WHEE!"] = {faction = "all", bonusAmt = 0.10},
 	}
 
 	for buff, buffInfo in pairs(buffs) do

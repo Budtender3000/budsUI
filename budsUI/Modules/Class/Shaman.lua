@@ -3,8 +3,8 @@ local K, C, L, _ = select(2, ...):unpack()
 local MAELSTROM_SPELL_ID = C.PowerBar.MaelstromSpellID or 1153817
 local isAscension = GetSpellInfo(MAELSTROM_SPELL_ID) ~= nil
 
--- Vanilla/WotLK standard behavior: only load for Shamans
-if not isAscension and K.Class ~= "SHAMAN" and K.Level > 10 then return end
+-- Vanilla/WotLK standard behavior: only load for Shamans Level 10+
+if not isAscension and (K.Class ~= "SHAMAN" or K.Level < 10) then return end
 
 if C.PowerBar.Maelstrom ~= true then return end
 
@@ -22,7 +22,8 @@ local MaelstromSpellIDs = {
 -- Cached spell name for O(1) lookup
 local MAELSTROM_NAME = GetSpellInfo(MAELSTROM_SPELL_ID)
 
-local MaelstromAnchor = CreateFrame("Frame", "MaelstromAnchor", UIParent)
+-- Use local variables or engine-scoped frames to avoid global namespace pollution
+local MaelstromAnchor = CreateFrame("Frame", nil, UIParent)
 local size = C.PowerBar.MaelstromSize or 256
 MaelstromAnchor:SetSize(size * (C.General.UIScale or 1), (size / 2) * (C.General.UIScale or 1))
 
@@ -31,7 +32,7 @@ if not InCombatLockdown() then
 	MaelstromAnchor:SetPoint("CENTER", UIParent, "CENTER", 0, 180) -- Default similar to BetterMaelstrom
 end
 
-local f = CreateFrame("Frame", "budsUIMaelstromFrame", UIParent)
+local f = CreateFrame("Frame", nil, UIParent)
 f:SetAllPoints(MaelstromAnchor)
 f:SetFrameStrata("HIGH")
 

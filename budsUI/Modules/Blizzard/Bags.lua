@@ -60,7 +60,6 @@ local function Stuffing_OnShow()
 	Stuffing:Layout()
 	Stuffing:SearchReset()
 	PlaySound("igBackPackOpen")
-	-- collectgarbage removed: forced GC on every bag-open caused frame-drops
 end
 
 local function StuffingBank_OnHide()

@@ -4,7 +4,6 @@ if C.Aura.CastBy ~= true then return end
 local format = string.format
 local select = select
 local pairs = pairs
-local match = string.match
 local GetUnitName = GetUnitName
 local hooksecurefunc = hooksecurefunc
 local UnitClass = UnitClass
@@ -12,6 +11,10 @@ local CUSTOM_CLASS_COLORS = CUSTOM_CLASS_COLORS
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local UnitIsPlayer = UnitIsPlayer
 local UnitReaction = UnitReaction
+local UnitAura = UnitAura
+local UnitBuff = UnitBuff
+local UnitDebuff = UnitDebuff
+local GameTooltip = GameTooltip
 
 -- Tells you who cast a buff or debuff in its tooltip(prButler by Renstrom)
 local function addAuraSource(self, func, unit, index, filter)
@@ -29,18 +32,20 @@ local function addAuraSource(self, func, unit, index, filter)
 				src = format("%s (%s)", src, GetUnitName("raid"..raidpet, true))
 			end
 		end
+
 		if UnitIsPlayer(srcUnit) then
 			local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[select(2, UnitClass(srcUnit))]
 			if color then
 				src = format("|cff%02x%02x%02x%s|r", color.r * 255, color.g * 255, color.b * 255, src)
 			end
 		else
-			local color = BETTER_FACTION_BAR_COLORS[UnitReaction(srcUnit, "player")]
+			local color = K.BetterFactionBarColors[UnitReaction(srcUnit, "player")]
 			if color then
 				src = format("|cff%02x%02x%02x%s|r", color.r * 255, color.g * 255, color.b * 255, src)
 			end
 		end
-		self:AddLine(DONE_BY.." "..src)
+
+		self:AddLine(L["Done By"]..src)
 		self:Show()
 	end
 end

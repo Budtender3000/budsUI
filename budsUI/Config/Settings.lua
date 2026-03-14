@@ -93,6 +93,8 @@ C["Aura"] = {
 }
 -- Chat Options
 C["Chat"] = {
+	["BigHeight"] = 400,
+	["BigWidth"] = 400,
 	["HideTextures"] = true,
 	["CombatLog"] = true,
 	["DamageMeterSpam"] = false,
@@ -328,6 +330,31 @@ local function ValidateConfig()
 		C.Media.Combat_Font_Size = math.max(8, math.min(64, C.Media.Combat_Font_Size))
 	else
 		C.Media.Combat_Font_Size = 16
+	end
+
+	-- Chat limits
+	if type(C.Chat.Width) == "number" then
+		C.Chat.Width = math.max(200, math.min(800, C.Chat.Width))
+	else
+		C.Chat.Width = 400
+	end
+
+	if type(C.Chat.Height) == "number" then
+		C.Chat.Height = math.max(100, math.min(600, C.Chat.Height))
+	else
+		C.Chat.Height = 150
+	end
+
+	if type(C.Chat.BigWidth) == "number" then
+		C.Chat.BigWidth = math.max(200, math.min(800, C.Chat.BigWidth))
+	else
+		C.Chat.BigWidth = 400
+	end
+
+	if type(C.Chat.BigHeight) == "number" then
+		C.Chat.BigHeight = math.max(100, math.min(800, C.Chat.BigHeight))
+	else
+		C.Chat.BigHeight = 400
 	end
 end
 

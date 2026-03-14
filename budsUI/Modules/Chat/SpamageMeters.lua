@@ -40,6 +40,7 @@ local nextLines = {
 }
 
 local meters = {}
+local meterCount = 0
 
 local events = {
 	"CHAT_MSG_CHANNEL",
@@ -60,7 +61,7 @@ local function FilterLine(event, source, message, ...)
 	for k, v in ipairs(nextLines) do
 		if message:match(v) then
 			local curTime = time()
-			for i, j in ipairs(meters) do
+			for i, j in pairs(meters) do
 				local elapsed = curTime - j.time
 				if j.source == source and j.event == event and elapsed < 1 then
 					local toInsert = true
@@ -80,27 +81,21 @@ local function FilterLine(event, source, message, ...)
 	end
 
 	for k, v in ipairs(firstLines) do
-		local newID = 0
 		if message:match(v) then
 			local curTime = time()
 
-			for i, j in ipairs(meters) do
+			for i, j in pairs(meters) do
 				local elapsed = curTime - j.time
 				if j.source == source and j.event == event and elapsed < 1 then
-					newID = i
-					return true, true, format("|HMergeSpamMeter:%1$d|h|cffffe02e[%2$s]|r|h", newID or 0, message or "nil")
+					return true, true, format("|HMergeSpamMeter:%1$d|h|cffffe02e[%2$s]|r|h", i, message or "nil")
 				end
 			end
 
-			table.insert(meters, {source = source, event = event, time = curTime, data = {}, title = message})
+			meterCount = meterCount + 1
+			if meterCount > 100 then meterCount = 1 end
+			meters[meterCount] = {source = source, event = event, time = curTime, data = {}, title = message}
 
-			for i, j in ipairs(meters) do
-				if j.source == source and j.event == event and j.time == curTime then
-					newID = i
-				end
-			end
-
-			return true, true, format("|HMergeSpamMeter:%1$d|h|cffffe02e[%2$s]|r|h", newID or 0, message or "nil")
+			return true, true, format("|HMergeSpamMeter:%1$d|h|cffffe02e[%2$s]|r|h", meterCount, message or "nil")
 		end
 	end
 	return false, false, nil

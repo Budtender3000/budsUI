@@ -345,11 +345,11 @@ local bigchat = false
 SLASH_BIGCHAT1 = "/bigchat"
 SlashCmdList.BIGCHAT = function(msg, editbox)
 	if bigchat == false then
-		ChatFrame1:SetSize(400, 400)
+		ChatFrame1:SetSize(C.Chat.BigWidth, C.Chat.BigHeight)
 		bigchat = true
 		K.Print(L_CHAT_BIGCHAT_ON)
 	else
-		ChatFrame1:SetSize(400, 150)
+		ChatFrame1:SetSize(C.Chat.Width, C.Chat.Height)
 		bigchat = false
 		K.Print(L_CHAT_BIGCHAT_OFF)
 	end

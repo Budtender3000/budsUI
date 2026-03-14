@@ -1,3 +1,4 @@
+local K, C, L, _ = select(2, ...):unpack()
 local Locale = GetLocale()
 
 if (Locale ~= "deDE") then
@@ -193,6 +194,7 @@ L_TOOLTIP_SPELL_ID = "Zauber-ID:"
 L_TOOLTIP_UNIT_DEAD = "|cffd94545Tot|r"
 L_TOOLTIP_UNIT_GHOST = "|cff999999Geist|r"
 L_TOOLTIP_WHO_TARGET = "Ziel von"
+-- L["Done By"] = "Von: "
 -- Total Memory Localization
 L_TOTALMEMORY_USAGE = "Gesamter Speicherverbrauch:"
 -- WowHead Link Localization
