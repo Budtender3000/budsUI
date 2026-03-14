@@ -1,4 +1,4 @@
-﻿local K, C, L, _ = select(2, ...):unpack()
+local K, C, L, _ = select(2, ...):unpack()
 if C.Tooltip.Enable ~= true or C.Tooltip.ArenaExperience ~= true then return end
 
 local _G = _G
@@ -48,23 +48,28 @@ frame:SetScript("OnEvent", function(self, event, ...)
 		if ... then
 			frame:UnregisterEvent("ADDON_LOADED")
 			tooltip:HookScript("OnTooltipSetUnit", function()
-				if InCombatLockdown() then return end
-				if AchievementFrame and AchievementFrame:IsShown() then return end
+				if InCombatLockdown() or (AchievementFrame and AchievementFrame:IsShown()) then return end
 
-				self.unit = select(2, tooltip:GetUnit())
-				if not UnitIsPlayer(self.unit) then return end
+				local _, unit = tooltip:GetUnit()
+				if not unit or not UnitIsPlayer(unit) then return end
 
 				if _G.GearScore then
 					_G.GearScore:UnregisterEvent("INSPECT_ACHIEVEMENT_READY")
 				end
+
+				frame.unit = unit
 				ClearAchievementComparisonUnit()
 				frame:RegisterEvent("INSPECT_ACHIEVEMENT_READY")
-				SetAchievementComparisonUnit(self.unit)
+				SetAchievementComparisonUnit(unit)
 			end)
+
 			tooltip:HookScript("OnTooltipCleared", function()
-				if frame:IsEventRegistered("INSPECT_ACHIEVEMENT_READY") and frame:IsEventRegistered("INSPECT_ACHIEVEMENT_READY") then
+				if frame:IsEventRegistered("INSPECT_ACHIEVEMENT_READY") then
 					frame:UnregisterEvent("INSPECT_ACHIEVEMENT_READY")
 					ClearAchievementComparisonUnit()
+				end
+				if _G.GearScore then
+					_G.GearScore:RegisterEvent("INSPECT_ACHIEVEMENT_READY")
 				end
 				active = false
 			end)
@@ -73,10 +78,10 @@ frame:SetScript("OnEvent", function(self, event, ...)
 		if not GetComparisonAchievementPoints() then return end
 
 		active = false
-
-		for index, Achievement in pairs(statistic) do
-			if tonumber(GetComparisonStatistic(Achievement)) and tonumber(GetComparisonStatistic(Achievement)) > 0 then
-				tooltip:AddDoubleLine(select(2, GetAchievementInfo(Achievement)), gradient(tonumber(GetComparisonStatistic(Achievement)), 0, 100))
+		for _, Achievement in pairs(statistic) do
+			local rating = tonumber(GetComparisonStatistic(Achievement))
+			if rating and rating > 0 then
+				tooltip:AddDoubleLine(select(2, GetAchievementInfo(Achievement)), gradient(rating, 0, 100))
 				active = true
 			end
 		end

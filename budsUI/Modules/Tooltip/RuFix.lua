@@ -1,4 +1,4 @@
-﻿local K, C, L, _ = select(2, ...):unpack()
+local K, C, L, _ = select(2, ...):unpack()
 if C.Tooltip.Enable ~= true then return end
 
 -- Clean ruRU tooltip(snt_rufix by Don Kaban, edited by ALZA)
@@ -30,8 +30,8 @@ local replaceclass = {
 
 local function Translate(text)
 	if text then
-		for rus, replace in next, replace do
-			text = text:gsub(rus, replace)
+		for rus, rep in pairs(replace) do
+			text = text:gsub(rus, rep)
 		end
 		return text
 	end
@@ -39,8 +39,8 @@ end
 
 local function TranslateClass(text)
 	if text then
-		for rus, replaceclass in next, replaceclass do
-			text = text:gsub(rus, replaceclass)
+		for rus, rep in pairs(replaceclass) do
+			text = text:gsub(rus, rep)
 		end
 		return text
 	end

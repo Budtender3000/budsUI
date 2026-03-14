@@ -1,4 +1,4 @@
-﻿local K, C, L, _ = select(2, ...):unpack()
+local K, C, L, _ = select(2, ...):unpack()
 if C.Tooltip.Enable ~= true or C.Tooltip.Talents ~= true then return end
 
 -- Target Talents(TipTacTalents by Aezay)
@@ -112,10 +112,12 @@ if C.Tooltip.Talents == true then
 				GatherTalents()
 				-- Others
 			else
-				local allowInspect = (not InspectFrame or not InspectFrame:IsShown()) and (not Examiner or not Examiner:IsShown())
-				if (allowInspect) then
+				local guid = UnitGUID(unit)
+				if (allowInspect) and (not ttt.lastGUID or ttt.lastGUID ~= guid or (GetTime() - (ttt.lastTime or 0) > 2)) then
 					ttt:RegisterEvent("INSPECT_TALENT_READY")
 					NotifyInspect(unit)
+					ttt.lastGUID = guid
+					ttt.lastTime = GetTime()
 				end
 				for _, entry in ipairs(cache) do
 					if (current.name == entry.name) then

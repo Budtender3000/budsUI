@@ -59,24 +59,37 @@ hooksecurefunc("GameTooltip_SetDefaultAnchor", function(self, parent)
 	self.default = 1
 end)
 
-GameTooltip:HookScript("OnUpdate",function(self, ...)
-	if self:GetAnchorType() == "ANCHOR_CURSOR" and NeedBackdropBorderRefresh == true and C.Tooltip.Cursor ~= true then
-		NeedBackdropBorderRefresh = false
-		self:SetBackdropColor(unpack(C.Media.Backdrop_Color))
-		self:SetBackdropBorderColor(unpack(C.Media.Border_Color))
-	elseif self:GetAnchorType() == "ANCHOR_NONE" then
-		if InCombatLockdown() and C.Tooltip.HideCombat == true then
-			self:SetAlpha(0)
-		else
-			self:SetAlpha(1)
-			if C["Bag"].enable == true and StuffingFrameBags:IsShown() then
+local lastAlpha, lastBagState = -1, nil
+GameTooltip:HookScript("OnUpdate", function(self)
+	local anchor = self:GetAnchorType()
+	if anchor == "ANCHOR_CURSOR" then
+		if NeedBackdropBorderRefresh == true and C.Tooltip.Cursor ~= true then
+			NeedBackdropBorderRefresh = false
+			self:SetBackdropColor(unpack(C.Media.Backdrop_Color))
+			self:SetBackdropBorderColor(unpack(C.Media.Border_Color))
+		end
+	elseif anchor == "ANCHOR_NONE" then
+		local alpha = (InCombatLockdown() and C.Tooltip.HideCombat == true) and 0 or 1
+		if alpha ~= lastAlpha then
+			self:SetAlpha(alpha)
+			lastAlpha = alpha
+		end
+
+		if alpha > 0 then
+			local bagShown = C["Bag"].enable == true and _G["StuffingFrameBags"] and _G["StuffingFrameBags"]:IsShown()
+			if bagShown ~= lastBagState then
 				self:ClearAllPoints()
-				self:SetPoint("BOTTOMRIGHT", StuffingFrameBags, "TOPRIGHT", 0, 4)
-			else
-				self:ClearAllPoints()
-				self:SetPoint("BOTTOMRIGHT", TooltipAnchor, "BOTTOMRIGHT", 0, 0)
+				if bagShown then
+					self:SetPoint("BOTTOMRIGHT", _G["StuffingFrameBags"], "TOPRIGHT", 0, 4)
+				else
+					self:SetPoint("BOTTOMRIGHT", TooltipAnchor, "BOTTOMRIGHT", 0, 0)
+				end
+				lastBagState = bagShown
 			end
 		end
+	else
+		lastAlpha = -1
+		lastBagState = nil
 	end
 end)
 
@@ -199,11 +212,13 @@ local function AddTargetedBy()
 	if numParty > 0 or numRaid > 0 then
 		for i = 1, (numRaid > 0 and numRaid or numParty) do
 			local unit = (numRaid > 0 and "raid"..i or "party"..i)
-			if UnitIsUnit(unit.."target", token) and not UnitIsUnit(unit, "player") then
+			if UnitExists(unit) and UnitIsUnit(unit.."target", token) and not UnitIsUnit(unit, "player") then
 				local _, class = UnitClass(unit)
-				targetedList[#targetedList + 1] = ClassColors[class]
-				targetedList[#targetedList + 1] = UnitName(unit)
-				targetedList[#targetedList + 1] = "|r, "
+				if class then
+					targetedList[#targetedList + 1] = ClassColors[class]
+					targetedList[#targetedList + 1] = UnitName(unit)
+					targetedList[#targetedList + 1] = "|r, "
+				end
 			end
 		end
 		if #targetedList > 0 then
@@ -324,7 +339,8 @@ GameTooltip:HookScript("OnTooltipSetUnit", function(self)
 	end
 
 	if C.Tooltip.WhoTargetting == true then
-		token = unit AddTargetedBy()
+		token = unit
+		AddTargetedBy()
 	end
 
 	self.fadeOut = nil
