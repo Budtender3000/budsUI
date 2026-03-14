@@ -1,214 +1,158 @@
 local K, C, L, _ = select(2, ...):unpack()
--- Optional Server Detection: Check if Ascension client by looking for the custom spell
-local MAELSTROM_SPELL_ID = C.PowerBar.MaelstromSpellID or 1153817
-local isAscension = GetSpellInfo(MAELSTROM_SPELL_ID) ~= nil
-
--- Vanilla/WotLK standard behavior: only load for Shamans Level 10+
-if not isAscension and (K.Class ~= "SHAMAN" or K.Level < 10) then return end
 
 if C.PowerBar.Maelstrom ~= true then return end
 
-local select = select
-local CreateFrame = CreateFrame
-
+local MAELSTROM_SPELL_ID = 1153817 -- Ascension
+local MAELSTROM_SPELL_WOTLK = 53817 -- WotLK
 local IMAGE_PATH = "Interface\\AddOns\\budsUI\\Media\\Maelstrom\\maelstrom"
 
-local killList = C.PowerBar.MaelstromKillList or {}
-
-local MaelstromSpellIDs = {
-	[MAELSTROM_SPELL_ID] = true,
+local killList = {
+    [1153817] = true,
+    [53817] = true,
+    [344179] = true,
+    [187881] = true,
+    [467442] = true,
+    [170586] = true,
+    [170587] = true,
+    [170588] = true,
+    [187890] = true,
+    [170585] = true,
 }
 
--- Cached spell name for O(1) lookup
-local MAELSTROM_NAME = GetSpellInfo(MAELSTROM_SPELL_ID)
-
--- Use local variables or engine-scoped frames to avoid global namespace pollution
-local MaelstromAnchor = CreateFrame("Frame", nil, UIParent)
+local MaelstromAnchor = CreateFrame("Frame", "budsUIMaelstromAnchor", UIParent)
 local size = C.PowerBar.MaelstromSize or 256
-MaelstromAnchor:SetSize(size * (C.General.UIScale or 1), (size / 2) * (C.General.UIScale or 1))
+MaelstromAnchor:SetSize(size, size / 2)
+MaelstromAnchor:SetPoint("CENTER", UIParent, "CENTER", 0, 180)
 
--- Base position - can be moved if we make it draggable later, but sticking to standard budsUI anchor for now
-if not InCombatLockdown() then
-	MaelstromAnchor:SetPoint("CENTER", UIParent, "CENTER", 0, 180) -- Default similar to BetterMaelstrom
-end
-
-local f = CreateFrame("Frame", nil, UIParent)
-f:SetAllPoints(MaelstromAnchor)
+local f = CreateFrame("Frame", "budsUIMaelstromFrame", UIParent)
+f:SetSize(size, size / 2)
+f:SetPoint("CENTER", MaelstromAnchor, "CENTER", 0, 0)
 f:SetFrameStrata("HIGH")
-
--- Animations
-f.popAnim = f:CreateAnimationGroup()
-local grow = f.popAnim:CreateAnimation("Scale")
-grow:SetScale(1.15, 1.15)
-grow:SetDuration(0.1)
-grow:SetOrder(1)
-grow:SetSmoothing("OUT")
-
-local shrink = f.popAnim:CreateAnimation("Scale")
-shrink:SetScale(0.869, 0.869)
-shrink:SetDuration(0.5)
-shrink:SetOrder(2)
-shrink:SetSmoothing("IN_OUT")
-
-f.pulseAnim = f:CreateAnimationGroup()
-f.pulseAnim:SetLooping("REPEAT")
-
-local pulseOut = f.pulseAnim:CreateAnimation("Scale")
-pulseOut:SetScale(1.1, 1.1)
-pulseOut:SetDuration(0.4)
-pulseOut:SetOrder(1)
-pulseOut:SetSmoothing("IN_OUT")
-
-local pulseIn = f.pulseAnim:CreateAnimation("Scale")
-pulseIn:SetScale(0.909, 0.909)
-pulseIn:SetDuration(0.4)
-pulseIn:SetOrder(2)
-pulseIn:SetSmoothing("IN_OUT")
-
-f.fadeOutAnim = f:CreateAnimationGroup()
-
-local fade = f.fadeOutAnim:CreateAnimation("Alpha")
-fade:SetChange(-1)
-fade:SetDuration(0.15)
-fade:SetOrder(1)
-fade:SetSmoothing("OUT")
-
-local fadeGrow = f.fadeOutAnim:CreateAnimation("Scale")
-fadeGrow:SetScale(1.25, 1.25)
-fadeGrow:SetDuration(0.15)
-fadeGrow:SetOrder(1)
-fadeGrow:SetSmoothing("OUT")
-
-f.fadeOutAnim:SetScript("OnFinished", function()
-    f:Hide()
-    f:SetScale(1)
-end)
-
+f:SetScale(1.0)
+f:Hide()
 
 -- Textures
 f.textures = {}
 for i = 1, 10 do
     f.textures[i] = f:CreateTexture(nil, "OVERLAY")
     f.textures[i]:SetAllPoints(f)
-    local texPath = IMAGE_PATH .. i .. ".blp"
-    f.textures[i]:SetTexture(texPath)
-    
-    -- Simple validation: GetTexture might return nil if path is invalid/missing in some clients
-    if not f.textures[i]:GetTexture() then
-        print("|cffff0000budsUI Error: Maelstrom texture missing - " .. texPath .. "|r")
-    end
-    
+    f.textures[i]:SetTexture(IMAGE_PATH .. i .. ".blp")
     f.textures[i]:Hide()
 end
 
-local currentActiveTexture = 0
 local function ShowOnlyStackTexture(stacks)
-    if currentActiveTexture == stacks then return end
-
-    if currentActiveTexture > 0 and f.textures[currentActiveTexture] then
-        f.textures[currentActiveTexture]:Hide()
+    for i = 1, 10 do
+        if i == stacks then
+            f.textures[i]:Show()
+        else
+            f.textures[i]:Hide()
+        end
     end
-
-    if stacks > 0 and f.textures[stacks] then
-        f.textures[stacks]:Show()
-    end
-
-    currentActiveTexture = stacks
-end
-
-local function HideAllStackTextures()
-    if currentActiveTexture > 0 and f.textures[currentActiveTexture] then
-        f.textures[currentActiveTexture]:Hide()
-    end
-    currentActiveTexture = 0
 end
 
 local lastStacks = 0
-local function UpdateStacks()
-	local stacks = 0
+local pulseTimer = 0
+local popTimer = 0
+
+-- Manual Animation Loop (Mathematically stable, hard-capped at 1.3x)
+-- Avoids buggy AnimationGroup scaling in older clients
+f:SetScript("OnUpdate", function(self, elapsed)
+    local targetScale = 1.0
     
-    if MAELSTROM_NAME then
-        local _, _, _, count = UnitBuff("player", MAELSTROM_NAME)
-        if count then
-            stacks = count
-        elseif UnitBuff("player", MAELSTROM_NAME) then
-            -- Buff exists but count is nil/0 (meaning 1 stack in some contexts, 
-            -- but Maelstrom should have a count)
-            stacks = 1
-        end
-    else
-        -- Fallback to loop only if GetSpellInfo failed at load time
-        for i = 1, 40 do
-            local name, _, _, count, _, _, _, _, _, _, spellId = UnitBuff("player", i)
-            if not name then break end
-            if MaelstromSpellIDs[spellId] then
-                stacks = count or 1
-                break
-            end
+    -- 1. Handle "Pop" effect (stack increase - 0.5s duration)
+    if popTimer > 0 then
+        popTimer = popTimer - elapsed
+        if popTimer > 0.4 then
+            -- Initial surge (0.1s fast grow)
+            targetScale = 1.0 + (1.15 - 1.0) * ( (0.5 - popTimer) / 0.1 )
+        else
+            -- Shrink back (0.4s slow smooth return)
+            targetScale = 1.15 - (1.15 - 1.0) * ( (0.4 - popTimer) / 0.4 )
         end
     end
 
-    -- show pop when stacks increase
-    if stacks > lastStacks and stacks > 0 then
-        if f.fadeOutAnim:IsPlaying() then f.fadeOutAnim:Stop() end
-        f:Show()
-        f:SetAlpha(1.0)
-        if f.popAnim:IsPlaying() then f.popAnim:Stop() end
-        f.popAnim:Play()
-    end
-
-    -- pulse at 5 or 10 stacks
+    -- 2. Handle "Pulse" effect (at threshold, e.g. 5+ stacks)
     local pulseThreshold = C.PowerBar.MaelstromPulseAt or 5
-    if C.PowerBar.MaelstromPulse and stacks >= pulseThreshold then
-        if not f.pulseAnim:IsPlaying() then f.pulseAnim:Play() end
+    if C.PowerBar.MaelstromPulse and lastStacks >= pulseThreshold then
+        pulseTimer = pulseTimer + elapsed
+        -- Smooth sine wave pulse: 1.0 to 1.25 range
+        local pulseScale = 1.0 + (math.sin(pulseTimer * 12) * 0.125 + 0.125)
+        
+        -- Use the larger of the two scales if popping while pulsing
+        if pulseScale > targetScale then
+            targetScale = pulseScale
+        end
     else
-        if f.pulseAnim:IsPlaying() then f.pulseAnim:Stop() end
+        pulseTimer = 0
     end
 
-    -- fade out when stacks drop to 0
-    if stacks == 0 and lastStacks > 0 then
-        HideAllStackTextures()
-        f.fadeOutAnim:Play()
-    elseif stacks > 0 then
-        f:Show()
+    -- Clamp for absolute safety (prevents "giant icon" bugs)
+    if targetScale < 1.0 then targetScale = 1.0 end
+    if targetScale > 1.3 then targetScale = 1.3 end
+
+    self:SetScale(targetScale)
+end)
+
+local function UpdateStacks()
+    local stacks = 0
+    -- Real-time size sync
+    local size = C.PowerBar.MaelstromSize or 256
+    MaelstromAnchor:SetSize(size, size / 2)
+    f:SetSize(size, size / 2)
+
+    -- Robust ID-based lookup for Ascension compatibility
+    for i = 1, 40 do
+        local name, _, _, count, _, _, _, _, _, _, spellId = UnitBuff("player", i)
+        if not name then break end
+        if killList[spellId] then
+            stacks = count or 1
+            break
+        end
+    end
+
+    if stacks > 0 then
+        if not f:IsShown() then
+            f:Show()
+            f:SetScale(1.0)
+        end
         f:SetAlpha(1.0)
         ShowOnlyStackTexture(stacks)
+        
+        -- Trigger "Pop" effect on increase
+        if stacks > lastStacks then
+            popTimer = 0.5 
+        end
     else
-        HideAllStackTextures()
         f:Hide()
+        popTimer = 0
+        pulseTimer = 0
     end
 
     lastStacks = stacks
 end
 
+-- Suppress server-side overlays
 local function ApplySurgicalFix()
-    if not SpellActivationOverlayFrame or not SpellActivationOverlayFrame.ShowOverlay then
-        return
-    end
+    local frame = _G["SpellActivationOverlayFrame"]
+    if not frame then return end
 
-    if SpellActivationOverlayFrame.__budsUIMaelstromHooked then
-        if SpellActivationOverlayFrame.HideOverlays then
-            for id in pairs(killList) do
-                SpellActivationOverlayFrame:HideOverlays(id)
+    if not frame.__budsUIMaelstromHooked then
+        if frame.ShowOverlay then
+            local originalShow = frame.ShowOverlay
+            frame.ShowOverlay = function(self, spellID, ...)
+                if killList[spellID] then
+                    if self.HideOverlays then self:HideOverlays(spellID) end
+                    return
+                end
+                return originalShow(self, spellID, ...)
             end
         end
-        return
+        frame.__budsUIMaelstromHooked = true
     end
 
-    local originalShow = SpellActivationOverlayFrame.ShowOverlay
-    SpellActivationOverlayFrame.ShowOverlay = function(self, spellID, ...)
-        if killList[spellID] then
-            -- Effectively suppress Blizzard's overlay
-            if self.HideOverlays then self:HideOverlays(spellID) end
-            return
-        end
-        return originalShow(self, spellID, ...)
-    end
-    SpellActivationOverlayFrame.__budsUIMaelstromHooked = true
-
-    if SpellActivationOverlayFrame.HideOverlays then
+    if frame.HideOverlays then
         for id in pairs(killList) do
-            SpellActivationOverlayFrame:HideOverlays(id)
+            frame:HideOverlays(id)
         end
     end
 end
@@ -218,17 +162,10 @@ f:RegisterEvent("PLAYER_ENTERING_WORLD")
 f:RegisterEvent("PLAYER_LOGIN")
 
 f:SetScript("OnEvent", function(self, event, arg1)
-    if event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
-        ApplySurgicalFix()
-		UpdateStacks()
-    elseif event == "UNIT_AURA" and arg1 == "player" then
-    	UpdateStacks()
-	end
+    ApplySurgicalFix()
+    UpdateStacks()
 end)
 
--- Movable Frame Logic (Mover setup per budsUI style)
--- Usually movers are added to a table in budsUI
 if K.Movers then
-	table.insert(K.Movers, MaelstromAnchor)
+    table.insert(K.Movers, MaelstromAnchor)
 end
-

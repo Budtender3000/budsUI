@@ -103,13 +103,10 @@ local function CreateBlizzShadow(f, size)
 	if f.shadow then return end
 	size = size or 5
 
-	borderr, borderg, borderb = 0/255, 0/255, 0/255
-
-	local shadow = f:CreateTexture(nil, "BACKGROUND", f)
-	shadow:SetParent(f)
+	local shadow = f:CreateTexture(nil, "BACKGROUND")
 	shadow:SetOutside(f, size, size)
 	shadow:SetTexture(C.Media.Border_Glow)
-	shadow:SetVertexColor(borderr, borderg, borderb, 0.8)
+	shadow:SetVertexColor(0, 0, 0, 0.8)
 
 	f.shadow = shadow
 end

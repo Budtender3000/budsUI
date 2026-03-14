@@ -16,6 +16,10 @@ local function StyleNormalButton(self)
 	if not name or name:match("MultiCast") then return end
 	
 	if self.isSkinned then
+		if self:GetHeight() ~= C.ActionBar.ButtonSize and not InCombatLockdown() then
+			self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
+		end
+
 		local border = _G[name.."Border"]
 		if border and self.backdrop then
 			if border:IsShown() and C.ActionBar.EquipBorder then
@@ -39,6 +43,14 @@ local function StyleNormalButton(self)
 
 	if flash then flash:SetTexture("") end
 	button:SetNormalTexture("")
+
+	if normal then
+		normal:ClearAllPoints()
+		normal:SetPoint("TOPLEFT")
+		normal:SetPoint("BOTTOMRIGHT")
+		normal:Hide()
+		normal:SetAlpha(0)
+	end
 
 	if float then
 		float:Kill()
@@ -155,6 +167,10 @@ local function StyleSmallButton(normal, button, icon, name, pet)
 		end
 
 		button.isSkinned = true
+	else
+		if button:GetHeight() ~= C.ActionBar.ButtonSize and not InCombatLockdown() then
+			button:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
+		end
 	end
 
 	if not button.shadow then
@@ -163,7 +179,10 @@ local function StyleSmallButton(normal, button, icon, name, pet)
 
 	if normal then
 		normal:ClearAllPoints()
-		normal:SetOutside()
+		normal:SetPoint("TOPLEFT")
+		normal:SetPoint("BOTTOMRIGHT")
+		normal:Hide()
+		normal:SetAlpha(0)
 	end
 end
 

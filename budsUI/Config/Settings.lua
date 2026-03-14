@@ -220,6 +220,8 @@ C["PowerBar"] = {
 	["MaelstromPulseAt"] = 5,
 	["MaelstromSpellID"] = 1153817, -- Ascension: Maelstrom Weapon
 	["MaelstromKillList"] = {
+		[1153817] = true, -- Ascension Maelstrom Weapon
+		[53817] = true,   -- Standard WotLK Maelstrom Weapon
 		[344179] = true,
 		[187881] = true,
 		[467442] = true,
@@ -355,6 +357,13 @@ local function ValidateConfig()
 		C.Chat.BigHeight = math.max(100, math.min(800, C.Chat.BigHeight))
 	else
 		C.Chat.BigHeight = 400
+	end
+
+	-- PowerBar limits
+	if type(C.PowerBar.MaelstromSize) == "number" then
+		C.PowerBar.MaelstromSize = math.max(64, math.min(512, C.PowerBar.MaelstromSize))
+	else
+		C.PowerBar.MaelstromSize = 256
 	end
 end
 

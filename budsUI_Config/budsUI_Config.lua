@@ -697,49 +697,78 @@ function CreateUIConfig()
 				button:SetPoint("TOPLEFT", 5, -offset)
 				offset = offset + 25
 			elseif type(value) == "number" or type(value) == "string" then
-				local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-				local o = "UIConfig"..i..j
-				Local(o)
-				label:SetText(K.option)
-				label:SetSize(460, 20)
-				label:SetJustifyH("LEFT")
-				label:SetPoint("TOPLEFT", 5, -offset)
+				if i == "PowerBar" and j == "MaelstromSize" then
+					local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+					local o = "UIConfig"..i..j
+					Local(o)
+					label:SetText(K.option)
+					label:SetSize(460, 20)
+					label:SetJustifyH("LEFT")
+					label:SetPoint("TOPLEFT", 5, -offset)
 
-				local editbox = CreateFrame("EditBox", nil, frame)
-				editbox:SetAutoFocus(false)
-				editbox:SetMultiLine(false)
-				editbox:SetSize(220, 22)
-				editbox:SetMaxLetters(255)
-				editbox:SetTextInsets(3, 0, 0, 0)
-				editbox:SetFontObject(GameFontHighlight)
-				editbox:SetPoint("TOPLEFT", 8, -(offset + 20))
-				editbox:SetText(value)
-				editbox:SetBackdrop(K.Backdrop)
-				editbox:SetBackdropColor(unpack(C["Media"].Backdrop_Color))
+					local slider = CreateFrame("Slider", "UIConfig"..i..j.."Slider", frame, "OptionsSliderTemplate")
+					slider:SetPoint("TOPLEFT", 10, -(offset + 25))
+					slider:SetWidth(200)
+					slider:SetMinMaxValues(64, 512)
+					slider:SetValueStep(8)
+					slider:SetValue(value)
 
-				local okbutton = CreateFrame("Button", nil, frame)
-				okbutton:SetHeight(editbox:GetHeight())
-				okbutton:SetPoint("LEFT", editbox, "RIGHT", 2, 0)
+					_G[slider:GetName().."Low"]:SetText("64")
+					_G[slider:GetName().."High"]:SetText("512")
+					_G[slider:GetName().."Text"]:SetText(value)
 
-				local oktext = okbutton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-				oktext:SetText(OKAY)
-				oktext:SetPoint("CENTER", okbutton, "CENTER", -1, 0)
-				okbutton:SetWidth(oktext:GetWidth() + 5)
-				okbutton:Hide()
+					slider:SetScript("OnValueChanged", function(self, value)
+						value = math.floor(value / 8) * 8
+						_G[self:GetName().."Text"]:SetText(value)
+						SetValue(i, j, value)
+					end)
 
-				if type(value) == "number" then
-					editbox:SetScript("OnEscapePressed", function(self) okbutton:Hide() self:ClearFocus() self:SetText(value) end)
-					editbox:SetScript("OnChar", function(self) okbutton:Show() end)
-					editbox:SetScript("OnEnterPressed", function(self) okbutton:Hide() self:ClearFocus() SetValue(i, j, tonumber(self:GetText())) end)
-					okbutton:SetScript("OnMouseDown", function(self) editbox:ClearFocus() self:Hide() SetValue(i, j, tonumber(editbox:GetText())) end)
+					offset = offset + 50
 				else
-					editbox:SetScript("OnEscapePressed", function(self) okbutton:Hide() self:ClearFocus() self:SetText(value) end)
-					editbox:SetScript("OnChar", function(self) okbutton:Show() end)
-					editbox:SetScript("OnEnterPressed", function(self) okbutton:Hide() self:ClearFocus() SetValue(i, j, tostring(self:GetText())) end)
-					okbutton:SetScript("OnMouseDown", function(self) editbox:ClearFocus() self:Hide() SetValue(i, j, tostring(editbox:GetText())) end)
-				end
+					local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+					local o = "UIConfig"..i..j
+					Local(o)
+					label:SetText(K.option)
+					label:SetSize(460, 20)
+					label:SetJustifyH("LEFT")
+					label:SetPoint("TOPLEFT", 5, -offset)
 
-				offset = offset + 45
+					local editbox = CreateFrame("EditBox", nil, frame)
+					editbox:SetAutoFocus(false)
+					editbox:SetMultiLine(false)
+					editbox:SetSize(220, 22)
+					editbox:SetMaxLetters(255)
+					editbox:SetTextInsets(3, 0, 0, 0)
+					editbox:SetFontObject(GameFontHighlight)
+					editbox:SetPoint("TOPLEFT", 8, -(offset + 20))
+					editbox:SetText(value)
+					editbox:SetBackdrop(K.Backdrop)
+					editbox:SetBackdropColor(unpack(C["Media"].Backdrop_Color))
+
+					local okbutton = CreateFrame("Button", nil, frame)
+					okbutton:SetHeight(editbox:GetHeight())
+					okbutton:SetPoint("LEFT", editbox, "RIGHT", 2, 0)
+
+					local oktext = okbutton:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+					oktext:SetText(OKAY)
+					oktext:SetPoint("CENTER", okbutton, "CENTER", -1, 0)
+					okbutton:SetWidth(oktext:GetWidth() + 5)
+					okbutton:Hide()
+
+					if type(value) == "number" then
+						editbox:SetScript("OnEscapePressed", function(self) okbutton:Hide() self:ClearFocus() self:SetText(value) end)
+						editbox:SetScript("OnChar", function(self) okbutton:Show() end)
+						editbox:SetScript("OnEnterPressed", function(self) okbutton:Hide() self:ClearFocus() SetValue(i, j, tonumber(self:GetText())) end)
+						okbutton:SetScript("OnMouseDown", function(self) editbox:ClearFocus() self:Hide() SetValue(i, j, tonumber(editbox:GetText())) end)
+					else
+						editbox:SetScript("OnEscapePressed", function(self) okbutton:Hide() self:ClearFocus() self:SetText(value) end)
+						editbox:SetScript("OnChar", function(self) okbutton:Show() end)
+						editbox:SetScript("OnEnterPressed", function(self) okbutton:Hide() self:ClearFocus() SetValue(i, j, tostring(self:GetText())) end)
+						okbutton:SetScript("OnMouseDown", function(self) editbox:ClearFocus() self:Hide() SetValue(i, j, tostring(editbox:GetText())) end)
+					end
+
+					offset = offset + 45
+				end
 			elseif type(value) == "table" then
 				local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 				local o = "UIConfig"..i..j
