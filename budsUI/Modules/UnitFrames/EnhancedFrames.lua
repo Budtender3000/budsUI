@@ -76,7 +76,6 @@ end
 EnhancedFrames_Style_PlayerFrame = function()
 	if not InCombatLockdown() then
 		PlayerName:SetWidth(0.01)
-
 		PlayerFrameHealthBar.capNumericDisplay = true
 		PlayerFrameHealthBar:SetSize(116, 29)
 		PlayerFrameHealthBar:SetPoint("TOPLEFT", 106, -22)
@@ -168,10 +167,14 @@ EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
 				end
 			end
 		else
-			textString:Hide()
+			if not InCombatLockdown() then
+				textString:Hide()
+			end
 			textString:SetText("")
 			if (not textStatusBar.alwaysShow) then
-				textStatusBar:Hide()
+				if not InCombatLockdown() then
+					textStatusBar:Hide()
+				end
 			else
 				textStatusBar:SetValue(0)
 			end

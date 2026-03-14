@@ -77,24 +77,29 @@ local function ResetBar(bar)
 	end
 end
 
-local plateCache = {}
 local plateScanTimer = 0
+local lastChildren = 0
 
 SmoothFrame:SetScript("OnUpdate", function(self, elapsed)
 	plateScanTimer = plateScanTimer + elapsed
 	if plateScanTimer > 0.5 then
 		plateScanTimer = 0
 		local numChildren = WorldFrame:GetNumChildren()
-		for i = 1, numChildren do
-			local plate = select(i, WorldFrame:GetChildren())
-			if plate and isPlate(plate) and not plateCache[plate] then
-				local v = plate:GetChildren()
-				SmoothBar(v)
-				plateCache[plate] = true
+		if numChildren ~= lastChildren then
+			for i = 1, numChildren do
+				local plate = select(i, WorldFrame:GetChildren())
+				if plate and isPlate(plate) then
+					local v = plate:GetChildren()
+					if v and v:GetObjectType() == "StatusBar" then
+						SmoothBar(v)
+					end
+				end
 			end
+			lastChildren = numChildren
 		end
 	end
 	AnimationTick()
 end)
+
 
 for _, v in pairs (BarsToSmooth) do if v then SmoothBar(v) end end

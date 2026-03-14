@@ -84,19 +84,25 @@ if C.Unitframe.Enable == true then
 				end)
 			end
 
+			-- Font Helper
+			local function SetUnitFont(fontString, sizeAdj)
+				local size = C.Media.Font_Size + (sizeAdj or 0)
+				if C.Unitframe.Outline then
+					fontString:SetFont(C.Media.Font, size, C.Media.Font_Style)
+					fontString:SetShadowOffset(0, -0)
+				else
+					fontString:SetFont(C.Media.Font, size)
+					fontString:SetShadowOffset(K.Mult, -K.Mult)
+				end
+			end
+
 			-- Unit Name
 			for _, FrameNames in pairs({
 				PlayerName,
 				TargetFrameTextureFrameName,
 				FocusFrameTextureFrameName,
 			}) do
-				if C.Unitframe.Outline then
-					FrameNames:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-					FrameNames:SetShadowOffset(0, -0)
-				else
-					FrameNames:SetFont(C.Media.Font, C.Media.Font_Size)
-					FrameNames:SetShadowOffset(K.Mult, -K.Mult)
-				end
+				SetUnitFont(FrameNames)
 			end
 
 			-- Unit HealthBarText
@@ -110,13 +116,7 @@ if C.Unitframe.Enable == true then
 				PetFrameHealthBarText,
 				PetFrameManaBarText,
 			}) do
-				if C.Unitframe.Outline then
-					FrameBarText:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-					FrameBarText:SetShadowOffset(0, -0)
-				else
-					FrameBarText:SetFont(C.Media.Font, C.Media.Font_Size)
-					FrameBarText:SetShadowOffset(K.Mult, -K.Mult)
-				end
+				SetUnitFont(FrameBarText)
 			end
 
 			-- Party Unit HealthBarText
@@ -130,13 +130,7 @@ if C.Unitframe.Enable == true then
 				PartyMemberFrame4HealthBarText,
 				PartyMemberFrame4ManaBarText,
 			}) do
-				if C.Unitframe.Outline then
-					PartyBarText:SetFont(C.Media.Font, C.Media.Font_Size - 3, C.Media.Font_Style)
-					PartyBarText:SetShadowOffset(0, -0)
-				else
-					PartyBarText:SetFont(C.Media.Font, C.Media.Font_Size - 3)
-					PartyBarText:SetShadowOffset(K.Mult, -K.Mult)
-				end
+				SetUnitFont(PartyBarText, -3)
 			end
 
 			-- Unit LevelText
@@ -145,14 +139,9 @@ if C.Unitframe.Enable == true then
 				TargetFrameTextureFrameLevelText,
 				FocusFrameTextureFrameLevelText,
 			}) do
-				if C.Unitframe.Outline then
-					LevelText:SetFont(C.Media.Font, C.Media.Font_Size + 1, C.Media.Font_Style)
-					LevelText:SetShadowOffset(0, -0)
-				else
-					LevelText:SetFont(C.Media.Font, C.Media.Font_Size + 1)
-					LevelText:SetShadowOffset(K.Mult, -K.Mult)
-				end
+				SetUnitFont(LevelText, 1)
 			end
+
 
 			-- Tweak Party Frame
 			for i = 1, MAX_PARTY_MEMBERS do
@@ -160,22 +149,24 @@ if C.Unitframe.Enable == true then
 			end
 			PartyMemberBuffTooltip:Kill() -- I personally hate this shit.
 
-			-- Tweak Player Frame
-			PlayerFrame:SetMovable(true)
-			PlayerFrame:ClearAllPoints()
-			PlayerFrame:SetPoint("CENTER", PlayerFrameAnchor, "CENTER", -51, 3)
-			PlayerFrame:SetMovable(false)
-			-- PlayerFrame.SetPoint = K.Noop
+			if not InCombatLockdown() then
+				-- Tweak Player Frame
+				PlayerFrame:SetMovable(true)
+				PlayerFrame:ClearAllPoints()
+				PlayerFrame:SetPoint("CENTER", PlayerFrameAnchor, "CENTER", -51, 3)
+				PlayerFrame:SetMovable(false)
+			end
 
 			-- Hide Pet Name.
 			PetName:Hide()
 
-			-- Tweak Target Frame
-			TargetFrame:SetMovable(true)
-			TargetFrame:ClearAllPoints()
-			TargetFrame:SetPoint("CENTER", TargetFrameAnchor, "CENTER", 51, 3)
-			TargetFrame:SetMovable(false)
-			-- TargetFrame.SetPoint = K.Noop
+			if not InCombatLockdown() then
+				-- Tweak Target Frame
+				TargetFrame:SetMovable(true)
+				TargetFrame:ClearAllPoints()
+				TargetFrame:SetPoint("CENTER", TargetFrameAnchor, "CENTER", 51, 3)
+				TargetFrame:SetMovable(false)
+			end
 			-- Tweak Name Background
 			TargetFrameNameBackground:SetTexture(0, 0, 0, 0.01)
 
@@ -185,12 +176,14 @@ if C.Unitframe.Enable == true then
 			-- Tweak Name Background
 			FocusFrameNameBackground:SetTexture(0, 0, 0, 0.01)
 
-			for _, FrameScale in pairs({
-				PlayerFrame,
-				TargetFrame,
-				FocusFrame,
-			}) do
-				FrameScale:SetScale(C.Unitframe.Scale)
+			if not InCombatLockdown() then
+				for _, FrameScale in pairs({
+					PlayerFrame,
+					TargetFrame,
+					FocusFrame,
+				}) do
+					FrameScale:SetScale(C.Unitframe.Scale)
+				end
 			end
 
 			-- Tweak Focus Frame
