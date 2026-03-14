@@ -13,6 +13,7 @@ local pos = "TOP"
 local frames = {}
 local cancelled_rolls = {}
 local rolltypes = {"need", "greed", "disenchant", [0] = "pass"}
+local MAX_FRAMES = 8
 
 local LootRollAnchor = CreateFrame("Frame", "LootRollAnchor", UIParent)
 LootRollAnchor:SetSize(313, 26)
@@ -71,6 +72,21 @@ local function OnEvent(frame, event, rollid)
 	frame.rollid = nil
 	frame.time = nil
 	frame:Hide()
+
+	-- Clean up cancelled_rolls if no more rolls are active
+	local hasActive = false
+	for _, f in ipairs(frames) do
+		if f.rollid then
+			hasActive = true
+			break
+		end
+	end
+
+	if not hasActive then
+		for k in pairs(cancelled_rolls) do
+			cancelled_rolls[k] = nil
+		end
+	end
 end
 
 local function StatusUpdate(frame)
@@ -174,6 +190,10 @@ end
 local function GetFrame()
 	for i, f in ipairs(frames) do
 		if not f.rollid then return f end
+	end
+
+	if #frames >= MAX_FRAMES then
+		return frames[1] -- Reuse the oldest frame if we hit the limit
 	end
 
 	local f = CreateRollFrame()

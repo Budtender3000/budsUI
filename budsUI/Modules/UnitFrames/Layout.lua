@@ -281,13 +281,14 @@ if not InCombatLockdown() then
 end
 -- Remove Portrait Damage Spam
 if C.Unitframe.CombatFeedback == true then
-	PlayerHitIndicator:SetText(nil)
-	PlayerHitIndicator.SetText = K.Noop
+	PlayerHitIndicator:Hide()
+	PlayerHitIndicator:SetAlpha(0)
 end
 
 -- Remove Group Number Frame
 if C.Unitframe.GroupNumber == true then
-	PlayerFrameGroupIndicator.Show = K.Noop
+	PlayerFrameGroupIndicator:Hide()
+	PlayerFrameGroupIndicator:SetAlpha(0)
 end
 
 -- Remove PvPIcons

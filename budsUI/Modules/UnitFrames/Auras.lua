@@ -49,7 +49,7 @@ local function TargetAuraColour(self)
 				local auborder = _G[self:GetName().."Debuff"..i.."Border"]
 				if auborder then
 					auborder:Hide()
-					auborder.Show = K.Noop
+					auborder:SetAlpha(0)
 				end
 				dframe:SetBackdropBorderColor(colour.r, colour.g, colour.b)
 			else

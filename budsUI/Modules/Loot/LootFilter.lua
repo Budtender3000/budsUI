@@ -7,7 +7,7 @@ local GetItemInfo = GetItemInfo
 
 -- Better loot filter
 -- 0 = Poor, 1 = Common, 2 = Uncommon, 3 = Rare, 4 = Epic, 5 = Legendary, 6 = Artifact, 7 = Heirloom
-local minRarity = 3
+local minRarity = C.Loot.FilterRarity or 3
 function LootFilter(self, event, msg)
 	local itemID = select(3, find(msg, "item:(%d+):"))
 	if not itemID then return false end

@@ -12,6 +12,8 @@ local Butsu = CreateFrame("Button", "Butsu")
 local lb = CreateFrame("Button", "ButsuAdv", Butsu, "UIPanelScrollDownButtonTemplate")
 local LDD = CreateFrame("Frame", "ButsuLDD", Butsu, "UIDropDownMenuTemplate")
 Butsu:Hide()
+local CURSOR_OFFSET_X = -40
+local CURSOR_OFFSET_Y = 20
 
 Butsu:SetScript("OnEvent", function(self, event, ...)
 	self[event](self, event, ...)
@@ -40,7 +42,7 @@ function Butsu:LOOT_OPENED(event, autoloot)
 		y = y / self:GetEffectiveScale()
 
 		self:ClearAllPoints()
-		self:SetPoint("TOPLEFT", nil, "BOTTOMLEFT", x - 40, y + 20)
+		self:SetPoint("TOPLEFT", nil, "BOTTOMLEFT", x + CURSOR_OFFSET_X, y + CURSOR_OFFSET_Y)
 		self:GetCenter()
 		self:Raise()
 	end
@@ -52,11 +54,11 @@ function Butsu:LOOT_OPENED(event, autoloot)
 			local slot = _NS.slots[i] or _NS.CreateSlot(i)
 			local texture, item, quantity, quality, locked, isQuestItem, questId, isActive = GetLootSlotInfo(i)
 			if texture then
-				local color = ITEM_QUALITY_COLORS[quality]
+				local color = ITEM_QUALITY_COLORS[quality or 0] or ITEM_QUALITY_COLORS[0]
 				local r, g, b = color.r, color.g, color.b
 
 				if(LootSlotIsCoin(i)) then
-					item = item:gsub("\n", ", ")
+					item = item and item:gsub("\n", ", ") or ""
 				end
 
 				if quantity and quantity > 1 then

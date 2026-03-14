@@ -18,7 +18,7 @@ for i, v in pairs({
 	PartyMemberFrame3Texture,
 	PartyMemberFrame4Texture,
 	FocusFrameTextureFrameTexture,
-	TargetFrameToTTextureFrameTexture,
+	--TargetFrameToTTextureFrameTexture,
 	FocusFrameToTTextureFrameTexture,
 	Boss1TargetFrameTextureFrameTexture,
 	Boss2TargetFrameTextureFrameTexture,
