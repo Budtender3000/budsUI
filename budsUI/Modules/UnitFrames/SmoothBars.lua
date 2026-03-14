@@ -86,7 +86,7 @@ SmoothFrame:SetScript("OnUpdate", function(self, elapsed)
 		plateScanTimer = 0
 		local numChildren = WorldFrame:GetNumChildren()
 		if numChildren ~= lastChildren then
-			for i = 1, numChildren do
+			for i = lastChildren + 1, numChildren do
 				local plate = select(i, WorldFrame:GetChildren())
 				if plate and isPlate(plate) then
 					local v = plate:GetChildren()
@@ -96,6 +96,13 @@ SmoothFrame:SetScript("OnUpdate", function(self, elapsed)
 				end
 			end
 			lastChildren = numChildren
+		end
+
+		-- Clean up Smoothing table to prevent leaks or dead references
+		for bar in pairs(Smoothing) do
+			if not bar:IsVisible() or not bar:GetParent() then
+				Smoothing[bar] = nil
+			end
 		end
 	end
 	AnimationTick()

@@ -12,6 +12,17 @@ MAX_TARGET_BUFFS = 16
 MAX_TARGET_DEBUFFS = 16
 TargetFrame_UpdateAuras(TargetFrame)
 
+-- Aura Constants
+local AURA_BORDER_SIZE = 8
+local AURA_CD_OFFSET = 1.5
+local AURA_ROW_WIDTH = 100
+local NUM_TOT_AURA_ROWS = 2
+local AURA_START_X = 3
+local AURA_START_Y = 32
+local AURA_OFFSET_Y_DEFAULT = 3
+local BEAUTY_NUDGE = 3
+local BEAUTY_SPACING = 1
+
 -- AURAS
 local function TargetAuraColour(self)
 	-- buffs
@@ -21,11 +32,11 @@ local function TargetAuraColour(self)
 		local bframecount = _G[self:GetName().."Buff"..i.."Count"]
 		if bframe then
 			bframe:SetScale(1)
-			K.CreateBorder(bframe, 8)
+			K.CreateBorder(bframe, AURA_BORDER_SIZE)
 
 			bframecd:ClearAllPoints()
-			bframecd:SetPoint("TOPLEFT", bframe, 1.5, -1.5)
-			bframecd:SetPoint("BOTTOMRIGHT", bframe, -1.5, 1.5)
+			bframecd:SetPoint("TOPLEFT", bframe, AURA_CD_OFFSET, -AURA_CD_OFFSET)
+			bframecd:SetPoint("BOTTOMRIGHT", bframe, -AURA_CD_OFFSET, AURA_CD_OFFSET)
 
 			bframecount:ClearAllPoints()
 			bframecount:SetPoint("CENTER", bframe, "BOTTOM", 0, 0)
@@ -40,7 +51,7 @@ local function TargetAuraColour(self)
 		local dframecd = _G[self:GetName().."Debuff"..i.."Cooldown"]
 		local dframecount = _G[self:GetName().."Debuff"..i.."Count"]
 		if dframe then
-			K.CreateBorder(dframe, 8)
+			K.CreateBorder(dframe, AURA_BORDER_SIZE)
 
 			-- border colour
 			local dname, _, _, _, dtype = UnitDebuff(self.unit, i)
@@ -58,8 +69,8 @@ local function TargetAuraColour(self)
 
 			if dframecd then -- pet doesn"t show cd?
 				dframecd:ClearAllPoints()
-				dframecd:SetPoint("TOPLEFT", dframe, 1.5, -1.5)
-				dframecd:SetPoint("BOTTOMRIGHT", dframe, -1.5, 1.5)
+				dframecd:SetPoint("TOPLEFT", dframe, AURA_CD_OFFSET, -AURA_CD_OFFSET)
+				dframecd:SetPoint("BOTTOMRIGHT", dframe, -AURA_CD_OFFSET, AURA_CD_OFFSET)
 			end
 
 			if dframecount then -- ToT doesn"t show stacks
@@ -81,17 +92,12 @@ local function TargetAuraPosit(self, auraName, numAuras, numOppositeAuras, large
 		local AURA_OFFSET_Y = C.Unitframe.AuraOffsetY
 		local LARGE_AURA_SIZE = C.Unitframe.LargeAuraSize
 		local SMALL_AURA_SIZE = C.Unitframe.SmallAuraSize
-		local AURA_ROW_WIDTH = 100
-		local NUM_TOT_AURA_ROWS = 2
+
 		local AURA_X_OFFSET = offsetX + 2
 		local AURA_Y_OFFSET = offsetY + 2
 
 		for i = 1, numAuras do
-			if largeAuraList[i] then
-				size = LARGE_AURA_SIZE
-			else
-				size = SMALL_AURA_SIZE
-			end
+			local size = largeAuraList[i] and LARGE_AURA_SIZE or SMALL_AURA_SIZE
 
 			if i == 1 then
 				rowWidth = size
@@ -152,7 +158,7 @@ local function TargetDebuffPosit(self, debuffName, index, numBuffs, anchorIndex,
 		else
 			-- unit is not friendly or there are no buffs...debuffs start on top
 			-- we nudge this down a bit because of !beautycase
-			dbuff:SetPoint(point.."LEFT", self, relativePoint.."LEFT", AURA_START_X, startY - 3)
+			dbuff:SetPoint(point.."LEFT", self, relativePoint.."LEFT", AURA_START_X, startY - BEAUTY_NUDGE)
 		end
 		self.debuffs:SetPoint(point.."LEFT", dbuff, point.."LEFT", 0, 0)
 		self.debuffs:SetPoint(relativePoint.."LEFT", dbuff, relativePoint.."LEFT", 0, -auraOffsetY)
@@ -169,7 +175,7 @@ local function TargetDebuffPosit(self, debuffName, index, numBuffs, anchorIndex,
 	else
 		-- anchor index is the previous index
 		-- we tighten up the spacing between debuffs by -1px due to !bc
-		dbuff:SetPoint(point.."LEFT", _G[debuffName..(index - 1)], point.."RIGHT", offsetX - 1, 0)
+		dbuff:SetPoint(point.."LEFT", _G[debuffName..(index - 1)], point.."RIGHT", offsetX - BEAUTY_SPACING, 0)
 	end
 end
 

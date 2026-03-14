@@ -74,16 +74,15 @@ EnableEnhancedFrames = function()
 end
 
 EnhancedFrames_Style_PlayerFrame = function()
-	if not InCombatLockdown() then
-		PlayerName:SetWidth(0.01)
-		PlayerFrameHealthBar.capNumericDisplay = true
-		PlayerFrameHealthBar:SetSize(116, 29)
-		PlayerFrameHealthBar:SetPoint("TOPLEFT", 106, -22)
-		PlayerFrameHealthBarText:SetPoint("CENTER", 50, 12)
-	end
-
 	PlayerFrameTexture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-TargetingFrame")
 	PlayerStatusTexture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-Player-Status")
+
+	if InCombatLockdown() then return end
+	PlayerName:SetWidth(0.01)
+	PlayerFrameHealthBar.capNumericDisplay = true
+	PlayerFrameHealthBar:SetSize(116, 29)
+	PlayerFrameHealthBar:SetPoint("TOPLEFT", 106, -22)
+	PlayerFrameHealthBarText:SetPoint("CENTER", 50, 12)
 end
 
 EnhancedFrames_Style_TargetFrame = function(self)
@@ -189,10 +188,9 @@ EnhancedFrames_PlayerFrame_ToPlayerArt = function(self)
 end
 
 EnhancedFrames_PlayerFrame_ToVehicleArt = function(self)
-	if not InCombatLockdown() then
-		PlayerFrameHealthBar:SetHeight(12)
-		PlayerFrameHealthBarText:SetPoint("CENTER", 50, 3)
-	end
+	if InCombatLockdown() then return end
+	PlayerFrameHealthBar:SetHeight(12)
+	PlayerFrameHealthBarText:SetPoint("CENTER", 50, 3)
 end
 
 EnhancedFrames_TargetFrame_Update = function(self)
@@ -253,40 +251,40 @@ EnhancedFrames_TargetFrame_CheckFaction = function(self)
 end
 
 EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt = function(self)
-	if not InCombatLockdown() then
-		if self.healthbar and self.healthbar.TextString then
-			self.healthbar.TextString:SetPoint("CENTER", self.healthbar, "CENTER", 0, 1)
+	if InCombatLockdown() then return end
+	
+	if self.healthbar and self.healthbar.TextString then
+		self.healthbar.TextString:SetPoint("CENTER", self.healthbar, "CENTER", 0, 1)
+	end
+
+	if self.name then
+		self.name:SetPoint("TOP", 0, 20)
+		self.name:SetFont(C.Media.Font, 10)
+	end
+
+	local name = self:GetName()
+	if name then
+		local texture = _G[name.."Texture"]
+		if texture then
+			texture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\PartyFrame")
+			texture:SetPoint("TOPLEFT", 0, 6)
 		end
 
-		if self.name then
-			self.name:SetPoint("TOP", 0, 20)
-			self.name:SetFont(C.Media.Font, 10)
+		local flash = _G[name.."Flash"]
+		if flash then
+			flash:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\PartyFrameFlash")
+			flash:SetPoint("TOPLEFT", 0, 6)
 		end
 
-		local name = self:GetName()
-		if name then
-			local texture = _G[name.."Texture"]
-			if texture then
-				texture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\PartyFrame")
-				texture:SetPoint("TOPLEFT", 0, 6)
-			end
+		if self.healthbar then
+			self.healthbar:SetPoint("TOPLEFT", 47, -3)
+			self.healthbar:SetHeight(17)
+		end
 
-			local flash = _G[name.."Flash"]
-			if flash then
-				flash:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\PartyFrameFlash")
-				flash:SetPoint("TOPLEFT", 0, 6)
-			end
-
-			if self.healthbar then
-				self.healthbar:SetPoint("TOPLEFT", 47, -3)
-				self.healthbar:SetHeight(17)
-			end
-
-			local bg = _G[name.."Background"]
-			if bg then
-				bg:SetSize(70, 24)
-				bg:SetPoint("TOPLEFT", 47, -3)
-			end
+		local bg = _G[name.."Background"]
+		if bg then
+			bg:SetSize(70, 24)
+			bg:SetPoint("TOPLEFT", 47, -3)
 		end
 	end
 end

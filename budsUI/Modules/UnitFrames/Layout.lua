@@ -21,6 +21,14 @@ local UnitReaction = UnitReaction
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitIsConnected = UnitIsConnected
 
+-- Layout Constants
+local PLAYER_TARGET_X = 51
+local PLAYER_TARGET_Y = 3
+local FOCUS_TOT_X = 34
+local FOCUS_TOT_Y = 35
+local RUNE_OFFSET_X = -1
+local RUNE_OFFSET_Y = -5
+
 local Unitframes = CreateFrame("Frame", "Unitframes", UIParent)
 
 if C.Unitframe.Enable == true then
@@ -96,50 +104,33 @@ if C.Unitframe.Enable == true then
 				end
 			end
 
-			-- Unit Name
-			for _, FrameNames in pairs({
-				PlayerName,
-				TargetFrameTextureFrameName,
-				FocusFrameTextureFrameName,
-			}) do
-				SetUnitFont(FrameNames)
-			end
+			-- Font Strings Configuration
+			local unitFramesFontStrings = {
+				-- Generic Unit Font
+				[1] = {
+					PlayerName, TargetFrameTextureFrameName, FocusFrameTextureFrameName,
+					PlayerFrameHealthBarText, PlayerFrameManaBarText,
+					TargetFrameTextureFrameHealthBarText, TargetFrameTextureFrameManaBarText,
+					FocusFrameTextureFrameHealthBarText, FocusFrameTextureFrameManaBarText,
+					PetFrameHealthBarText, PetFrameManaBarText
+				},
+				-- Party Font (Size adjusted)
+				[-3] = {
+					PartyMemberFrame1HealthBarText, PartyMemberFrame1ManaBarText,
+					PartyMemberFrame2HealthBarText, PartyMemberFrame2ManaBarText,
+					PartyMemberFrame3HealthBarText, PartyMemberFrame3ManaBarText,
+					PartyMemberFrame4HealthBarText, PartyMemberFrame4ManaBarText,
+				},
+				-- Level Font (Size adjusted)
+				[1] = {
+					PlayerLevelText, TargetFrameTextureFrameLevelText, FocusFrameTextureFrameLevelText
+				}
+			}
 
-			-- Unit HealthBarText
-			for _, FrameBarText in pairs({
-				PlayerFrameHealthBarText,
-				PlayerFrameManaBarText,
-				TargetFrameTextureFrameHealthBarText,
-				TargetFrameTextureFrameManaBarText,
-				FocusFrameTextureFrameHealthBarText,
-				FocusFrameTextureFrameManaBarText,
-				PetFrameHealthBarText,
-				PetFrameManaBarText,
-			}) do
-				SetUnitFont(FrameBarText)
-			end
-
-			-- Party Unit HealthBarText
-			for _, PartyBarText in pairs({
-				PartyMemberFrame1HealthBarText,
-				PartyMemberFrame1ManaBarText,
-				PartyMemberFrame2HealthBarText,
-				PartyMemberFrame2ManaBarText,
-				PartyMemberFrame3HealthBarText,
-				PartyMemberFrame3ManaBarText,
-				PartyMemberFrame4HealthBarText,
-				PartyMemberFrame4ManaBarText,
-			}) do
-				SetUnitFont(PartyBarText, -3)
-			end
-
-			-- Unit LevelText
-			for _, LevelText in pairs({
-				PlayerLevelText,
-				TargetFrameTextureFrameLevelText,
-				FocusFrameTextureFrameLevelText,
-			}) do
-				SetUnitFont(LevelText, 1)
+			for adj, frames in pairs(unitFramesFontStrings) do
+				for _, fontString in ipairs(frames) do
+					SetUnitFont(fontString, adj)
+				end
 			end
 
 
@@ -153,7 +144,7 @@ if C.Unitframe.Enable == true then
 				-- Tweak Player Frame
 				PlayerFrame:SetMovable(true)
 				PlayerFrame:ClearAllPoints()
-				PlayerFrame:SetPoint("CENTER", PlayerFrameAnchor, "CENTER", -51, 3)
+				PlayerFrame:SetPoint("CENTER", PlayerFrameAnchor, "CENTER", -PLAYER_TARGET_X, PLAYER_TARGET_Y)
 				PlayerFrame:SetMovable(false)
 			end
 
@@ -164,7 +155,7 @@ if C.Unitframe.Enable == true then
 				-- Tweak Target Frame
 				TargetFrame:SetMovable(true)
 				TargetFrame:ClearAllPoints()
-				TargetFrame:SetPoint("CENTER", TargetFrameAnchor, "CENTER", 51, 3)
+				TargetFrame:SetPoint("CENTER", TargetFrameAnchor, "CENTER", PLAYER_TARGET_X, PLAYER_TARGET_Y)
 				TargetFrame:SetMovable(false)
 			end
 			-- Tweak Name Background
@@ -189,7 +180,7 @@ if C.Unitframe.Enable == true then
 			-- Tweak Focus Frame
 			FocusFrameToT:SetScale(1.0)
 			FocusFrameToT:ClearAllPoints()
-			FocusFrameToT:SetPoint("TOP", FocusFrame, "BOTTOM", 34, 35)
+			FocusFrameToT:SetPoint("TOP", FocusFrame, "BOTTOM", FOCUS_TOT_X, FOCUS_TOT_Y)
 
 			-- Arena Frames Scaling
 			local function SetArenaFrames()
@@ -215,7 +206,7 @@ if C.Unitframe.Enable == true then
 			-- RuneFrame
 			if K.Class == "DEATHKNIGHT" then
 				RuneFrame:ClearAllPoints()
-				RuneFrame:SetPoint("TOPLEFT", PlayerFrameManaBar, "BOTTOMLEFT", -1, -5)
+				RuneFrame:SetPoint("TOPLEFT", PlayerFrameManaBar, "BOTTOMLEFT", RUNE_OFFSET_X, RUNE_OFFSET_Y)
 				for i = 1, 6 do
 					_G["RuneButtonIndividual"..i]:SetScale(C.Unitframe.Scale)
 				end
