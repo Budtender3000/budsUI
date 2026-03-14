@@ -61,15 +61,18 @@ K.PetBarUpdate = function(self, event)
 		petActionButton.isToken = isToken
 		petActionButton.tooltipSubtext = subtext
 
-		if isActive and name ~= "PET_ACTION_FOLLOW" then
-			petActionButton:SetChecked(true)
-			if IsPetAttackAction(i) then
-				PetActionButton_StartFlash(petActionButton)
-			end
-		else
-			petActionButton:SetChecked(false)
-			if IsPetAttackAction(i) then
-				PetActionButton_StopFlash(petActionButton)
+		-- Skip secure operations during combat to prevent taint
+		if not InCombatLockdown() then
+			if isActive and name ~= "PET_ACTION_FOLLOW" then
+				petActionButton:SetChecked(true)
+				if IsPetAttackAction(i) then
+					PetActionButton_StartFlash(petActionButton)
+				end
+			else
+				petActionButton:SetChecked(false)
+				if IsPetAttackAction(i) then
+					PetActionButton_StopFlash(petActionButton)
+				end
 			end
 		end
 
@@ -106,10 +109,12 @@ K.PetBarUpdate = function(self, event)
 			petActionIcon:Hide()
 		end
 
-		if not PetHasActionBar() and texture and name ~= "PET_ACTION_FOLLOW" then
-			PetActionButton_StopFlash(petActionButton)
-			SetDesaturation(petActionIcon, 1)
-			petActionButton:SetChecked(false)
+		if not InCombatLockdown() then
+			if not PetHasActionBar() and texture and name ~= "PET_ACTION_FOLLOW" then
+				PetActionButton_StopFlash(petActionButton)
+				SetDesaturation(petActionIcon, 1)
+				petActionButton:SetChecked(false)
+			end
 		end
 	end
 end

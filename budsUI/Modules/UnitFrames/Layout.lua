@@ -55,6 +55,8 @@ if C.Unitframe.Enable == true then
 				}
 
 				hooksecurefunc("UnitFrame_Update", function(self, isParty)
+					-- Skip during combat to prevent taint on secure frames like PetFrame
+					if InCombatLockdown() then return end
 					if not self.name or not self:IsShown() then return end
 
 					local PET_COLOR = {r = 157/255, g = 197/255, b = 255/255}

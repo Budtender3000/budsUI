@@ -51,7 +51,7 @@ EnableEnhancedFrames = function()
 	hooksecurefunc("TargetFrame_Update", EnhancedFrames_TargetFrame_Update)
 	hooksecurefunc("TargetFrame_CheckFaction", EnhancedFrames_TargetFrame_CheckFaction)
 	hooksecurefunc("TargetFrame_CheckClassification", EnhancedFrames_Target_Classification)
-	hooksecurefunc("TargetofTarget_Update", EnhancedFrames_TargetFrame_Update)
+	-- Removed TargetofTarget_Update hook to prevent taint on TargetFrameToT:Show()
 
 	-- BOSSFRAME HOOKS
 	hooksecurefunc("BossTargetFrame_OnLoad", EnhancedFrames_BossTargetFrame_Style)
@@ -128,12 +128,16 @@ EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
 		local valueMin, valueMax = textStatusBar:GetMinMaxValues()
 
 		if ((tonumber(valueMax) ~= valueMax or valueMax > 0) and not (textStatusBar.pauseUpdates)) then
-			textStatusBar:Show()
+			if not InCombatLockdown() then
+				textStatusBar:Show()
+			end
 			if (value and valueMax > 0 and (GetCVarBool("statusTextPercentage") or textStatusBar.showPercentage) and not textStatusBar.showNumeric) then
 				if (value == 0 and textStatusBar.zeroText) then
 					textString:SetText(textStatusBar.zeroText)
 					textStatusBar.isZero = 1
-					textString:Show()
+					if not InCombatLockdown() then
+						textString:Show()
+					end
 					return
 				end
 				value = tostring(ceil((value / valueMax) * 100)) .. "%"
@@ -141,7 +145,9 @@ EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
 			elseif (value == 0 and textStatusBar.zeroText) then
 				textString:SetText(textStatusBar.zeroText)
 				textStatusBar.isZero = 1
-				textString:Show()
+				if not InCombatLockdown() then
+					textString:Show()
+				end
 				return
 			else
 				textStatusBar.isZero = nil
@@ -152,12 +158,14 @@ EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
 				textString:SetText(value)
 			end
 
-			if ((textStatusBar.cvar and GetCVar(textStatusBar.cvar) == "1" and textStatusBar.textLockable) or textStatusBar.forceShow) then
-				textString:Show()
-			elseif (textStatusBar.lockShow > 0 and (not textStatusBar.forceHideText)) then
-				textString:Show()
-			else
-				textString:Hide()
+			if not InCombatLockdown() then
+				if ((textStatusBar.cvar and GetCVar(textStatusBar.cvar) == "1" and textStatusBar.textLockable) or textStatusBar.forceShow) then
+					textString:Show()
+				elseif (textStatusBar.lockShow > 0 and (not textStatusBar.forceHideText)) then
+					textString:Show()
+				else
+					textString:Hide()
+				end
 			end
 		else
 			textString:Hide()
@@ -185,6 +193,8 @@ EnhancedFrames_PlayerFrame_ToVehicleArt = function(self)
 end
 
 EnhancedFrames_TargetFrame_Update = function(self)
+	-- Skip during combat to prevent taint
+	if InCombatLockdown() then return end
 	if not self or not self.unit or not self.healthbar then return end
 	-- Set back color of health bar
 	-- UnitIsTapDenied doesn't exist in WotLK, use UnitIsTapped and UnitIsTappedByPlayer instead
@@ -195,6 +205,9 @@ EnhancedFrames_TargetFrame_Update = function(self)
 end
 
 EnhancedFrames_Target_Classification = function(self, forceNormalTexture)
+	-- Skip during combat to prevent taint
+	if InCombatLockdown() then return end
+	
 	local texture
 	local classification = UnitClassification(self.unit)
 	if (classification == "worldboss" or classification == "elite") then
@@ -216,6 +229,9 @@ EnhancedFrames_Target_Classification = function(self, forceNormalTexture)
 end
 
 EnhancedFrames_TargetFrame_CheckFaction = function(self)
+	-- Skip if in combat to avoid taint issues
+	if InCombatLockdown() then return end
+	
 	local factionGroup = UnitFactionGroup(self.unit)
 	if (UnitIsPVPFreeForAll(self.unit)) then
 		self.pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA")

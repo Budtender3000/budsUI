@@ -64,6 +64,8 @@ local function StyleNormalButton(self)
 		if self:GetHeight() ~= C.ActionBar.ButtonSize and not InCombatLockdown() then
 			self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
 		end
+		-- Skip backdrop creation during combat to prevent taint
+		if InCombatLockdown() then return end
 		button:CreateBackdrop()
 		button.backdrop:SetOutside()
 
@@ -103,6 +105,9 @@ local function StyleSmallButton(normal, button, icon, name, pet)
 	flash:SetInside()
 
 	if not button.isSkinned then
+		-- Skip all sizing and styling during combat to prevent taint
+		if InCombatLockdown() then return end
+		
 		button:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
 		button:CreateBackdrop()
 		button.backdrop:SetOutside()

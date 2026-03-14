@@ -12,6 +12,30 @@ if C.ActionBar.PetBarHide then PetActionBarAnchor:Hide() return end
 local bar = CreateFrame("Frame", "PetHolder", UIParent, "SecureHandlerStateTemplate")
 bar:SetAllPoints(PetActionBarAnchor)
 
+-- Setup buttons at load time (before secure environment locks)
+for i = 1, 10 do
+	local button = _G["PetActionButton"..i]
+	button:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
+	button:ClearAllPoints()
+	button:SetParent(PetHolder)
+	
+	if i == 1 then
+		if C.ActionBar.PetBarHorizontal == true then
+			button:SetPoint("BOTTOMLEFT", 0, 0)
+		else
+			button:SetPoint("TOPLEFT", 0, 0)
+		end
+	else
+		if C.ActionBar.PetBarHorizontal == true then
+			button:SetPoint("LEFT", _G["PetActionButton"..i-1], "RIGHT", C.ActionBar.ButtonSpace, 0)
+		else
+			button:SetPoint("TOP", _G["PetActionButton"..i-1], "BOTTOM", 0, -C.ActionBar.ButtonSpace)
+		end
+	end
+	button:Show()
+	bar:SetAttribute("addchild", button)
+end
+
 bar:RegisterEvent("PET_BAR_HIDE")
 bar:RegisterEvent("PET_BAR_UPDATE")
 bar:RegisterEvent("PET_BAR_UPDATE_COOLDOWN")
@@ -26,30 +50,6 @@ bar:RegisterEvent("UNIT_PET")
 bar:SetScript("OnEvent", function(self, event, arg1)
 	if event == "PLAYER_LOGIN" then
 		PetActionBarFrame.showgrid = 1
-
-		local button
-		for i = 1, 10 do
-			button = _G["PetActionButton"..i]
-			button:ClearAllPoints()
-			button:SetParent(PetHolder)
-
-			button:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
-			if i == 1 then
-				if C.ActionBar.PetBarHorizontal == true then
-					button:SetPoint("BOTTOMLEFT", 0, 0)
-				else
-					button:SetPoint("TOPLEFT", 0, 0)
-				end
-			else
-				if C.ActionBar.PetBarHorizontal == true then
-					button:SetPoint("LEFT", _G["PetActionButton"..i-1], "RIGHT", C.ActionBar.ButtonSpace, 0)
-				else
-					button:SetPoint("TOP", _G["PetActionButton"..i-1], "BOTTOM", 0, -C.ActionBar.ButtonSpace)
-				end
-			end
-			button:Show()
-			self:SetAttribute("addchild", button)
-		end
 		RegisterStateDriver(self, "visibility", "[pet,novehicleui,nobonusbar:5] show; hide")
 		hooksecurefunc("PetActionBar_Update", K.PetBarUpdate)
 	elseif event == "PET_BAR_UPDATE" or (event == "UNIT_PET" and arg1 == "player")
@@ -60,6 +60,9 @@ bar:SetScript("OnEvent", function(self, event, arg1)
 	elseif event == "PET_BAR_UPDATE_COOLDOWN" then
 		PetActionBar_UpdateCooldowns()
 	elseif event == "PET_BAR_HIDE" or event == "PET_BAR_UPDATE_USABLE" then
-		K.StylePet()
+		-- Skip styling during combat to prevent taint on SetSize
+		if not InCombatLockdown() then
+			K.StylePet()
+		end
 	end
 end)
