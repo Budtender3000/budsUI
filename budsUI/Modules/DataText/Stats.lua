@@ -12,7 +12,7 @@ local CreateFrame = CreateFrame
 local IsAddOnLoaded = IsAddOnLoaded
 local GetFramerate = GetFramerate
 
-local StatFrame = CreateFrame("Frame", "StatFrame", Minimap)
+local StatFrame = CreateFrame("Frame", nil, Minimap)
 StatFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 StatFrame:CreateBackdrop()
 StatFrame:SetSize(0, 20)
@@ -21,7 +21,7 @@ StatFrame:SetFrameLevel(Minimap:GetFrameLevel() + 3)
 StatFrame:SetFrameStrata(Minimap:GetFrameStrata())
 StatFrame:SetPoint("BOTTOMRIGHT", Minimap, 2, -24)
 
-local Stat = CreateFrame("Frame", "StatSystem", UIParent)
+local Stat = CreateFrame("Frame", nil, UIParent)
 Stat:RegisterEvent("PLAYER_ENTERING_WORLD")
 Stat:SetFrameStrata("BACKGROUND")
 Stat:SetFrameLevel(3)
@@ -30,7 +30,10 @@ Stat.tooltip = false
 
 local Text = StatFrame:CreateFontString(nil, "OVERLAY")
 Text:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-Text:SetPoint(unpack(C.Position.StatsFrame))
+
+local point, relativeTo, relativePoint, xOffset, yOffset = unpack(C.Position.StatsFrame)
+if relativeTo == "StatFrame" then relativeTo = StatFrame end
+Text:SetPoint(point, relativeTo, relativePoint, xOffset, yOffset)
 
 -- Format Memory
 local kiloByteString = "%d kb"
@@ -52,8 +55,12 @@ local function RebuildAddonList(self)
 	local addOnCount = GetNumAddOns()
 	if addOnCount == #memoryTable then return end
 
+	-- Cleanup old data to prevent stale references
+	for i = 1, #memoryTable do
+		memoryTable[i] = nil
+	end
+
 	-- Number of loaded addons changed, create new memoryTable for all addons
-	memoryTable = {}
 	for i = 1, addOnCount do
 		memoryTable[i] = { i, select(2, GetAddOnInfo(i)), 0, IsAddOnLoaded(i) }
 	end

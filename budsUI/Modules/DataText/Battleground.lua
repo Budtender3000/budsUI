@@ -10,18 +10,21 @@ local IsInInstance = IsInInstance
 
 -- BGScore(by Elv22, edited by Tukz)
 -- Map IDs
-local WSG = 443
-local AV = 401
-local SOTA = 512
-local IOC = 540
-local EOTS = 482
-local AB = 461
+local BG_MAPS = {
+	WSG = 443,
+	AV = 401,
+	SOTA = 512,
+	IOC = 540,
+	EOTS = 482,
+	AB = 461,
+}
 
 local classcolor = ("|cff%.2x%.2x%.2x"):format(K.Color.r * 255, K.Color.g * 255, K.Color.b * 255)
 
-local bgframe = CreateFrame("Frame", "InfoBattleGround", UIParent)
+local bgframe = CreateFrame("Frame", nil, UIParent)
 bgframe:CreatePanel("Invisible", 300, C.Media.Font_Size, unpack(C.Position.BGScore))
 bgframe:EnableMouse(true)
+
 bgframe:SetScript("OnEnter", function(self)
 	local numScores = GetNumBattlefieldScores()
 	for i = 1, numScores do
@@ -40,20 +43,20 @@ bgframe:SetScript("OnEnter", function(self)
 			GameTooltip:AddDoubleLine(DAMAGE..":", damageDone, 1, 1, 1)
 			GameTooltip:AddDoubleLine(SHOW_COMBAT_HEALING..":", healingDone, 1, 1, 1)
 			-- Add extra statistics depending on what BG you are
-			if curmapid == IOC or curmapid == AB then
+			if curmapid == BG_MAPS.IOC or curmapid == BG_MAPS.AB then
 				GameTooltip:AddDoubleLine(L_DATATEXT_BASESASSAULTED, GetBattlefieldStatData(i, 1), 1, 1, 1)
 				GameTooltip:AddDoubleLine(L_DATATEXT_BASESDEFENDED, GetBattlefieldStatData(i, 2), 1, 1, 1)
-			elseif curmapid == WSG then
+			elseif curmapid == BG_MAPS.WSG then
 				GameTooltip:AddDoubleLine(L_DATATEXT_FLAGSCAPTURED, GetBattlefieldStatData(i, 1), 1, 1, 1)
 				GameTooltip:AddDoubleLine(L_DATATEXT_FLAGSRETURNED, GetBattlefieldStatData(i, 2), 1, 1, 1)
-			elseif curmapid == EOTS then
+			elseif curmapid == BG_MAPS.EOTS then
 				GameTooltip:AddDoubleLine(L_DATATEXT_FLAGSCAPTURED, GetBattlefieldStatData(i, 1), 1, 1, 1)
-			elseif curmapid == AV then
+			elseif curmapid == BG_MAPS.AV then
 				GameTooltip:AddDoubleLine(L_DATATEXT_GRAVEYARDSASSAULTED, GetBattlefieldStatData(i, 1), 1, 1, 1)
 				GameTooltip:AddDoubleLine(L_DATATEXT_GRAVEYARDSDEFENDED, GetBattlefieldStatData(i, 2), 1, 1, 1)
 				GameTooltip:AddDoubleLine(L_DATATEXT_TOWERSASSAULTED, GetBattlefieldStatData(i, 3), 1, 1, 1)
 				GameTooltip:AddDoubleLine(L_DATATEXT_TOWERSDEFENDED, GetBattlefieldStatData(i, 4), 1, 1, 1)
-			elseif curmapid == SOTA then
+			elseif curmapid == BG_MAPS.SOTA then
 				GameTooltip:AddDoubleLine(L_DATATEXT_DEMOLISHERSDESTROYED, GetBattlefieldStatData(i, 1), 1, 1, 1)
 				GameTooltip:AddDoubleLine(L_DATATEXT_GATESDESTROYED, GetBattlefieldStatData(i, 2), 1, 1, 1)
 			end
@@ -77,17 +80,17 @@ end)
 local Stat = CreateFrame("Frame")
 Stat:EnableMouse(true)
 
-local Text1 = InfoBattleGround:CreateFontString(nil, "OVERLAY")
+local Text1 = bgframe:CreateFontString(nil, "OVERLAY")
 Text1:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
 Text1:SetPoint("LEFT", 5, 0)
 Text1:SetHeight(C.Media.Font_Size)
 
-local Text2 = InfoBattleGround:CreateFontString(nil, "OVERLAY")
+local Text2 = bgframe:CreateFontString(nil, "OVERLAY")
 Text2:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
 Text2:SetPoint("LEFT", Text1, "RIGHT", 5, 0)
 Text2:SetHeight(C.Media.Font_Size)
 
-local Text3 = InfoBattleGround:CreateFontString(nil, "OVERLAY")
+local Text3 = bgframe:CreateFontString(nil, "OVERLAY")
 Text3:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
 Text3:SetPoint("LEFT", Text2, "RIGHT", 5, 0)
 Text3:SetHeight(C.Media.Font_Size)
