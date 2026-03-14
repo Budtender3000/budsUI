@@ -128,7 +128,7 @@ function GetMinimapShape()
 	return "SQUARE"
 end
 
--- Set Boarder Texture
+-- Set Border Texture
 MinimapBackdrop:SetBackdrop(K.Backdrop)
 MinimapBackdrop:SetBackdropColor(0.05, 0.05, 0.05, 0.0)
 MinimapBackdrop:SetBackdropBorderColor(unpack(C.Media.Border_Color))

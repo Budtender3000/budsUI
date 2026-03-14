@@ -5,6 +5,9 @@ local unpack = unpack
 local ipairs = ipairs
 local ceil = math.ceil
 local CreateFrame, UIParent = CreateFrame, UIParent
+local tinsert = table.insert
+
+local buttonSize = 20
 
 -- Collect minimap buttons in one line
 local BlackList = {
@@ -34,10 +37,10 @@ local BlackList = {
 
 local buttons = {}
 local button = CreateFrame("Frame", "ButtonCollectFrame", UIParent)
-local line = ceil(C.Minimap.Size / 20)
+local line = ceil(C.Minimap.Size / buttonSize)
 
 local function PositionAndStyle()
-	button:SetSize(20, 20)
+	button:SetSize(buttonSize, buttonSize)
 	button:SetPoint(unpack(C.Position.MinimapButtons))
 	for i = 1, #buttons do
 		local bu = buttons[i]
@@ -73,7 +76,9 @@ local function PositionAndStyle()
 end
 
 local function CollectButtons()
-	for i, child in ipairs({Minimap:GetChildren()}) do
+	local children = {Minimap:GetChildren()}
+	for i = 1, #children do
+		local child = children[i]
 		local success, name = pcall(child.GetName, child)
 		if success and name and not BlackList[name] then
 			if child:GetObjectType() == "Button" and child:GetNumRegions() >= 3 and child:IsShown() then

@@ -9,16 +9,19 @@ local bar = CreateFrame("Frame", "Bar4Holder", RightActionBarAnchor)
 bar:SetAllPoints(RightActionBarAnchor)
 MultiBarRight:SetParent(bar)
 
-for i = 1, 12 do
-	local b = _G["MultiBarRightButton"..i]
-	local b2 = _G["MultiBarRightButton"..i-1]
-	b:ClearAllPoints()
-	if i == 1 then
-		b:SetPoint("TOPRIGHT", RightActionBarAnchor, "TOPRIGHT", 0, 0)
-	else
-		b:SetPoint("TOP", b2, "BOTTOM", 0, -C.ActionBar.ButtonSpace)
+K.UpdateBar4 = function()
+	for i = 1, 12 do
+		local b = _G["MultiBarRightButton"..i]
+		local b2 = _G["MultiBarRightButton"..i-1]
+		b:ClearAllPoints()
+		if i == 1 then
+			b:SetPoint("TOPRIGHT", RightActionBarAnchor, "TOPRIGHT", 0, 0)
+		else
+			b:SetPoint("TOP", b2, "BOTTOM", 0, -C.ActionBar.ButtonSpace)
+		end
 	end
 end
+K.UpdateBar4()
 
 -- Hide bar
 if C.ActionBar.RightBars < 1 then
