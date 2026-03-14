@@ -13,15 +13,19 @@ K.UpdateBar5 = function()
 	local size = C.ActionBar.ButtonSize
 	local space = C.ActionBar.ButtonSpace
 	local bar = Bar5Holder
+	local rightBars = SavedOptionsPerChar.RightBars or C.ActionBar.RightBars
+	local bottomBars = SavedOptionsPerChar.BottomBars or C.ActionBar.BottomBars
+	local splitBars = SavedOptionsPerChar.SplitBars
+	if splitBars == nil then splitBars = C.ActionBar.SplitBars end
 
-	if SavedOptionsPerChar.RightBars < 3 and SavedOptionsPerChar.BottomBars < 3 then
+	if rightBars < 3 and bottomBars < 3 then
 		bar:Hide()
 	else
 		bar:Show()
 	end
 
-	if SavedOptionsPerChar.RightBars < 3 then
-		if SavedOptionsPerChar.SplitBars == true then
+	if rightBars < 3 then
+		if splitBars == true then
 			bar:SetAllPoints(SplitBarLeft)
 		else
 			bar:SetAllPoints(ActionBarAnchor)
@@ -34,7 +38,7 @@ K.UpdateBar5 = function()
 		local b = _G["MultiBarBottomRightButton"..i]
 		local b2 = _G["MultiBarBottomRightButton"..i-1]
 		b:ClearAllPoints()
-		if SavedOptionsPerChar.SplitBars == true and SavedOptionsPerChar.RightBars < 3 then
+		if splitBars == true and rightBars < 3 then
 			if i == 1 then
 				b:SetPoint("TOPLEFT", SplitBarLeft, "TOPLEFT", 0, 0)
 			elseif i == 4 then
@@ -48,13 +52,13 @@ K.UpdateBar5 = function()
 			end
 		else
 			if i == 1 then
-				if SavedOptionsPerChar.RightBars < 3 then
+				if rightBars < 3 then
 					b:SetPoint("TOPLEFT", Bar1Holder, 0, 0)
 				else
 					b:SetPoint("TOPLEFT", RightActionBarAnchor, "TOPLEFT", 0, 0)
 				end
 			else
-				if SavedOptionsPerChar.RightBars < 3 then
+				if rightBars < 3 then
 					b:SetPoint("LEFT", b2, "RIGHT", space, 0)
 				else
 					b:SetPoint("TOP", b2, "BOTTOM", 0, -space)

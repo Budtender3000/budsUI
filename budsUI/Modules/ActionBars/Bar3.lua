@@ -10,12 +10,13 @@ bar:SetAllPoints(RightActionBarAnchor)
 MultiBarLeft:SetParent(bar)
 
 K.UpdateBar3 = function()
+	local rightBars = SavedOptionsPerChar.RightBars or C.ActionBar.RightBars
 	for i = 1, 12 do
 		local b = _G["MultiBarLeftButton"..i]
 		local b2 = _G["MultiBarLeftButton"..i-1]
 		b:ClearAllPoints()
 		if i == 1 then
-			if SavedOptionsPerChar.RightBars == 3 then
+			if rightBars == 3 then
 				b:SetPoint("TOP", RightActionBarAnchor, "TOP", 0, 0)
 			else
 				b:SetPoint("TOPLEFT", RightActionBarAnchor, "TOPLEFT", 0, 0)

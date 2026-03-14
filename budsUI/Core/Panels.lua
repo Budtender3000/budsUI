@@ -38,14 +38,17 @@ end
 rightbaranchor:SetFrameStrata("LOW")
 
 --	Split bar anchor
-if C.ActionBar.SplitBars == true then
-	local SplitBarLeft = CreateFrame("Frame", "SplitBarLeft", UIParent)
-	SplitBarLeft:CreatePanel("Invisible", (C.ActionBar.ButtonSize * 3) + (C.ActionBar.ButtonSpace * 2), (C.ActionBar.ButtonSize * 2) + C.ActionBar.ButtonSpace, "BOTTOMRIGHT", ActionBarAnchor, "BOTTOMLEFT", -C.ActionBar.ButtonSpace, 0)
-	SplitBarLeft:SetFrameStrata("LOW")
+local SplitBarLeft = CreateFrame("Frame", "SplitBarLeft", UIParent)
+SplitBarLeft:CreatePanel("Invisible", (C.ActionBar.ButtonSize * 3) + (C.ActionBar.ButtonSpace * 2), (C.ActionBar.ButtonSize * 2) + C.ActionBar.ButtonSpace, "BOTTOMRIGHT", ActionBarAnchor, "BOTTOMLEFT", -C.ActionBar.ButtonSpace, 0)
+SplitBarLeft:SetFrameStrata("LOW")
 
-	local SplitBarRight = CreateFrame("Frame", "SplitBarRight", UIParent)
-	SplitBarRight:CreatePanel("Invisible", (C.ActionBar.ButtonSize * 3) + (C.ActionBar.ButtonSpace * 2), (C.ActionBar.ButtonSize * 2) + C.ActionBar.ButtonSpace, "BOTTOMLEFT", ActionBarAnchor, "BOTTOMRIGHT", C.ActionBar.ButtonSpace, 0)
-	SplitBarRight:SetFrameStrata("LOW")
+local SplitBarRight = CreateFrame("Frame", "SplitBarRight", UIParent)
+SplitBarRight:CreatePanel("Invisible", (C.ActionBar.ButtonSize * 3) + (C.ActionBar.ButtonSpace * 2), (C.ActionBar.ButtonSize * 2) + C.ActionBar.ButtonSpace, "BOTTOMLEFT", ActionBarAnchor, "BOTTOMRIGHT", C.ActionBar.ButtonSpace, 0)
+SplitBarRight:SetFrameStrata("LOW")
+
+if C.ActionBar.SplitBars ~= true then
+	SplitBarLeft:Hide()
+	SplitBarRight:Hide()
 end
 
 --	Pet bar anchor

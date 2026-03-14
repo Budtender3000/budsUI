@@ -4,6 +4,7 @@ if C.ActionBar.Enable ~= true or C.ActionBar.ToggleMode ~= true then return end
 local _G = _G
 
 local ToggleBar = CreateFrame("Frame", "ToggleActionbar", UIParent)
+ToggleBar:Show()
 
 local ToggleBarText = function(i, text, plus, neg)
 	if plus then
@@ -16,31 +17,35 @@ local ToggleBarText = function(i, text, plus, neg)
 end
 
 local MainBars = function()
-	if SavedOptionsPerChar.BottomBars == 1 then
+	local bottomBars = SavedOptionsPerChar.BottomBars or C.ActionBar.BottomBars
+	local splitBars = SavedOptionsPerChar.SplitBars
+	if splitBars == nil then splitBars = C.ActionBar.SplitBars end
+
+	if bottomBars == 1 then
 		ActionBarAnchor:SetHeight(C.ActionBar.ButtonSize)
 		ToggleBarText(1, "+ + +", true)
 		Bar2Holder:Hide()
 		if K.UpdateBar5 then K.UpdateBar5() end
-	elseif SavedOptionsPerChar.BottomBars == 2 then
+	elseif bottomBars == 2 then
 		ActionBarAnchor:SetHeight(C.ActionBar.ButtonSize * 2 + C.ActionBar.ButtonSpace)
 		Bar2Holder:Show()
 		if K.UpdateBar5 then K.UpdateBar5() end
-		if SavedOptionsPerChar.SplitBars == true then
+		if splitBars == true then
 			ToggleBarText(1, "- - -", false, true)
 		else
 			ToggleBarText(1, "+ + +", true)
 		end
-	elseif SavedOptionsPerChar.BottomBars == 3 then
+	elseif bottomBars == 3 then
 		ActionBarAnchor:SetHeight((C.ActionBar.ButtonSize * 3) + (C.ActionBar.ButtonSpace * 2))
 		ToggleBarText(1, "- - -", false, true)
 		Bar2Holder:Show()
 		if K.UpdateBar5 then K.UpdateBar5() end
 	end
 
-	if SavedOptionsPerChar.SplitBars == true then
+	if splitBars == true then
 		ToggleBar[3]:SetHeight(ActionBarAnchor:GetHeight())
 		ToggleBar[4]:SetHeight(ActionBarAnchor:GetHeight())
-		if SavedOptionsPerChar.BottomBars == 1 then
+		if bottomBars == 1 then
 			for i = 1, 3 do
 				local b = _G["MultiBarBottomRightButton"..i]
 				b:SetAlpha(0)
@@ -67,7 +72,8 @@ local MainBars = function()
 end
 
 local RightBars = function()
-	if SavedOptionsPerChar.RightBars == 0 then
+	local rightBars = SavedOptionsPerChar.RightBars or C.ActionBar.RightBars
+	if rightBars == 0 then
 		if not C.ActionBar.PetBarHorizontal == true then
 			PetActionBarAnchor:ClearAllPoints()
 			PetActionBarAnchor:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -18, 320)
@@ -78,7 +84,7 @@ local RightBars = function()
 		Bar3Holder:Hide()
 		Bar4Holder:Hide()
 		if K.UpdateBar5 then K.UpdateBar5() end
-	elseif SavedOptionsPerChar.RightBars == 1 then
+	elseif rightBars == 1 then
 		RightActionBarAnchor:SetWidth(C.ActionBar.ButtonSize)
 		if not C.ActionBar.PetBarHorizontal == true then
 			PetActionBarAnchor:ClearAllPoints()
@@ -90,7 +96,7 @@ local RightBars = function()
 		Bar3Holder:Show()
 		Bar4Holder:Hide()
 		if K.UpdateBar5 then K.UpdateBar5() end
-	elseif SavedOptionsPerChar.RightBars == 2 then
+	elseif rightBars == 2 then
 		RightActionBarAnchor:SetWidth(C.ActionBar.ButtonSize * 2 + C.ActionBar.ButtonSpace)
 		if not C.ActionBar.PetBarHorizontal == true then
 			PetActionBarAnchor:ClearAllPoints()
@@ -102,7 +108,7 @@ local RightBars = function()
 		Bar3Holder:Show()
 		Bar4Holder:Show()
 		if K.UpdateBar5 then K.UpdateBar5() end
-	elseif SavedOptionsPerChar.RightBars == 3 then
+	elseif rightBars == 3 then
 		RightActionBarAnchor:SetWidth((C.ActionBar.ButtonSize * 3) + (C.ActionBar.ButtonSpace * 2))
 		if not C.ActionBar.PetBarHorizontal == true then
 			PetActionBarAnchor:ClearAllPoints()
@@ -124,37 +130,42 @@ local RightBars = function()
 end
 
 local SplitBars = function()
-	if SavedOptionsPerChar.SplitBars == true and SavedOptionsPerChar.RightBars ~= 3 then
-		if SavedOptionsPerChar.SplitBars == true then
+	local splitBars = SavedOptionsPerChar.SplitBars
+	if splitBars == nil then splitBars = C.ActionBar.SplitBars end
+	local rightBars = SavedOptionsPerChar.RightBars or C.ActionBar.RightBars
+	local bottomBars = SavedOptionsPerChar.BottomBars or C.ActionBar.BottomBars
+
+	if splitBars == true and rightBars ~= 3 then
+		if splitBars == true then
 			ToggleBar[3]:ClearAllPoints()
 			ToggleBar[3]:SetPoint("BOTTOMLEFT", SplitBarRight, "BOTTOMRIGHT", C.ActionBar.ButtonSpace, 0)
 			ToggleBar[4]:ClearAllPoints()
 			ToggleBar[4]:SetPoint("BOTTOMRIGHT", SplitBarLeft, "BOTTOMLEFT", -C.ActionBar.ButtonSpace, 0)
 			VehicleButtonAnchor:ClearAllPoints()
 			VehicleButtonAnchor:SetPoint("BOTTOMRIGHT", SplitBarLeft, "BOTTOMLEFT", -C.ActionBar.ButtonSpace, 0)
-			if SavedOptionsPerChar.BottomBars == 2 then
+			if bottomBars == 2 then
 				ToggleBarText(3, "<\n<\n<", false, true)
 				ToggleBarText(4, ">\n>\n>", false, true)
 			else
 				ToggleBarText(3, "<\n<", false, true)
 				ToggleBarText(4, ">\n>", false, true)
 			end
-			Bar5Holder:Show()
-		elseif SavedOptionsPerChar.SplitBars == false then
+			if K.UpdateBar5 then K.UpdateBar5() end
+		elseif splitBars == false then
 			ToggleBar[3]:ClearAllPoints()
 			ToggleBar[3]:SetPoint("BOTTOMLEFT", ActionBarAnchor, "BOTTOMRIGHT", C.ActionBar.ButtonSpace, 0)
 			ToggleBar[4]:ClearAllPoints()
 			ToggleBar[4]:SetPoint("BOTTOMRIGHT", ActionBarAnchor, "BOTTOMLEFT", -C.ActionBar.ButtonSpace, 0)
 			VehicleButtonAnchor:ClearAllPoints()
 			VehicleButtonAnchor:SetPoint("BOTTOMRIGHT", ActionBarAnchor, "BOTTOMLEFT", -C.ActionBar.ButtonSpace, 0)
-			if SavedOptionsPerChar.BottomBars == 2 then
+			if bottomBars == 2 then
 				ToggleBarText(3, ">\n>\n>", true)
 				ToggleBarText(4, "<\n<\n<", true)
 			else
 				ToggleBarText(3, ">\n>", true)
 				ToggleBarText(4, "<\n<", true)
 			end
-			Bar5Holder:Hide()
+			if K.UpdateBar5 then K.UpdateBar5() end
 			SplitBarLeft:Hide()
 			SplitBarRight:Hide()
 		end
@@ -162,10 +173,13 @@ local SplitBars = function()
 end
 
 local LockCheck = function(i)
-	if SavedOptionsPerChar.BarsLocked == true then
+	local locked = SavedOptionsPerChar.BarsLocked
+	if locked == nil then locked = true end -- Default to locked
+
+	if locked == true then
 		ToggleBar[i].Text:SetText("U")
 		ToggleBar[i].Text:SetTextColor(0.33, 0.59, 0.33)
-	elseif SavedOptionsPerChar.BarsLocked == false then
+	elseif locked == false then
 		ToggleBar[i].Text:SetText("L")
 		ToggleBar[i].Text:SetTextColor(0.85, 0.27, 0.27)
 	else
@@ -174,7 +188,6 @@ local LockCheck = function(i)
 	end
 	
 	if not InCombatLockdown() then
-		local locked = SavedOptionsPerChar.BarsLocked == true
 		for j = 1, 4 do
 			if ToggleBar[j] then
 				ToggleBar[j]:EnableMouse(not locked)
@@ -184,12 +197,17 @@ local LockCheck = function(i)
 end
 
 for i = 1, 5 do
-	ToggleBar[i] = CreateFrame("Frame", "ToggleBar"..i, ToggleBar)
+	local parent = ToggleBar
+	if i == 5 then parent = Minimap end
+
+	ToggleBar[i] = CreateFrame("Frame", "ToggleBar"..i, parent)
+	ToggleBar[i]:Show()
 	ToggleBar[i]:EnableMouse(true)
-	ToggleBar[i]:SetAlpha(0)
 	ToggleBar[i].Text = ToggleBar[i]:CreateFontString(nil, "OVERLAY")
 	ToggleBar[i].Text:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-	ToggleBar[i].Text:SetPoint("CENTER", 2, 0)
+	ToggleBar[i].Text:SetPoint("CENTER", 0, 0)
+
+	ToggleBar[i]:SetAlpha(0)
 
 	if i == 1 then
 		ToggleBar[i]:CreatePanel("CreateBackdrop", ActionBarAnchor:GetWidth(), C.ActionBar.ButtonSize / 1.5, "BOTTOM", ActionBarAnchor, "TOP", 0, C.ActionBar.ButtonSpace)
@@ -241,28 +259,38 @@ for i = 1, 5 do
 		end)
 		ToggleBar[i]:SetScript("OnEvent", RightBars)
 	elseif i == 3 then
-		if SavedOptionsPerChar.SplitBars == true and SavedOptionsPerChar.RightBars ~= 3 then
+		if SplitBarRight then
 			ToggleBar[i]:CreatePanel("CreateBackdrop", C.ActionBar.ButtonSize / 1.5, ActionBarAnchor:GetHeight(), "BOTTOMLEFT", SplitBarRight, "BOTTOMRIGHT", C.ActionBar.ButtonSpace, 0)
-			ToggleBarText(i, "<\n<", false, true)
 			ToggleBar[i]:SetFrameLevel(SplitBarRight:GetFrameLevel() + 1)
+		else
+			ToggleBar[i]:CreatePanel("CreateBackdrop", C.ActionBar.ButtonSize / 1.5, ActionBarAnchor:GetHeight(), "BOTTOMLEFT", ActionBarAnchor, "BOTTOMRIGHT", C.ActionBar.ButtonSpace, 0)
 		end
+		ToggleBarText(i, "<\n<", false, true)
 	elseif i == 4 then
-		if SavedOptionsPerChar.SplitBars == true and SavedOptionsPerChar.RightBars ~= 3 then
+		if SplitBarLeft then
 			ToggleBar[i]:CreatePanel("CreateBackdrop", C.ActionBar.ButtonSize / 1.5, ActionBarAnchor:GetHeight(), "BOTTOMRIGHT", SplitBarLeft, "BOTTOMLEFT", -C.ActionBar.ButtonSpace, 0)
-			ToggleBarText(i, ">\n>", false, true)
 			ToggleBar[i]:SetFrameLevel(SplitBarLeft:GetFrameLevel() + 1)
+		else
+			ToggleBar[i]:CreatePanel("CreateBackdrop", C.ActionBar.ButtonSize / 1.5, ActionBarAnchor:GetHeight(), "BOTTOMRIGHT", ActionBarAnchor, "BOTTOMLEFT", -C.ActionBar.ButtonSpace, 0)
 		end
+		ToggleBarText(i, ">\n>", false, true)
 	elseif i == 5 then
-		ToggleBar[i]:CreatePanel("CreateBorder", 19, 19, "BOTTOMRIGHT", Minimap, "BOTTOMLEFT", -4, -2)
-		ToggleBar[i]:SetBorderSize(10)
+		ToggleBar[i]:SetSize(19, 19)
+		ToggleBar[i]:SetPoint("BOTTOMRIGHT", Minimap, "BOTTOMLEFT", -4, -2)
+		ToggleBar[i]:SetTemplate("Transparent")
+		ToggleBar[i]:SetFrameStrata("HIGH")
+		ToggleBar[i]:SetFrameLevel(Minimap:GetFrameLevel() + 5)
 		ToggleBar[i].Text:SetPoint("CENTER", 0, 0)
 
 		ToggleBar[i]:SetScript("OnMouseDown", function()
 			if InCombatLockdown() then return end
 
-			if SavedOptionsPerChar.BarsLocked == true then
+			local locked = SavedOptionsPerChar.BarsLocked
+			if locked == nil then locked = true end -- Default to locked
+
+			if locked == true then
 				SavedOptionsPerChar.BarsLocked = false
-			elseif SavedOptionsPerChar.BarsLocked == false then
+			else
 				SavedOptionsPerChar.BarsLocked = true
 			end
 
@@ -330,4 +358,8 @@ for i = 1, 5 do
 			K:UIFrameFadeOut(ToggleBar[i], 1, ToggleBar[i]:GetAlpha(), 0)
 		end
 	end)
+
+	if i == 5 then
+		LockCheck(i)
+	end
 end
