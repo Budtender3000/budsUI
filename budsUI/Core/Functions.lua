@@ -46,9 +46,15 @@ K.SetFontString = function(parent, fontName, fontHeight, fontStyle)
 	fs:SetFont(fontName, fontHeight, fontStyle)
 	fs:SetJustifyH("LEFT")
 	fs:SetShadowColor(0, 0, 0)
-	fs:SetShadowOffset((0), -(0))
+	fs:SetShadowOffset(K.Mult, -K.Mult)
 
 	return fs
+end
+
+K.SkinFont = function(self)
+	self:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
+	self:SetShadowOffset(K.Mult, -K.Mult)
+	self:SetShadowColor(0, 0, 0, 1)
 end
 
 K.Comma = function(num)

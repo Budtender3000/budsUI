@@ -28,12 +28,12 @@ local function skinbubble(frame)
 		frame:SetBackdropBorderColor(unpack(C.Media.Border_Color))
 		frame:SetClampedToScreen(false)
 		frame:SetFrameStrata("BACKGROUND")
+		K.SkinFont(frame.text)
 		frame.text:SetFont(C.Media.Font, C.General.BubbleFontSize)
-		frame.text:SetShadowOffset((K.Mult or 1) * UIParent:GetScale(), -(K.Mult or 1) * UIParent:GetScale())
 	else
 		frame:SetBackdrop(nil)
+		K.SkinFont(frame.text)
 		frame.text:SetFont(C.Media.Font, C.General.BubbleFontSize)
-		frame.text:SetShadowOffset((K.Mult or 1) * UIParent:GetScale(), -(K.Mult or 1) * UIParent:GetScale())
 		frame:SetClampedToScreen(false)
 		frame:SetFrameStrata("BACKGROUND")
 	end
@@ -69,9 +69,12 @@ chatbubblehook:SetScript("OnUpdate", function(chatbubblehook, elapsed)
 		end
 
 		for i, frame in next, bubbles do
-			if frame:GetBackdrop() then
+			if frame:IsShown() and frame:GetBackdrop() then
 				local r, g, b = frame.text:GetTextColor()
-				frame:SetBackdropBorderColor(r, g, b)
+				if r ~= frame.lastR or g ~= frame.lastG or b ~= frame.lastB then
+					frame:SetBackdropBorderColor(r, g, b)
+					frame.lastR, frame.lastG, frame.lastB = r, g, b
+				end
 			end
 		end
 	end

@@ -10,6 +10,7 @@ local hooksecurefunc = hooksecurefunc
 local forcebosshealthclasscolor = false
 local croprwicons = true
 local rwiconsize = 12
+local r, g, b = K.Color.r, K.Color.g, K.Color.b
 local backdrop = {
 	bgFile = C.Media.Texture,
 	insets = {left = 0, right = 0, top = 0, bottom = 0},
@@ -39,7 +40,7 @@ DBMSkin:SetScript("OnEvent", function(self, event, addon)
 							icon1.overlay:SetWidth(23)
 							icon1.overlay:SetHeight(23)
 							icon1.overlay:SetFrameStrata("BACKGROUND")
-							icon1.overlay:SetPoint("BOTTOMRIGHT", tbar, "BOTTOMLEFT", -5, -2)
+							icon1.overlay:SetPoint("BOTTOMRIGHT", tbar, "BOTTOMLEFT", -5 * K.Mult, -2 * K.Mult)
 							icon1.overlay:CreateBackdrop(2)
 						end
 
@@ -50,7 +51,7 @@ DBMSkin:SetScript("OnEvent", function(self, event, addon)
 							icon2.overlay:SetWidth(23)
 							icon2.overlay:SetHeight(23)
 							icon2.overlay:SetFrameStrata("BACKGROUND")
-							icon2.overlay:SetPoint("BOTTOMLEFT", tbar, "BOTTOMRIGHT", 5, -2)
+							icon2.overlay:SetPoint("BOTTOMLEFT", tbar, "BOTTOMRIGHT", 5 * K.Mult, -2 * K.Mult)
 							icon2.overlay:CreateBackdrop(2)
 						end
 
@@ -109,10 +110,10 @@ DBMSkin:SetScript("OnEvent", function(self, event, addon)
 
 						if not name.styled then
 							name:ClearAllPoints()
-							name:SetPoint("LEFT", frame, "LEFT", 4, 0)
+							name:SetPoint("LEFT", frame, "LEFT", 4 * K.Mult, 0)
 							name:SetWidth(180)
 							name:SetHeight(8)
-							name:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
+							K.SkinFont(name)
 							name:SetJustifyH("LEFT")
 							name.SetFont = K.Noop
 							name.styled = true
@@ -120,8 +121,8 @@ DBMSkin:SetScript("OnEvent", function(self, event, addon)
 
 						if not timer.styled then
 							timer:ClearAllPoints()
-							timer:SetPoint("RIGHT", frame, "RIGHT", -5, 0)
-							timer:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
+							timer:SetPoint("RIGHT", frame, "RIGHT", -5 * K.Mult, 0)
+							K.SkinFont(timer)
 							timer:SetJustifyH("RIGHT")
 							timer.SetFont = K.Noop
 							timer.styled = true
@@ -146,8 +147,7 @@ DBMSkin:SetScript("OnEvent", function(self, event, addon)
 			if not anchor.styled then
 				local header = {anchor:GetRegions()}
 				if header[1]:IsObjectType("FontString") then
-					header[1]:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-					header[1]:SetShadowOffset((K.Mult or 1), -(K.Mult or 1))
+					K.SkinFont(header[1])
 					header[1]:SetTextColor(1, 1, 1, 1)
 					anchor.styled = true
 				end
@@ -169,10 +169,10 @@ DBMSkin:SetScript("OnEvent", function(self, event, addon)
 				if (count == 1) then
 					local _, anch, _ , _, _ = bar:GetPoint()
 					bar:ClearAllPoints()
-					bar:SetPoint("TOP", anch, "BOTTOM", 0, -3)
+					bar:SetPoint("TOP", anch, "BOTTOM", 0, -3 * K.Mult)
 				else
 					bar:ClearAllPoints()
-					bar:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -3)
+					bar:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -3 * K.Mult)
 				end
 
 				if not bar.styled then
@@ -206,18 +206,16 @@ DBMSkin:SetScript("OnEvent", function(self, event, addon)
 
 				if not name.styled then
 					name:ClearAllPoints()
-					name:SetPoint("LEFT", bar, "LEFT", 4, 0)
-					name:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-					name:SetShadowOffset((K.Mult or 1), -(K.Mult or 1))
+					name:SetPoint("LEFT", bar, "LEFT", 4 * K.Mult, 0)
+					K.SkinFont(name)
 					name:SetJustifyH("LEFT")
 					name.styled = true
 				end
 
 				if not timer.styled then
 					timer:ClearAllPoints()
-					timer:SetPoint("RIGHT", bar, "RIGHT", -5, 0)
-					timer:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-					timer:SetShadowOffset((K.Mult or 1), -(K.Mult or 1))
+					timer:SetPoint("RIGHT", bar, "RIGHT", -5 * K.Mult, 0)
+					K.SkinFont(timer)
 					timer:SetJustifyH("RIGHT")
 					timer.styled = true
 				end

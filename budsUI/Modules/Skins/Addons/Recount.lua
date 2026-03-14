@@ -12,11 +12,10 @@ local function SkinFrame(frame)
 	frame.bgMain = CreateFrame("Frame", nil, frame)
 	frame.bgMain:CreateBackdrop(3)
 	if frame == Recount.MainWindow then
-		frame.Title:SetPoint("TOPLEFT", frame, "TOPLEFT", 3, -12)
-		frame.Title:SetFont(C.Media.Font, C.Media.Font_Size)
-		frame.Title:SetShadowOffset((K.Mult or 1), -(K.Mult or 1))
+		frame.Title:SetPoint("TOPLEFT", frame, "TOPLEFT", 3 * K.Mult, -12 * K.Mult)
+		K.SkinFont(frame.Title)
 		frame.Title:SetShadowColor(0, 0, 0, 0)
-		frame.CloseButton:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -3, -8)
+		frame.CloseButton:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -3 * K.Mult, -8 * K.Mult)
 	end
 	frame.bgMain:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT")
 	frame.bgMain:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT")
@@ -53,12 +52,10 @@ Recount.UpdateBarTextures = function(self)
 		v.background:SetVertexColor(0.15, 0.15, 0.15, 0.75)
 
 		v.LeftText:ClearAllPoints()
-		v.LeftText:SetPoint("LEFT", v.StatusBar, "LEFT", 2, 0)
-		v.LeftText:SetFont(C.Media.Font, C.Media.Font_Size)
-		v.LeftText:SetShadowOffset((K.Mult or 1), -(K.Mult or 1))
+		v.LeftText:SetPoint("LEFT", v.StatusBar, "LEFT", 2 * K.Mult, 0)
+		K.SkinFont(v.LeftText)
 
-		v.RightText:SetFont(C.Media.Font, C.Media.Font_Size)
-		v.RightText:SetShadowOffset((K.Mult or 1), -(K.Mult or 1))
+		K.SkinFont(v.RightText)
 	end
 end
 Recount.SetBarTextures = Recount.UpdateBarTextures
@@ -66,14 +63,22 @@ Recount.SetBarTextures = Recount.UpdateBarTextures
 -- Fix bar textures as they're created
 Recount.SetupBar_ = Recount.SetupBar
 Recount.SetupBar = function(self, bar)
-	self:SetupBar_(bar)
+	local status, err = pcall(self.SetupBar_, self, bar)
+	if not status then 
+		Recount.SetupBar = Recount.SetupBar_ -- Revert if error
+		return
+	end
 	bar.StatusBar:SetStatusBarTexture(C.Media.Texture)
 end
 
 -- Skin frames when they're created
 Recount.CreateFrame_ = Recount.CreateFrame
 Recount.CreateFrame = function(self, Name, Title, Height, Width, ShowFunc, HideFunc)
-	local frame = self:CreateFrame_(Name, Title, Height, Width, ShowFunc, HideFunc)
+	local status, frame = pcall(self.CreateFrame_, self, Name, Title, Height, Width, ShowFunc, HideFunc)
+	if not status then 
+		Recount.CreateFrame = Recount.CreateFrame_ -- Revert if error
+		return self:CreateFrame_(Name, Title, Height, Width, ShowFunc, HideFunc)
+	end
 	SkinFrame(frame)
 	return frame
 end

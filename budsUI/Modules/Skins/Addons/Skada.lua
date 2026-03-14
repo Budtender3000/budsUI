@@ -25,7 +25,11 @@ frame:SetScript("OnEvent", function(self, event)
 
 	barmod.AddDisplayOptions_ = barmod.AddDisplayOptions
 	barmod.AddDisplayOptions = function(self, win, options)
-		self:AddDisplayOptions_(win, options)
+		local status, err = pcall(self.AddDisplayOptions_, self, win, options)
+		if not status then 
+			barmod.AddDisplayOptions = barmod.AddDisplayOptions_
+			return 
+		end
 		StripOptions(options)
 	end
 
@@ -38,7 +42,11 @@ frame:SetScript("OnEvent", function(self, event)
 	-- Override settings from in-game GUI
 	barmod.ApplySettings_ = barmod.ApplySettings
 	barmod.ApplySettings = function(self, win)
-		barmod.ApplySettings_(self, win)
+		local status, err = pcall(self.ApplySettings_, self, win)
+		if not status then 
+			barmod.ApplySettings = barmod.ApplySettings_
+			return
+		end
 
 		local skada = win.bargroup
 
@@ -54,8 +62,8 @@ frame:SetScript("OnEvent", function(self, event)
 
 			if not skada.button.backdrop then
 				skada.button:CreateBackdrop()
-				skada.button.backdrop:SetPoint("TOPLEFT", win.bargroup.button, "TOPLEFT", -4, 4)
-				skada.button.backdrop:SetPoint("BOTTOMRIGHT", win.bargroup.button, "BOTTOMRIGHT", 4, 0)
+				skada.button.backdrop:SetPoint("TOPLEFT", win.bargroup.button, "TOPLEFT", -4 * K.Mult, 4 * K.Mult)
+				skada.button.backdrop:SetPoint("BOTTOMRIGHT", win.bargroup.button, "BOTTOMRIGHT", 4 * K.Mult, 0)
 			end
 
 			skada.button.bg = skada.button:CreateTexture(nil, "BACKGROUND")
@@ -82,12 +90,11 @@ frame:SetScript("OnEvent", function(self, event)
 
 					v.label:ClearAllPoints()
 					v.label.ClearAllPoints = K.Noop
-					v.label:SetPoint("LEFT", v, "LEFT", 2, 0)
+					v.label:SetPoint("LEFT", v, "LEFT", 2 * K.Mult, 0)
 					v.label.SetPoint = K.Noop
 
-					v.label:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
+					K.SkinFont(v.label)
 					v.label.SetFont = K.Noop
-					v.label:SetShadowOffset(0, 0)
 					v.label.SetShadowOffset = K.Noop
 
 					v.timerLabel:ClearAllPoints()
@@ -95,19 +102,18 @@ frame:SetScript("OnEvent", function(self, event)
 					v.timerLabel:SetPoint("RIGHT", v, "RIGHT", 0, 0)
 					v.timerLabel.SetPoint = K.Noop
 
-					v.timerLabel:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
+					K.SkinFont(v.timerLabel)
 					v.timerLabel.SetFont = K.Noop
-					v.timerLabel:SetShadowOffset(0, 0)
 					v.timerLabel.SetShadowOffset = K.Noop
 
 					v.BarStyled = true
 				end
 				if v.icon and v.icon:IsShown() then
-					v.backdrop:SetPoint("TOPLEFT", -14, 2)
-					v.backdrop:SetPoint("BOTTOMRIGHT", 4, -4)
+					v.backdrop:SetPoint("TOPLEFT", -14 * K.Mult, 2 * K.Mult)
+					v.backdrop:SetPoint("BOTTOMRIGHT", 4 * K.Mult, -4 * K.Mult)
 				else
-					v.backdrop:SetPoint("TOPLEFT", -4, 4)
-					v.backdrop:SetPoint("BOTTOMRIGHT", 4, -4)
+					v.backdrop:SetPoint("TOPLEFT", -4 * K.Mult, 4 * K.Mult)
+					v.backdrop:SetPoint("BOTTOMRIGHT", 4 * K.Mult, -4 * K.Mult)
 				end
 			end
 		end

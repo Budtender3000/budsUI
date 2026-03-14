@@ -99,11 +99,18 @@ local function SetupWorldMapLayout()
 				local x, y = GetCursorPosition()
 				local frameScale = WorldMapFrame:GetEffectiveScale()
 				
+				-- Calculation: Coordinate of the cursor relative to the frame's anchor
+				-- Width is determined by the distance from the left edge
 				local left, top = WorldMapFrame:GetLeft(), WorldMapFrame:GetTop()
 				local newWidth = (x / frameScale) - left
+				
+				-- Scale calculation: NewWidth / OriginalWidth_unscaled
 				local newScale = newWidth / (WorldMapFrame:GetWidth() / WorldMapFrame:GetScale())
 				newScale = math.max(0.4, math.min(1.5, newScale))
+				
 				WorldMapFrame:SetScale(newScale)
+				
+				-- Invert scale for tooltips so they don't look distorted
 				WorldMapTooltip:SetScale(1 / newScale)
 			end
 		end)
@@ -190,7 +197,7 @@ local function InitializeMap()
 		timeElapsed = timeElapsed + elapsed
 
 		if timeElapsed >= 0.1 then
-			-- Spieler-Koordinaten
+			-- PLAYER Coordinates calculation
 			local x, y = GetPlayerMapPosition("player")
 			if x and y and x > 0 and y > 0 then
 				WorldMap_Coords.PlayerText:SetFormattedText("%s: %d, %d", PLAYER, floor(100 * x), floor(100 * y))
@@ -198,7 +205,8 @@ local function InitializeMap()
 				WorldMap_Coords.PlayerText:SetText("")
 			end
 
-			-- Maus-Koordinaten
+			-- MOUSE Coordinates calculation
+			-- We need to account for the scale of the detail frame independently of UIParent scale
 			local scale = WorldMapDetailFrame:GetEffectiveScale()
 			local width = WorldMapDetailFrame:GetWidth()
 			local height = WorldMapDetailFrame:GetHeight()
@@ -206,6 +214,7 @@ local function InitializeMap()
 			local cursorX, cursorY = GetCursorPosition()
 			
 			if centerX and centerY and cursorX and cursorY then
+				-- Normalized coordinates within the Map border
 				local adjustedX = (cursorX / scale - (centerX - (width / 2))) / width
 				local adjustedY = (centerY + (height / 2) - cursorY / scale) / height
 

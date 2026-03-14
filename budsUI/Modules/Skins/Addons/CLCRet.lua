@@ -37,18 +37,16 @@ function clcret:CreateButton(name, size, point, parent, pointParent, offsetx, of
 	button.cooldown:SetPoint("BOTTOMRIGHT", -2, 2)
 
 	button.stack = button:CreateFontString("$parentCount", "OVERLAY", "TextStatusBarText")
-
-	local fontFace, _, fontFlags = button.stack:GetFont()
-	button.stack:SetFont(fontFace, 30, fontFlags)
+	K.SkinFont(button.stack)
 	button.stack:SetJustifyH("RIGHT")
 	button.stack:ClearAllPoints()
-	button.stack:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 4, 0)
+	button.stack:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 4 * K.Mult, 0)
 
 	button.defaultSize = button:GetWidth()
 
 	button.SetScale = K.Noop
 	button:ClearAllPoints()
-	button:SetPoint(point, parent, pointParent, offsetx, offsety)
+	button:SetPoint(point, parent, pointParent, offsetx * K.Mult, offsety * K.Mult)
 
 	if self.LBF then
 		self.LBF:Group("clcret", bfGroup):AddButton(button)
