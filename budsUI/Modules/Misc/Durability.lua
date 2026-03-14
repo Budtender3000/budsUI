@@ -1,5 +1,5 @@
 local K, C, L = select(2, ...):unpack()
-if C.Misc.DurabilityWarninig ~= true then return end
+if C.Misc.DurabilityWarning ~= true then return end
 
 local Durability = CreateFrame("Frame")
 local TimerTracker = TimerTracker

@@ -18,21 +18,21 @@ local OnEvent = function(self, event, unit)
 	if event == "PLAYER_FLAGS_CHANGED" then
 		if unit == "player" then
 			if UnitIsAFK(unit) and not UnitIsDead(unit) then
-				SpinStart()
+				K.SpinStart()
 			else
-				SpinStop()
+				K.SpinStop()
 			end
 		end
 	elseif event == "PLAYER_DEAD" then
 		if UnitIsAFK("player") then
-			SpinStop()
+			K.SpinStop()
 		end
 	elseif event == "PLAYER_REGEN_DISABLED" then
 		if UnitIsAFK("player") then
-			SpinStop()
+			K.SpinStop()
 		end
 	elseif event == "PLAYER_LEAVING_WORLD" then
-		SpinStop()
+		K.SpinStop()
 	end
 end
 SpinCam:RegisterEvent("PLAYER_DEAD")
@@ -43,13 +43,14 @@ SpinCam:RegisterEvent("PLAYER_LOGIN")
 SpinCam:RegisterEvent("PLAYER_REGEN_DISABLED")
 SpinCam:SetScript("OnEvent", OnEvent)
 
-function SpinStart()
+local spinning
+function K.SpinStart()
 	spinning = true
 	MoveViewRightStart(CAMERA_SPEED)
 	UIParent:Hide()
 end
 
-function SpinStop()
+function K.SpinStop()
 	if not spinning then return end
 	spinning = nil
 	MoveViewRightStop()

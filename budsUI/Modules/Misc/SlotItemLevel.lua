@@ -1,8 +1,8 @@
 local K, C, L = select(2, ...):unpack()
 if C.Misc.ItemLevel ~= true then return end
 
-local OnEvent = CreateFrame("Frame", nil, UIParent)
-local OnLoad = CreateFrame("Frame", nil, UIParent)
+local OnEvent = CreateFrame("Frame")
+local OnLoad = CreateFrame("Frame")
 
 -- Item level on slot buttons in Character / InspectFrame (by Tukz)
 local slots = {

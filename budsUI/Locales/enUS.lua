@@ -152,6 +152,8 @@ L_MINIMAP_FARMMODE_OFF = "|cffffe02eFarmmode is now|r |cFFFF0000disabled|r"
 L_MISC_UI_OUTDATED = "Your version of |cff388bdbbudsUI|r is out of date. You can download the latest version from |cffffe02ewww.github.com/Budtender3000/budsUI/releases|r"
 L_MISC_UNDRESS = "Undress"
 L_MISC_REPAIR = "Warning! You need to do a repair of your equipment as soon as possible!"
+L_MISC_GUILD_CLEANUP_PROMPT = "Are you sure you want to clean your guild? This will potentially kick many members!"
+L_MISC_GUILD_CLEANUP_TITLE = "Guild Cleanup"
 -- Popup Localization
 L_POPUP_ARMORY = "|cffffe02eArmory|r"
 L_POPUP_BOOSTUI = "|cfff02c35WARNING:|r This will optimize your performance by turning down the graphics and tweaking them. Hit accept only if you are having |cfff02c35FPS|r issues!|r"

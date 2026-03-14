@@ -142,7 +142,8 @@ function Filger:DisplayActives()
 	local index = 1
 	local previous = nil
 
-	for _, _ in pairs(self.actives) do
+	-- Ensure bars are created/reused correctly up to the current active count
+	for _ in pairs(self.actives) do
 		local bar = self.bars[index]
 		if not bar then
 			bar = CreateFrame("Frame", "FilgerAnchor"..id.."Frame"..index, self)

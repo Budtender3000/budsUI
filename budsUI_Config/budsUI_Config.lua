@@ -178,7 +178,7 @@ local function Local(o)
 	if o == "UIConfigMiscAlreadyKnown" then o = L_GUI_MISC_ALREADY_KNOWN end
 	if o == "UIConfigMiscArmory" then o = L_GUI_MISC_ARMORY_LINK end
 	if o == "UIConfigMiscBGSpam" then o = L_GUI_MISC_HIDE_BG_SPAM end
-	if o == "UIConfigMiscDurabilityWarninig" then o = L_GUI_MISC_DURABILITY_WARNINIG end
+	if o == "UIConfigMiscDurabilityWarning" then o = L_GUI_MISC_DURABILITY_WARNINIG end
 	if o == "UIConfigMiscEnhancedMail" then o = L_GUI_MISC_ENCHANCED_MAIL end
 	if o == "UIConfigMiscHatTrick" then o = L_GUI_MISC_HATTRICK end
 	if o == "UIConfigMiscInviteKeyword" then o = L_GUI_MISC_INVKEYWORD end
