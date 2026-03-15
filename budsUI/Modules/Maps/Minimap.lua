@@ -65,7 +65,7 @@ Mail:SetPoint("TOPRIGHT", Minimap, unpack(C.Minimap.Offsets.Mail))
 Mail:SetFrameLevel(Minimap:GetFrameLevel() + 2)
 Mail:SetScale(1.2)
 MailBorder:Hide()
-MailIcon:SetTexture("Interface\\Addons\\budsUI\\Media\\Textures\\Mail")
+MailIcon:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Textures\Mail]])
 
 MiniMapBattlefieldFrame:SetParent(Minimap)
 MiniMapBattlefieldFrame:ClearAllPoints()

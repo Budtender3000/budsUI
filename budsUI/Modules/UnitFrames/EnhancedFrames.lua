@@ -74,8 +74,8 @@ EnableEnhancedFrames = function()
 end
 
 EnhancedFrames_Style_PlayerFrame = function()
-	PlayerFrameTexture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-TargetingFrame")
-	PlayerStatusTexture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-Player-Status")
+	PlayerFrameTexture:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\UI-TargetingFrame]])
+	PlayerStatusTexture:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\UI-Player-Status]])
 
 	if InCombatLockdown() then return end
 	PlayerName:SetWidth(0.01)
@@ -113,7 +113,7 @@ EnhancedFrames_BossTargetFrame_Style = function(self)
 	if not self then return end
 
 	if self.borderTexture then
-		self.borderTexture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-UnitFrame-Boss")
+		self.borderTexture:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\UI-UnitFrame-Boss]])
 	end
 
 	EnhancedFrames_Style_TargetFrame(self)
@@ -212,17 +212,17 @@ EnhancedFrames_Target_Classification = function(self, forceNormalTexture)
 	local texture
 	local classification = UnitClassification(self.unit)
 	if (classification == "worldboss" or classification == "elite") then
-		texture = "Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-TargetingFrame-Elite"
+		texture = [[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\UI-TargetingFrame-Elite]]
 	elseif (classification == "rareelite") then
-		texture = "Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-TargetingFrame-Rare-Elite"
+		texture = [[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\UI-TargetingFrame-Rare-Elite]]
 	elseif (classification == "rare") then
-		texture = "Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-TargetingFrame-Rare"
+		texture = [[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\UI-TargetingFrame-Rare]]
 	end
 	if (texture and not forceNormalTexture) then
 		self.borderTexture:SetTexture(texture)
 	else
 		if (not (classification == "minus")) then
-			self.borderTexture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\UI-TargetingFrame")
+			self.borderTexture:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\UI-TargetingFrame]])
 		end
 	end
 
@@ -266,13 +266,13 @@ EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt = function(self)
 	if name then
 		local texture = _G[name.."Texture"]
 		if texture then
-			texture:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\PartyFrame")
+			texture:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\PartyFrame]])
 			texture:SetPoint("TOPLEFT", 0, 6)
 		end
 
 		local flash = _G[name.."Flash"]
 		if flash then
-			flash:SetTexture("Interface\\Addons\\budsUI\\Media\\Unitframes\\PartyFrameFlash")
+			flash:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\PartyFrameFlash]])
 			flash:SetPoint("TOPLEFT", 0, 6)
 		end
 
@@ -292,7 +292,7 @@ end
 -- UPDATE SETTINGS SPECIFIC TO PARTY MEMBER UNIT FRAMES WHEN IN VEHICLES
 EnhancedPartyFrames_PartyMemberFrame_ToVehicleArt = function(self)
 	if not InCombatLockdown() then
-		local tex = "Interface\\Addons\\budsUI\\Media\\Unitframes\\VehiclePartyFrame"
+		local tex = [[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\VehiclePartyFrame]]
 		for i = 1, 4 do
 			local f = _G["PartyMemberFrame"..i.."VehicleTexture"]
 			if f then f:SetTexture(tex) end

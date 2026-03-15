@@ -5,7 +5,7 @@ local floor = math.floor
 local pairs, type = pairs, type
 local unpack = unpack
 
-local BORDER_TEXTURE = "Interface\\AddOns\\budsUI\\Media\\Border\\Border"
+local BORDER_TEXTURE = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Border\Border]]
 local BORDER_SIZE = 12
 local TEXTURE_SIZE = 64
 local CORNER_SIZE = 12

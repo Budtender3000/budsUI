@@ -3,23 +3,23 @@ local K, C, L, _ = select(2, ...):unpack()
 -- Media Options
 C["Media"] = {
 	["Backdrop_Color"] = {5/255, 5/255, 5/255, 0.8},
-	["Blank"] = [[Interface\AddOns\budsUI\Media\Textures\Blank]],
-	["Blank_Font"] = [[Interface\AddOns\budsUI\Media\Fonts\Invisible.ttf]],
-	["Blizz"] = [[Interface\AddOns\budsUI\Media\Border\Border_Default.tga]],
+	["Blank"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Textures\Blank]],
+	["Blank_Font"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Fonts\Invisible.ttf]],
+	["Blizz"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Border\Border_Default.tga]],
 	["Border_Color"] = {255/255, 255/255, 255/255, 1},
-	["Border_Glow"] = [[Interface\AddOns\budsUI\Media\Border\Border_Glow.tga]],
-	["Combat_Font"] = [[Interface\AddOns\budsUI\Media\Fonts\Damage.ttf]],
+	["Border_Glow"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Border\Border_Glow.tga]],
+	["Combat_Font"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Fonts\Damage.ttf]],
 	["Combat_Font_Size"] = 16,
 	["Combat_Font_Size_Style"] = "OUTLINE",
-	["Font"] = [[Interface\AddOns\budsUI\Media\Fonts\Normal.ttf]],
+	["Font"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Fonts\Normal.ttf]],
 	["Font_Size"] = 12,
 	["Font_Style"] = "OUTLINE",
-	["Glow"] = [[Interface\AddOns\budsUI\Media\Textures\GlowTex.tga]],
+	["Glow"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Textures\GlowTex.tga]],
 	["Overlay_Color"] = {0/255, 0/255, 0/255, 0.8},
-	["Proc_Sound"] = [[Interface\AddOns\budsUI\Media\Sounds\Proc.ogg]],
+	["Proc_Sound"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Sounds\Proc.ogg]],
 	["Texture"] = [[Interface\TargetingFrame\UI-StatusBar]],
-	["Warning_Sound"] = [[Interface\AddOns\budsUI\Media\Sounds\Warning.ogg]],
-	["Whisp_Sound"] = [[Interface\AddOns\budsUI\Media\Sounds\Whisper.ogg]],
+	["Warning_Sound"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Sounds\Warning.ogg]],
+	["Whisp_Sound"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Sounds\Whisper.ogg]],
 }
 -- ActionBar Options
 C["ActionBar"] = {

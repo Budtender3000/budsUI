@@ -273,7 +273,7 @@ local function CreateInstallWizard()
 	local logo = InstallFrame:CreateTexture(nil, "ARTWORK")
 	logo:SetSize(400, 100)
 	logo:SetPoint("TOP", InstallFrame, "TOP", 0, -15)
-	logo:SetTexture("Interface\\AddOns\\budsUI\\Media\\assets\\budsui_logo.tga")
+	logo:SetTexture([[Interface\AddOns\]] .. K.Directory .. [[\Media\assets\budsui_logo.tga]])
 	
 	-- Title
 	local title = InstallFrame:FontString(nil, C.Media.Font, 18)

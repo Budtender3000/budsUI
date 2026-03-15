@@ -4,7 +4,7 @@ if C.PowerBar.Maelstrom ~= true then return end
 
 local MAELSTROM_SPELL_ID = 1153817 -- Ascension
 local MAELSTROM_SPELL_WOTLK = 53817 -- WotLK
-local IMAGE_PATH = "Interface\\AddOns\\budsUI\\Media\\Maelstrom\\maelstrom"
+local IMAGE_PATH = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Maelstrom\maelstrom]]
 
 local killList = {
     [1153817] = true,

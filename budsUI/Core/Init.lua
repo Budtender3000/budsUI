@@ -10,6 +10,7 @@ function Engine:unpack()
     return self[1], self[2], self[3], self[4]
 end
 
+Engine[1].Directory = AddOn
 Engine[1].Noop = function() return end
 Engine[1].Unit = UnitGUID("player")
 Engine[1].Name = UnitName("player")

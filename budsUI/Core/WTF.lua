@@ -930,7 +930,7 @@ local UploadXLoot = function()
 							0, -- [4]
 						},
 						["loot_icon_size"] = 40,
-						["font"] = "Interface\\AddOns\\budsUI\\Media\\Fonts\\Normal.ttf",
+						["font"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Fonts\Normal.ttf]],
 					},
 				},
 			},
@@ -1342,7 +1342,7 @@ local UploadMSBT = function()
 	}
 	MSBT_SavedMedia = {
 		["fonts"] = {
-			["budsUI"] = "Interface\\AddOns\\budsUI\\Media\\Fonts\\Damage.ttf",
+			["budsUI"] = [[Interface\AddOns\]] .. K.Directory .. [[\Media\Fonts\Damage.ttf]],
 		},
 		["sounds"] = {
 		},
