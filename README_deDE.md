@@ -5,7 +5,7 @@
   
   ### Modernes UI für World of Warcraft 3.3.5 (WotLK)
   
-  [![Version](https://img.shields.io/badge/version-0.5.0-blue.svg)](https://github.com/Budtender3000/budsUI/releases)
+  [![Version](https://img.shields.io/badge/version-0.6.1-blue.svg)](https://github.com/Budtender3000/budsUI/releases)
   [![WoW](https://img.shields.io/badge/WoW-3.3.5-orange.svg)](https://ascension.gg)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   
@@ -262,9 +262,13 @@ Für technische Details siehe [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATI
 ### Basiert auf
 - **[KkthnxUI](https://github.com/kkthnx-wow/KkthnxUI)** von Josh "Kkthnx" Russell
 - **[ShestakUI](https://github.com/Shestak/ShestakUI)** von Shestak
+- **[DuffedUI](https://www.tukui.org/forum/viewforum.php?f=42)** von Duffed
 
-### Port & Anpassung
-- **[Budtender3000](https://github.com/Budtender3000)** - Ascension.gg Port & Features
+### Autor
+- **[Budtender3000](https://github.com/Budtender3000)** - Autor: Budtender3000 mit Buds
+
+### Übersetzung
+- **Buds** - Übersetzung und Wartung
 
 ### Lizenz
 Dieses Projekt ist unter der [MIT-Lizenz](LICENSE) lizenziert.
