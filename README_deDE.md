@@ -262,7 +262,7 @@ Für technische Details siehe [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATI
 ### Basiert auf
 - **[KkthnxUI](https://github.com/kkthnx-wow/KkthnxUI)** von Josh "Kkthnx" Russell
 - **[ShestakUI](https://github.com/Shestak/ShestakUI)** von Shestak
-- **[DuffedUI](https://www.tukui.org/forum/viewforum.php?f=42)** von Duffed
+- **[DuffedUI] (aka hank & liquidbase)** 
 
 ### Autor
 - **[Budtender3000](https://github.com/Budtender3000)** - Autor: Budtender3000 mit Buds

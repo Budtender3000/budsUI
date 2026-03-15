@@ -16,9 +16,33 @@ if (Locale == "enGB") then
 	Locale = "enUS"
 end
 
-Print = function(...)
+local function Print(...)
+	-- Robust logging: Check if budsUI global exists before indexing
+	if _G["budsUI"] and _G["budsUI"].unpack then
+		local K, _, _, _ = _G["budsUI"]:unpack()
+		if K and K.Print then
+			K.Print(...)
+			return
+		end
+	end
+	-- Fallback to standard print if core is not ready
 	print("|cff388bdbbudsUI_Config|r:", ...)
 end
+
+-- SavedVariables Versioning and Migration
+local function InitSavedVariables()
+	if not GUIConfigAll then GUIConfigAll = {} end
+	if not GUIConfigAll.Version then
+		-- Migration logic could go here if moving from old GUIConfigSettings
+		GUIConfigAll.Version = 1
+		Print("Konfiguration auf Version 1 aktualisiert.")
+	end
+
+	-- Cleanup legacy variables to prevent confusion
+	if GUIConfigSettings then GUIConfigSettings = nil end
+	if GUIConfig then GUIConfig = nil end
+end
+InitSavedVariables()
 
 local ALLOWED_GROUPS = {
 	["General"] = 1,
@@ -432,12 +456,17 @@ local function SetValue(group, option, value)
 			end
 		end
 		GUIConfigAll.CharacterMap[realm.."-"..name] = activeProfile
-		Print("Profil 'Budtender Preset' geschützt. Änderungen wurden in '" .. activeProfile .. "' gespeichert.")
+		Print(format("Profil 'Budtender Preset' geschützt. Änderungen wurden in '%s' gespeichert.", activeProfile))
 	end
+
+	-- Validation: Ensure value is not nil
+	if value == nil then return end
 
 	if not GUIConfigAll.Profiles then GUIConfigAll.Profiles = { ["Budtender Preset"] = {} } end
 	if not GUIConfigAll.Profiles[activeProfile] then GUIConfigAll.Profiles[activeProfile] = {} end
 	if not GUIConfigAll.Profiles[activeProfile][group] then GUIConfigAll.Profiles[activeProfile][group] = {} end
+	
+	-- Store the value
 	GUIConfigAll.Profiles[activeProfile][group][option] = value
 	
 	-- Update live C table for instant sync!
@@ -503,7 +532,7 @@ end
 
 local loaded
 function CreateUIConfig()
-	if InCombatLockdown() and not loaded then Print("|cffffe02e"..ERR_NOT_IN_COMBAT.."|r") return end
+	if InCombatLockdown() and not loaded then Print(format("|cffffe02e%s|r", ERR_NOT_IN_COMBAT)) return end
 	local K, C, L, _ = budsUI:unpack()
 
 	if UIConfigMain then
@@ -758,8 +787,26 @@ function CreateUIConfig()
 					if type(value) == "number" then
 						editbox:SetScript("OnEscapePressed", function(self) okbutton:Hide() self:ClearFocus() self:SetText(value) end)
 						editbox:SetScript("OnChar", function(self) okbutton:Show() end)
-						editbox:SetScript("OnEnterPressed", function(self) okbutton:Hide() self:ClearFocus() SetValue(i, j, tonumber(self:GetText())) end)
-						okbutton:SetScript("OnMouseDown", function(self) editbox:ClearFocus() self:Hide() SetValue(i, j, tonumber(editbox:GetText())) end)
+						editbox:SetScript("OnEnterPressed", function(self) 
+							okbutton:Hide() 
+							self:ClearFocus() 
+							local n = tonumber(self:GetText())
+							if n then
+								SetValue(i, j, n)
+							else
+								self:SetText(value) -- Revert to current value if invalid
+							end
+						end)
+						okbutton:SetScript("OnMouseDown", function(self) 
+							editbox:ClearFocus() 
+							self:Hide() 
+							local n = tonumber(editbox:GetText())
+							if n then
+								SetValue(i, j, n)
+							else
+								editbox:SetText(value)
+							end
+						end)
 					else
 						editbox:SetScript("OnEscapePressed", function(self) okbutton:Hide() self:ClearFocus() self:SetText(value) end)
 						editbox:SetScript("OnChar", function(self) okbutton:Show() end)
