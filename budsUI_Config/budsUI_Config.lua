@@ -1110,6 +1110,31 @@ end
 		sb:SetBackdropBorderColor(unpack(C["Media"].Border_Color))
 	end
 
+	-- Mascot
+	local MascotFrame = CreateFrame("Frame", nil, UIConfigMain)
+	MascotFrame:SetSize(128, 128)
+	MascotFrame:SetPoint("BOTTOMRIGHT", UIConfigMain, "BOTTOMRIGHT", 10, 35)
+	MascotFrame:SetFrameLevel(UIConfigMain:GetFrameLevel() + 30)
+	MascotFrame:EnableMouse(true)
+
+	local Mascot = MascotFrame:CreateTexture(nil, "OVERLAY")
+	Mascot:SetAllPoints()
+	Mascot:SetTexture("Interface\\AddOns\\budsUI\\Media\\assets\\buds_shot.tga")
+
+	MascotFrame:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:ClearLines()
+		GameTooltip:AddLine("|cff388bdbBuds|r")
+		GameTooltip:AddLine("Level 420", 1, 1, 1)
+		GameTooltip:AddDoubleLine("Race:", "Hybrid", 1, 1, 1, 0.2, 1, 0.2)
+		GameTooltip:AddDoubleLine("Class:", "Sativa", 1, 1, 1, 1, 0.8, 0)
+		GameTooltip:Show()
+	end)
+
+	MascotFrame:SetScript("OnLeave", function()
+		GameTooltip:Hide()
+	end)
+
 	ShowGroup("General")
 	loaded = true
 end
