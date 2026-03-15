@@ -32,12 +32,14 @@ local function SetBackdropBorderColor(self, r, g, b, a)
 	local t = self.BorderTextures
 	if not t then return end
 
-	if not r or not g or not b or a == 0 then
+	if not r or not g or not b then
 		r, g, b = unpack(C.Media.Border_Color)
 	end
+	
+	if not a then a = 1 end
 
 	for pos, tex in pairs(t) do
-		tex:SetVertexColor(r, g, b)
+		tex:SetVertexColor(r, g, b, a)
 	end
 end
 
