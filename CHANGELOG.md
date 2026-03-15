@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-03-15
+
+### Added
+- **Mascot UI Element:** Added a custom mascot texture with a hover tooltip ("Buds", Level 420) to the configuration panel.
+- **Enhanced Configuration:** Improved stability with saved variable versioning and additional input validation.
+
+### Changed
+- **Asset Path Refactor:** Implemented dynamic `K.Directory` detection to ensure all asset paths load correctly regardless of the Addon folder name.
+- **Visual Improvements:** Refined border texture alpha handling and updated DuffedUI attribution in documentation.
+- **Updated Screenshots:** Refreshed README with new UI screenshots.
+
 ## [0.6.1] - 2026-03-15
 
 ### Fixed
