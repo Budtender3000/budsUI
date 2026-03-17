@@ -2,7 +2,7 @@
 
 **Plan**: REFACTORING_BATTLEPLAN.md  
 **Started**: 2025-01-13  
-**Current Version**: 0.8.0  
+**Current Version**: 0.9.0  
 **Branch**: refactor/phase1-critical-fixes
 
 ---
