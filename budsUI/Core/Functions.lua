@@ -278,10 +278,24 @@ end
 -- Add time before calling a function
 local waitTable = {}
 local waitFrame
+local MAX_WAIT_RECORDS = 100 -- Prevent unbounded growth
+
 K.Delay = function(delay, func, ...)
 	if(type(delay) ~= "number" or type(func) ~= "function") then
 		return false
 	end
+	
+	-- Cleanup abgelaufene Records wenn zu viele
+	if #waitTable > MAX_WAIT_RECORDS then
+		local cleaned = {}
+		for i = 1, #waitTable do
+			if waitTable[i][2] ~= nil then
+				table.insert(cleaned, waitTable[i])
+			end
+		end
+		waitTable = cleaned
+	end
+	
 	if(waitFrame == nil) then
 		waitFrame = CreateFrame("Frame", "WaitFrame", UIParent)
 		waitFrame:SetScript("OnUpdate", function (self, elapse)
@@ -300,14 +314,31 @@ K.Delay = function(delay, func, ...)
 					else
 						tremove(waitTable, i)
 						count = count - 1
-						waitRecord[2](unpack(waitRecord[3]))
+						
+						-- Wrap callback in pcall
+						local success, err = pcall(waitRecord[2], unpack(waitRecord[3]))
+						if not success and C.General.DeveloperMode then
+							K.Print("K.Delay callback error:", err)
+						end
 					end
 				end
 			end
+			
+			-- Stop OnUpdate wenn keine Delays mehr
+			if count == 0 then
+				self:SetScript("OnUpdate", nil)
+			end
 		end)
 	end
+	
 	local record = {delay, func, {...}}
 	tinsert(waitTable, record)
+	
+	-- Restart OnUpdate wenn gestoppt
+	if not waitFrame:GetScript("OnUpdate") then
+		waitFrame:SetScript("OnUpdate", waitFrame:GetScript("OnUpdate"))
+	end
+	
 	return record
 end
 
