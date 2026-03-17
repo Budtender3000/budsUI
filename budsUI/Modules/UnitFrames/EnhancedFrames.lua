@@ -120,13 +120,17 @@ EnhancedFrames_BossTargetFrame_Style = function(self)
 end
 
 EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
-	-- Skip during combat to prevent taint on secure frames
-	if InCombatLockdown() then
-		return
+	-- Skip PetFrame FIRST to prevent taint (must be before any other checks)
+	if textStatusBar then
+		local parent = textStatusBar:GetParent()
+		-- Check direct parent and parent's parent for PetFrame
+		if parent == PetFrame or (parent and parent:GetParent() == PetFrame) then
+			return
+		end
 	end
 	
-	-- Skip PetFrame to prevent taint
-	if textStatusBar and textStatusBar:GetParent() == PetFrame then
+	-- Skip during combat to prevent taint on secure frames
+	if InCombatLockdown() then
 		return
 	end
 	
