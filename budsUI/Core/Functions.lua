@@ -179,9 +179,9 @@ local function CheckRole(self, event, unit)
 	
 	-- Wrap in pcall for error safety
 	local success, err = pcall(function()
-		if (K.Class == "PALADIN" and UnitBuff("player", GetSpellInfo(25780))) and GetCombatRatingBonus(CR_DEFENSE_SKILL) > 100 or
+		if (K.Class == "PALADIN" and UnitBuff("player", K.GetSpellInfo(25780))) and GetCombatRatingBonus(CR_DEFENSE_SKILL) > 100 or
 		(K.Class == "WARRIOR" and GetBonusBarOffset() == 2) or
-		(K.Class == "DEATHKNIGHT" and UnitBuff("player", GetSpellInfo(48263))) or
+		(K.Class == "DEATHKNIGHT" and UnitBuff("player", K.GetSpellInfo(48263))) or
 		(K.Class == "DRUID" and GetBonusBarOffset() == 3) then
 			K.Role = "Tank"
 		else
@@ -190,7 +190,7 @@ local function CheckRole(self, event, unit)
 			local base, posBuff, negBuff = UnitAttackPower("player")
 			local playerap = base + posBuff + negBuff
 
-			if ((playerap > playerint) or (playeragi > playerint)) and not (UnitBuff("player", GetSpellInfo(24858)) or UnitBuff("player", GetSpellInfo(65139))) then
+			if ((playerap > playerint) or (playeragi > playerint)) and not (UnitBuff("player", K.GetSpellInfo(24858)) or UnitBuff("player", K.GetSpellInfo(65139))) then
 				K.Role = "Melee"
 			else
 				K.Role = "Caster"
@@ -384,4 +384,62 @@ K.CancelDelay = function(record)
 	if record then
 		record[2] = nil
 	end
+end
+
+-- Spell Info Cache (Issue #6 & #8: Reduce GetSpellInfo API calls)
+K.SpellCache = {}
+local SPELL_CACHE_LIMIT = 500 -- Prevent unbounded growth
+
+K.GetSpellInfo = function(spellID)
+	if not spellID then return nil end
+	
+	-- Check cache first
+	if K.SpellCache[spellID] then
+		return unpack(K.SpellCache[spellID])
+	end
+	
+	-- Cache miss - fetch from API
+	local name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange = GetSpellInfo(spellID)
+	if name then
+		-- Limit cache size
+		if K.GetTableLength(K.SpellCache) >= SPELL_CACHE_LIMIT then
+			-- Clear oldest entries (simple approach: clear half the cache)
+			local count = 0
+			for k in pairs(K.SpellCache) do
+				K.SpellCache[k] = nil
+				count = count + 1
+				if count >= SPELL_CACHE_LIMIT / 2 then
+					break
+				end
+			end
+		end
+		
+		-- Store in cache
+		K.SpellCache[spellID] = {name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange}
+		return name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange
+	end
+	
+	return nil
+end
+
+-- Helper function to get table length
+K.GetTableLength = function(tbl)
+	local count = 0
+	for _ in pairs(tbl) do
+		count = count + 1
+	end
+	return count
+end
+
+-- String Builder for efficient concatenation (Issue #6: Optimize string operations)
+local stringBuilder = {}
+
+K.BuildString = function(...)
+	wipe(stringBuilder)
+	local argCount = select("#", ...)
+	for i = 1, argCount do
+		local arg = select(i, ...)
+		stringBuilder[i] = tostring(arg)
+	end
+	return table.concat(stringBuilder)
 end

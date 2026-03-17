@@ -71,41 +71,58 @@
 - Wrapped OnUpdate in K.SafeOnUpdate for error safety
 - **Expected**: +5-10 FPS improvement in raids/BGs
 
-### Issue #5: Metatable-Injection ohne Schutz ✅
+### Issue #5: Metatable-Injection ohne Schutz ❌ REVERTED
 - [x] Step 5.1: Sichere Metatable-Injection mit Collision-Detection (1.5 Stunden) - Commit: 8402603
 - [x] Step 5.2: API-Cleanup Funktion (30 Min) - Commit: 8402603
 - [x] Testing & Validation
-- **Status**: ✅ Completed
-- **Commit**: 8402603
+- [x] **REVERTED** - Commit: 5f2d220
+- **Status**: ❌ Reverted (taint issues)
+- **Commit**: 8402603 (original), 5f2d220 (revert)
 
 **Implementation Details**:
-- Added BUDSUI_API_VERSION = 1 for version tracking
-- Implemented collision detection for existing methods
-- Store and restore original methods if they exist
-- Added RemoveAPI function for cleanup on logout
-- Wrapped injection in pcall for error safety
-- Better compatibility with other UI addons
-- Developer mode warnings for method collisions
-- **Expected**: Better addon compatibility, no conflicts
+- ~~Added BUDSUI_API_VERSION = 1 for version tracking~~
+- ~~Implemented collision detection for existing methods~~
+- ~~Store and restore original methods if they exist~~
+- ~~Added RemoveAPI function for cleanup on logout~~
+- ~~Wrapped injection in pcall for error safety~~
+- **REVERTED**: Complex version caused taint issues in secure frames
+- **RESTORED**: Simple version without pcall wrappers is more stable
+- Added PetFrame taint protection in UnitFrames/Layout.lua
 
 **Phase 2 Summary**:
-- ✅ Both performance issues resolved
-- ✅ 2 commits created for Issues #4 and #5
+- ✅ Issue #4 resolved (Nameplate OnUpdate optimization)
+- ❌ Issue #5 reverted (Metatable injection caused taint issues)
+- ✅ 3 commits created (Issue #4, Issue #5, Issue #5 revert)
 - ✅ Nameplate OnUpdate optimized (500-600/s → 100-200/s)
-- ✅ Safe metatable injection with collision detection
+- ❌ Metatable injection reverted to simple version (taint issues)
 - ✅ Version bumped: 0.7.0 → 0.8.0
 - ✅ Changelog updated
-- ✅ Phase 2 COMPLETE!
+- ✅ Phase 2 PARTIALLY COMPLETE (1/2 issues successful)
 
 ---
 
-## Phase 3: Code-Qualität ⏸️ PENDING
+## Phase 3: Code-Qualität 🔄 IN PROGRESS
 
-### Issue #6: String-Operationen
-- **Status**: ⏸️ Pending (wartet auf Phase 2)
+### Issue #6: String-Operationen ohne Caching ⏳
+- [ ] Step 6.1: Analyze repeated string operations
+- [ ] Step 6.2: Implement string operation optimizations
+- [ ] Step 6.3: Testing & Validation
+- **Status**: ⏳ In Progress
+- **Expected**: -5-10% CPU usage
 
-### Issue #7: Config-Validierung
-- **Status**: ⏸️ Pending (wartet auf Phase 2)
+### Issue #7: Fehlende Config-Validierung ⏳
+- [ ] Step 7.1: Add config validation on load
+- [ ] Step 7.2: Implement type checking and range validation
+- [ ] Step 7.3: Testing & Validation
+- **Status**: ⏳ In Progress
+- **Expected**: Prevent invalid config errors
+
+### Issue #8: Spell Info Caching (moved from later) ⏳
+- [ ] Step 8.1: Implement GetSpellInfo cache
+- [ ] Step 8.2: Add cache invalidation strategy
+- [ ] Step 8.3: Testing & Validation
+- **Status**: ⏳ In Progress
+- **Expected**: Reduce API calls, improve performance
 
 ---
 

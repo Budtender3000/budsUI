@@ -14,7 +14,7 @@ WINTERGRASP = L_ZONE_WINTERGRASP
 local autoreleasepvp = CreateFrame("frame")
 autoreleasepvp:RegisterEvent("PLAYER_DEAD")
 autoreleasepvp:SetScript("OnEvent", function(self, event)
-	local soulstone = GetSpellInfo(20707)
+	local soulstone = K.GetSpellInfo(20707)
 	if (K.Class ~= "SHAMAN") or not (soulstone and UnitBuff("player", soulstone)) then
 		if (tostring(GetZoneText()) == WINTERGRASP) then
 			RepopMe()

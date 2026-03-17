@@ -2,7 +2,7 @@ local K, C, L = select(2, ...):unpack()
 if C.Announcements.SaySapped ~= true then return end
 
 -- Cache Sap spell name for robust catching of all ranks/custom variations
-local sapSpellName = GetSpellInfo(6770)
+local sapSpellName = K.GetSpellInfo(6770)
 
 local SaySapped = CreateFrame("Frame")
 local playerGUID = UnitGUID("player")

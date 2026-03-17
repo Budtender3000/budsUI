@@ -46,7 +46,7 @@ end)
 local hookSpell = newTooltipHooker("OnTooltipSetSpell", function(self, ...)
 	local _, _, id = self:GetSpell()
 	if id then
-		setTooltipIcon(self, select(3, GetSpellInfo(id)))
+		setTooltipIcon(self, select(3, K.GetSpellInfo(id)))
 	end
 end)
 
