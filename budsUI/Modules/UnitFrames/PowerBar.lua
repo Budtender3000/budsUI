@@ -233,7 +233,7 @@ local updateTimer = 0
 f:SetScript("OnUpdate", function(self, elapsed)
 	updateTimer = updateTimer + elapsed
 
-	if (updateTimer > 0.1) then
+	if (updateTimer > 0.2) then -- Reduced from 10 to 5 updates per second
 		if (f.Rune) then
 			for i = 1, 6 do
 				if (UnitHasVehicleUI("player")) then

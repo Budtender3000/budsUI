@@ -79,8 +79,22 @@ end
 
 local plateScanTimer = 0
 local lastChildren = 0
+local hasActiveAnimations = false
+
+local function CheckActiveAnimations()
+	local count = 0
+	for _ in pairs(Smoothing) do
+		count = count + 1
+	end
+	return count > 0
+end
 
 SmoothFrame:SetScript("OnUpdate", function(self, elapsed)
+	-- Only run if we have active animations
+	if not hasActiveAnimations and not CheckActiveAnimations() then
+		return
+	end
+	
 	plateScanTimer = plateScanTimer + elapsed
 	if plateScanTimer > 0.5 then
 		plateScanTimer = 0
@@ -105,7 +119,9 @@ SmoothFrame:SetScript("OnUpdate", function(self, elapsed)
 			end
 		end
 	end
+	
 	AnimationTick()
+	hasActiveAnimations = CheckActiveAnimations()
 end)
 
 

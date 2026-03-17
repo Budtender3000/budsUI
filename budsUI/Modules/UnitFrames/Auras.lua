@@ -114,7 +114,9 @@ local function TargetAuraPosit(self, auraName, numAuras, numOppositeAuras, large
 		local SMALL_AURA_SIZE = C.Unitframe.SmallAuraSize
 
 		local AURA_X_OFFSET = offsetX + 2
-		local AURA_Y_OFFSET = offsetY + 2
+		local AURA_Y_OFFSET = 0 -- Initialize offsetY
+		local rowWidth = 0 -- Initialize rowWidth
+		local firstBuffOnRow = 1 -- Initialize firstBuffOnRow
 
 		for i = 1, numAuras do
 			local size = largeAuraList[i] and LARGE_AURA_SIZE or SMALL_AURA_SIZE
@@ -133,7 +135,7 @@ local function TargetAuraPosit(self, auraName, numAuras, numOppositeAuras, large
 				rowWidth = size
 				self.auraRows = self.auraRows + 1
 				firstBuffOnRow = i
-				offsetY = AURA_OFFSET_Y
+				AURA_Y_OFFSET = AURA_OFFSET_Y
 
 				if self.auraRows > NUM_TOT_AURA_ROWS then maxRowWidth = AURA_ROW_WIDTH end
 			else

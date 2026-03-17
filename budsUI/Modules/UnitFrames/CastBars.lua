@@ -92,9 +92,22 @@ CastBars:SetScript("OnEvent", function(self, event, addon)
 		TargetFrameSpellBar.updateDelay = 0.1
 
 		-- Lock positions to prevent Blizzard overrides (Safe for 3.3.5)
-		CastingBarFrame.ClearAllPoints = K.Noop
+		-- Store original functions and override with position restore
+		CastingBarFrame._ClearAllPoints = CastingBarFrame.ClearAllPoints
+		CastingBarFrame._SetPoint = CastingBarFrame.SetPoint
+		CastingBarFrame.ClearAllPoints = function(self)
+			-- Restore position after Blizzard tries to move it
+			self:_ClearAllPoints()
+			self:_SetPoint("CENTER", PlayerCastbarAnchor, "CENTER", 0, 0)
+		end
 		CastingBarFrame.SetPoint = K.Noop
-		TargetFrameSpellBar.ClearAllPoints = K.Noop
+		
+		TargetFrameSpellBar._ClearAllPoints = TargetFrameSpellBar.ClearAllPoints
+		TargetFrameSpellBar._SetPoint = TargetFrameSpellBar.SetPoint
+		TargetFrameSpellBar.ClearAllPoints = function(self)
+			self:_ClearAllPoints()
+			self:_SetPoint("CENTER", TargetCastbarAnchor, "CENTER", 0, 0)
+		end
 		TargetFrameSpellBar.SetPoint = K.Noop
 
 		self:UnregisterEvent("ADDON_LOADED")
