@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2025-01-13
+
+### Performance
+- **Nameplate OnUpdate Optimization:** Reduced nameplate updates from 500-600/s to 100-200/s
+  - Consolidated multiple ForEachPlate calls into single batch loop (0.2s interval)
+  - Added visiblePlates cache to avoid repeated IsShown() checks
+  - Implemented target name caching to reduce GetUnitName API calls (0.1s cache)
+  - Optimized conditional checks (only update threat in combat, etc)
+  - Added blacklistChecked flag to avoid redundant blacklist checks
+  - Expected: +5-10 FPS improvement in raids/battlegrounds
+  - Wrapped OnUpdate in K.SafeOnUpdate for error safety
+
+### Changed
+- **Metatable Injection Safety:** Enhanced API injection with collision detection
+  - Added API version tracking (BUDSUI_API_VERSION = 1)
+  - Implemented collision detection for existing methods from other addons
+  - Store and restore original methods if they exist
+  - Added RemoveAPI function for cleanup on logout
+  - Wrapped injection in pcall for error safety
+  - Better compatibility with other UI addons (ElvUI, TukUI, etc)
+
+### Technical
+- ForEachPlate now includes pcall error handling
+- UpdateVisiblePlates builds cache once per update cycle
+- GetCachedTargetName caches target name for 0.1s
+- Single consolidated updateThrottle replaces multiple throttles
+- API injection now checks for existing methods before overwriting
+
 ## [0.7.0] - 2025-01-13
 
 ### Fixed

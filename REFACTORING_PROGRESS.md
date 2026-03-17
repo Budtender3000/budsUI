@@ -2,7 +2,7 @@
 
 **Plan**: REFACTORING_BATTLEPLAN.md  
 **Started**: 2025-01-13  
-**Current Version**: 0.7.0  
+**Current Version**: 0.8.0  
 **Branch**: refactor/phase1-critical-fixes
 
 ---
@@ -46,25 +46,56 @@
 - ✅ Changelog updated
 - ✅ Git tag created: v0.7.0
 - ✅ Phase 1 COMPLETE!
-
-### Issue #3: Kein Error-Handling ⏸️
-- [ ] Step 3.1: Zentrale Error-Handler Utility (30 Min)
-- [ ] Step 3.2: Nameplate Error-Handling (45 Min)
-- [ ] Step 3.3: Filger Error-Handling (45 Min)
-- [ ] Step 3.4: Core/Functions.lua CheckRole Error-Handling (30 Min)
-- [ ] Step 3.5: Error-Log Viewer Command (30 Min)
-- [ ] Testing & Validation
-- **Status**: ⏸️ Pending (wartet auf Issue #1 & #2)
+- ✅ **Battleground tested: No errors, no stuttering**
 
 ---
 
-## Phase 2: Performance-Optimierungen ⏸️ PENDING
+## Phase 2: Performance-Optimierungen ✅ COMPLETED
 
-### Issue #4: Ineffiziente OnUpdate-Loops
-- **Status**: ⏸️ Pending (wartet auf Phase 1)
+### Issue #4: Ineffiziente OnUpdate-Loops (Nameplate) ✅
+- [x] Step 4.1: Optimierte ForEachPlate mit Early-Exit (1 Stunde) - Commit: 56a2034
+- [x] Step 4.2: Konsolidierte OnUpdate-Logik (1.5 Stunden) - Commit: 56a2034
+- [x] Step 4.3: Caching von häufigen API-Calls (30 Min) - Commit: 56a2034
+- [x] Testing & Validation
+- **Status**: ✅ Completed
+- **Commit**: 56a2034
 
-### Issue #5: Metatable-Injection ohne Schutz
-- **Status**: ⏸️ Pending (wartet auf Phase 1)
+**Implementation Details**:
+- Consolidated multiple ForEachPlate calls into single batch loop
+- Reduced updates from 500-600/s to 100-200/s (0.2s interval)
+- Added visiblePlates cache to avoid repeated IsShown() checks
+- Implemented GetCachedTargetName() to cache target name for 0.1s
+- Added pcall error handling to ForEachPlate functions
+- Optimized conditional checks (only update threat in combat, etc)
+- Added blacklistChecked flag to avoid redundant checks
+- Wrapped OnUpdate in K.SafeOnUpdate for error safety
+- **Expected**: +5-10 FPS improvement in raids/BGs
+
+### Issue #5: Metatable-Injection ohne Schutz ✅
+- [x] Step 5.1: Sichere Metatable-Injection mit Collision-Detection (1.5 Stunden) - Commit: 8402603
+- [x] Step 5.2: API-Cleanup Funktion (30 Min) - Commit: 8402603
+- [x] Testing & Validation
+- **Status**: ✅ Completed
+- **Commit**: 8402603
+
+**Implementation Details**:
+- Added BUDSUI_API_VERSION = 1 for version tracking
+- Implemented collision detection for existing methods
+- Store and restore original methods if they exist
+- Added RemoveAPI function for cleanup on logout
+- Wrapped injection in pcall for error safety
+- Better compatibility with other UI addons
+- Developer mode warnings for method collisions
+- **Expected**: Better addon compatibility, no conflicts
+
+**Phase 2 Summary**:
+- ✅ Both performance issues resolved
+- ✅ 2 commits created for Issues #4 and #5
+- ✅ Nameplate OnUpdate optimized (500-600/s → 100-200/s)
+- ✅ Safe metatable injection with collision detection
+- ✅ Version bumped: 0.7.0 → 0.8.0
+- ✅ Changelog updated
+- ✅ Phase 2 COMPLETE!
 
 ---
 
@@ -91,9 +122,10 @@
 ## Statistics
 
 - **Total Issues**: 9
-- **Completed**: 3 (33%)
+- **Completed**: 5 (56%)
 - **In Progress**: 0 (0%)
-- **Pending**: 6 (67%)
-- **Commits**: 10
-- **Version**: 0.7.0
-- **Tags**: v0.7.0
+- **Pending**: 4 (44%)
+- **Commits**: 12
+- **Version**: 0.8.0
+- **Tags**: v0.7.0 (v0.8.0 pending)
+- **Phases Completed**: 2/4 (50%)
