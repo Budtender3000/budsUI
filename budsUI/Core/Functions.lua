@@ -443,3 +443,148 @@ K.BuildString = function(...)
 	end
 	return table.concat(stringBuilder)
 end
+
+
+-- Config Validation System (Issue #7: Prevent invalid config errors)
+K.ConfigValidationRules = {
+	-- General settings
+	["General.UIScale"] = {"number", 0.4, 1.2},
+	["General.DeveloperMode"] = {"boolean"},
+	["General.AutoScale"] = {"boolean"},
+	
+	-- Nameplate settings
+	["Nameplate.Enable"] = {"boolean"},
+	["Nameplate.Width"] = {"number", 50, 300},
+	["Nameplate.Height"] = {"number", 5, 50},
+	["Nameplate.AdditionalWidth"] = {"number", 0, 100},
+	["Nameplate.AdditionalHeight"] = {"number", 0, 50},
+	["Nameplate.AuraSize"] = {"number", 10, 50},
+	["Nameplate.Auras"] = {"boolean"},
+	["Nameplate.EnhanceThreat"] = {"boolean"},
+	["Nameplate.HealthValue"] = {"boolean"},
+	
+	-- ActionBar settings
+	["ActionBar.Enable"] = {"boolean"},
+	["ActionBar.ButtonSize"] = {"number", 20, 60},
+	["ActionBar.ButtonSpace"] = {"number", 1, 10},
+	["ActionBar.Hotkey"] = {"boolean"},
+	["ActionBar.Macro"] = {"boolean"},
+	
+	-- Unitframe settings
+	["Unitframe.Enable"] = {"boolean"},
+	["Unitframe.CastbarLatency"] = {"boolean"},
+	["Unitframe.CombatFeedback"] = {"boolean"},
+	
+	-- Filger settings
+	["Filger.Enable"] = {"boolean"},
+	["Filger.TestMode"] = {"boolean"},
+	["Filger.MaxTestIcon"] = {"number", 1, 20},
+	
+	-- Chat settings
+	["Chat.Enable"] = {"boolean"},
+	["Chat.WhisperSound"] = {"boolean"},
+	["Chat.LinkBrackets"] = {"boolean"},
+	
+	-- Minimap settings
+	["Minimap.Enable"] = {"boolean"},
+	["Minimap.Size"] = {"number", 100, 300},
+}
+
+K.GetConfig = function(path, default)
+	local keys = {strsplit(".", path)}
+	local value = C
+	for _, key in ipairs(keys) do
+		if type(value) ~= "table" then
+			if C.General.DeveloperMode then
+				K.Print(format("Config path invalid: %s, using default: %s", path, tostring(default)))
+			end
+			return default
+		end
+		value = value[key]
+		if value == nil then
+			if C.General.DeveloperMode then
+				K.Print(format("Config missing: %s, using default: %s", path, tostring(default)))
+			end
+			return default
+		end
+	end
+	return value
+end
+
+K.ValidateConfig = function()
+	local errors = {}
+	local warnings = {}
+	
+	for path, rule in pairs(K.ConfigValidationRules) do
+		local keys = {strsplit(".", path)}
+		local value = C
+		local pathValid = true
+		
+		-- Navigate to the config value
+		for _, key in ipairs(keys) do
+			if type(value) ~= "table" then
+				pathValid = false
+				break
+			end
+			value = value[key]
+			if value == nil then
+				pathValid = false
+				break
+			end
+		end
+		
+		if pathValid and value ~= nil then
+			local expectedType = rule[1]
+			local actualType = type(value)
+			
+			-- Type check
+			if actualType ~= expectedType then
+				table.insert(errors, format("%s: expected %s, got %s (value: %s)", 
+					path, expectedType, actualType, tostring(value)))
+			elseif expectedType == "number" and rule[2] and rule[3] then
+				-- Range check for numbers
+				local min, max = rule[2], rule[3]
+				if value < min or value > max then
+					table.insert(warnings, format("%s: value %.2f out of recommended range [%.2f, %.2f]", 
+						path, value, min, max))
+				end
+			end
+		end
+	end
+	
+	-- Report errors
+	if #errors > 0 then
+		K.Print("=== Config Validation Errors ===")
+		for _, err in ipairs(errors) do
+			K.Print("|cffff0000ERROR:|r " .. err)
+		end
+	end
+	
+	-- Report warnings
+	if #warnings > 0 and C.General.DeveloperMode then
+		K.Print("=== Config Validation Warnings ===")
+		for _, warn in ipairs(warnings) do
+			K.Print("|cffffff00WARNING:|r " .. warn)
+		end
+	end
+	
+	if #errors > 0 then
+		K.Print("Config validation found errors. Use /budsui to fix settings.")
+		return false
+	end
+	
+	return true
+end
+
+-- Run config validation on login
+local configValidationFrame = CreateFrame("Frame")
+configValidationFrame:RegisterEvent("PLAYER_LOGIN")
+configValidationFrame:SetScript("OnEvent", function()
+	-- Delay validation to ensure all configs are loaded
+	K.Delay(2, function()
+		if C.General.DeveloperMode then
+			K.Print("Running config validation...")
+		end
+		K.ValidateConfig()
+	end)
+end)
