@@ -33,6 +33,44 @@ K.Print = function(...)
 	print("|cff388bdbbudsUI|r:", ...)
 end
 
+-- Safe event handler wrapper
+K.SafeEventHandler = function(handler, eventName)
+	return function(self, event, ...)
+		local success, err = pcall(handler, self, event, ...)
+		if not success then
+			if C.General.DeveloperMode then
+				K.Print(format("Error in %s handler: %s", eventName or event or "unknown", tostring(err)))
+			end
+			-- Log to SavedVariables für Bug-Reports
+			if not SavedOptions.ErrorLog then SavedOptions.ErrorLog = {} end
+			table.insert(SavedOptions.ErrorLog, {
+				time = date("%Y-%m-%d %H:%M:%S"),
+				event = eventName or event or "unknown",
+				error = tostring(err),
+				addon = "budsUI"
+			})
+			-- Limit log size
+			if #SavedOptions.ErrorLog > 50 then
+				table.remove(SavedOptions.ErrorLog, 1)
+			end
+		end
+	end
+end
+
+-- Safe OnUpdate wrapper
+K.SafeOnUpdate = function(handler, frameName)
+	return function(self, elapsed)
+		local success, err = pcall(handler, self, elapsed)
+		if not success then
+			-- Stop OnUpdate on error to prevent spam
+			self:SetScript("OnUpdate", nil)
+			if C.General.DeveloperMode then
+				K.Print(format("Error in %s OnUpdate (stopped): %s", frameName or "unknown", tostring(err)))
+			end
+		end
+	end
+end
+
 K.SafeSetCVar = function(cvar, value)
 	if GetCVar(cvar) ~= nil then
 		local success = pcall(SetCVar, cvar, value)
