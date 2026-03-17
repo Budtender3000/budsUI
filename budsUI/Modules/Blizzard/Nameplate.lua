@@ -147,27 +147,47 @@ local function UpdateAuraIcon(button, unit, index, filter)
 	button:Show()
 end
 
+-- Throttle cache for aura updates
+local auraUpdateThrottle = {}
+local AURA_UPDATE_INTERVAL = 0.2 -- Max 5x/Sekunde pro Nameplate
+
 -- Filter auras on nameplate, and determine if we need to update them or not
 local function OnAura(frame, unit)
 	if not frame.icons or not frame.unit or not C.Nameplate.Auras then return end
-	local i = 1
-	for index = 1, 5 do -- Temp until I fix this to show 2 row if 5 is already shown
-		if i > C.Nameplate.Width / C.Nameplate.AuraSize then return end
-		local match
-		local name, _, _, _, _, duration, _, caster, _, _, spellid = UnitAura(frame.unit, index, "HARMFUL")
-
-		if K.DebuffWhiteList[name] and caster == "player" then match = true end
-
-		if duration and match == true then
-			if not frame.icons[i] then frame.icons[i] = CreateAuraIcon(frame) end
-			local icon = frame.icons[i]
-			if i == 1 then icon:SetPoint("RIGHT", frame.icons, "RIGHT") end
-			if i ~= 1 and i <= C.Nameplate.Width / C.Nameplate.AuraSize then icon:SetPoint("RIGHT", frame.icons[i-1], "LEFT", -2, 0) end
-			i = i + 1
-			UpdateAuraIcon(icon, frame.unit, index, "HARMFUL")
-		end
+	
+	-- Throttle per-frame updates
+	local now = GetTime()
+	local lastUpdate = auraUpdateThrottle[frame] or 0
+	if (now - lastUpdate) < AURA_UPDATE_INTERVAL then
+		return
 	end
-	for index = i, #frame.icons do frame.icons[index]:Hide() end
+	auraUpdateThrottle[frame] = now
+	
+	-- Wrap in pcall for error safety
+	local success, err = pcall(function()
+		local i = 1
+		for index = 1, 5 do -- Temp until I fix this to show 2 row if 5 is already shown
+			if i > C.Nameplate.Width / C.Nameplate.AuraSize then return end
+			local match
+			local name, _, _, _, _, duration, _, caster, _, _, spellid = UnitAura(frame.unit, index, "HARMFUL")
+
+			if K.DebuffWhiteList[name] and caster == "player" then match = true end
+
+			if duration and match == true then
+				if not frame.icons[i] then frame.icons[i] = CreateAuraIcon(frame) end
+				local icon = frame.icons[i]
+				if i == 1 then icon:SetPoint("RIGHT", frame.icons, "RIGHT") end
+				if i ~= 1 and i <= C.Nameplate.Width / C.Nameplate.AuraSize then icon:SetPoint("RIGHT", frame.icons[i-1], "LEFT", -2, 0) end
+				i = i + 1
+				UpdateAuraIcon(icon, frame.unit, index, "HARMFUL")
+			end
+		end
+		for index = i, #frame.icons do frame.icons[index]:Hide() end
+	end)
+	
+	if not success and C.General.DeveloperMode then
+		K.Print("OnAura error:", err)
+	end
 end
 
 local function CastTextUpdate(frame, curValue)
@@ -195,6 +215,17 @@ end
 
 -- We need to reset everything when a nameplate it hidden
 local function OnHide(frame)
+	-- Cleanup throttle cache
+	if auraUpdateThrottle[frame] then
+		auraUpdateThrottle[frame] = nil
+	end
+	
+	-- Unregister events wenn registriert
+	if frame.icons and frame:IsEventRegistered("UNIT_AURA") then
+		frame:UnregisterEvent("UNIT_AURA")
+	end
+	
+	-- Visual cleanup
 	frame.hp:SetStatusBarColor(frame.hp.rcolor, frame.hp.gcolor, frame.hp.bcolor)
 	frame.hp:SetScale(1)
 	frame.overlay:Hide()
