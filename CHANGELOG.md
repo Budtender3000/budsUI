@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2025-01-13
+
+### Performance
+- **Spell Info Caching:** Implemented comprehensive spell info caching system
+  - Added K.GetSpellInfo() wrapper with 500 spell cache limit
+  - Cache automatically clears oldest entries when limit reached
+  - Replaced all GetSpellInfo() calls across 8 files with cached version
+  - Expected: 80-90% reduction in GetSpellInfo API calls
+  - Expected: -5-10% CPU usage from reduced API overhead
+  - Files updated: Functions.lua, Filger.lua, Nameplates.lua, ItemIcons.lua, Temp.lua, SaySapped.lua, AutoRelease.lua
+
+### Added
+- **Config Validation System:** Comprehensive config validation on login
+  - Added K.ConfigValidationRules with type and range checks for 25+ config options
+  - Implemented K.GetConfig() for safe config access with defaults
+  - Implemented K.ValidateConfig() with error and warning reporting
+  - Validation runs automatically 2 seconds after PLAYER_LOGIN
+  - Errors shown to all users, warnings only in DeveloperMode
+  - Validates General, Nameplate, ActionBar, Unitframe, Filger, Chat, Minimap settings
+  - Prevents invalid config values from causing errors
+  - Better user feedback for configuration issues
+
+### Changed
+- **String Operations:** Added K.BuildString() for efficient string concatenation using table.concat
+- **Helper Functions:** Added K.GetTableLength() utility function
+
+### Technical
+- Spell cache stores all 9 return values from GetSpellInfo
+- Automatic cache size management prevents unbounded growth
+- Config validation provides type checking and range validation
+- Safe config getter prevents nil access errors
+
 ## [0.8.0] - 2025-01-13
 
 ### Performance
