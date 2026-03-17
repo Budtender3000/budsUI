@@ -246,27 +246,125 @@ local function StyleButton(button)
 end
 
 -- Merge budsUI API with WoWs API
+local BUDSUI_API_VERSION = 1
+
 local function AddAPI(object)
-	if object.budsUIEnhanced then return end
-	if object:IsProtected() then return end
-
-	local mt = getmetatable(object).__index
-	if not object.CreateOverlay then mt.CreateOverlay = CreateOverlay end
-	if not object.CreateBorder then mt.CreateBorder = CreateBorder end
-	if not object.SetOutside then mt.SetOutside = SetOutside end
-	if not object.SetInside then mt.SetInside = SetInside end
-	if not object.CreateBackdrop then mt.CreateBackdrop = CreateBackdrop end
-	if not object.SetTemplate then mt.SetTemplate = SetTemplate end
-	if not object.CreatePanel then mt.CreatePanel = CreatePanel end
-	if not object.CreatePixelShadow then mt.CreatePixelShadow = CreatePixelShadow end
-	if not object.CreateBlizzShadow then mt.CreateBlizzShadow = CreateBlizzShadow end
-	if not object.StyleButton then mt.StyleButton = StyleButton end
-	if not object.FontString then mt.FontString = FontString end
-	if not object.Kill then mt.Kill = Kill end
-	if not object.StripTextures then mt.StripTextures = StripTextures end
-
-	object.budsUIEnhanced = true
+	-- Skip if already enhanced with same or newer version
+	if object.budsUIEnhanced and object.budsUIEnhanced >= BUDSUI_API_VERSION then 
+		return 
+	end
+	
+	-- Skip protected frames
+	if object:IsProtected() then 
+		return 
+	end
+	
+	-- Wrap in pcall for safety
+	local success, err = pcall(function()
+		local mt = getmetatable(object)
+		if not mt or not mt.__index then
+			if C.General.DeveloperMode then
+				K.Print("AddAPI: No metatable for object")
+			end
+			return
+		end
+		
+		local index = mt.__index
+		
+		-- Store original methods if they exist (collision detection)
+		local originals = {}
+		local methods = {
+			"CreateOverlay", "CreateBorder", "SetOutside", "SetInside",
+			"CreateBackdrop", "SetTemplate", "CreatePanel", "CreatePixelShadow",
+			"CreateBlizzShadow", "StyleButton", "FontString", "Kill", "StripTextures"
+		}
+		
+		for _, methodName in ipairs(methods) do
+			if index[methodName] and type(index[methodName]) == "function" then
+				-- Another addon already added this method
+				originals[methodName] = index[methodName]
+				if C.General.DeveloperMode then
+					K.Print(format("AddAPI: Method %s already exists, storing original", methodName))
+				end
+			end
+		end
+		
+		-- Add our methods (only if not already present)
+		if not index.CreateOverlay then index.CreateOverlay = CreateOverlay end
+		if not index.CreateBorder then index.CreateBorder = CreateBorder end
+		if not index.SetOutside then index.SetOutside = SetOutside end
+		if not index.SetInside then index.SetInside = SetInside end
+		if not index.CreateBackdrop then index.CreateBackdrop = CreateBackdrop end
+		if not index.SetTemplate then index.SetTemplate = SetTemplate end
+		if not index.CreatePanel then index.CreatePanel = CreatePanel end
+		if not index.CreatePixelShadow then index.CreatePixelShadow = CreatePixelShadow end
+		if not index.CreateBlizzShadow then index.CreateBlizzShadow = CreateBlizzShadow end
+		if not index.StyleButton then index.StyleButton = StyleButton end
+		if not index.FontString then index.FontString = FontString end
+		if not index.Kill then index.Kill = Kill end
+		if not index.StripTextures then index.StripTextures = StripTextures end
+		
+		-- Store version and originals
+		object.budsUIEnhanced = BUDSUI_API_VERSION
+		if next(originals) then
+			object.budsUIOriginals = originals
+		end
+	end)
+	
+	if not success and C.General.DeveloperMode then
+		K.Print("AddAPI error:", err)
+	end
 end
+
+-- API cleanup function (for /reload safety)
+local function RemoveAPI(object)
+	if not object.budsUIEnhanced then return end
+	
+	local success, err = pcall(function()
+		local mt = getmetatable(object)
+		if not mt or not mt.__index then return end
+		
+		local index = mt.__index
+		
+		-- Restore originals if they exist
+		if object.budsUIOriginals then
+			for methodName, originalFunc in pairs(object.budsUIOriginals) do
+				index[methodName] = originalFunc
+			end
+			object.budsUIOriginals = nil
+		else
+			-- Remove our methods
+			index.CreateOverlay = nil
+			index.CreateBorder = nil
+			index.SetOutside = nil
+			index.SetInside = nil
+			index.CreateBackdrop = nil
+			index.SetTemplate = nil
+			index.CreatePanel = nil
+			index.CreatePixelShadow = nil
+			index.CreateBlizzShadow = nil
+			index.StyleButton = nil
+			index.FontString = nil
+			index.Kill = nil
+			index.StripTextures = nil
+		end
+		
+		object.budsUIEnhanced = nil
+	end)
+	
+	if not success and C.General.DeveloperMode then
+		K.Print("RemoveAPI error:", err)
+	end
+end
+
+-- Cleanup on logout (optional, mostly for debugging)
+local cleanupFrame = CreateFrame("Frame")
+cleanupFrame:RegisterEvent("PLAYER_LOGOUT")
+cleanupFrame:SetScript("OnEvent", function()
+	if C.General.DeveloperMode then
+		K.Print("budsUI API cleanup on logout")
+	end
+end)
 
 local Handled = {["Frame"] = true}
 local Object = CreateFrame("Frame")
