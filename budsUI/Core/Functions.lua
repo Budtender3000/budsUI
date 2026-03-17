@@ -124,25 +124,46 @@ K.CheckChat = function(warning)
 end
 
 local RoleUpdater = CreateFrame("Frame")
+local roleUpdateThrottle = 0
+local ROLE_UPDATE_INTERVAL = 0.5 -- Update max 2x/Sekunde
+
 local function CheckRole(self, event, unit)
 	if event == "UNIT_AURA" and unit ~= "player" then return end
-	if (K.Class == "PALADIN" and UnitBuff("player", GetSpellInfo(25780))) and GetCombatRatingBonus(CR_DEFENSE_SKILL) > 100 or
-	(K.Class == "WARRIOR" and GetBonusBarOffset() == 2) or
-	(K.Class == "DEATHKNIGHT" and UnitBuff("player", GetSpellInfo(48263))) or
-	(K.Class == "DRUID" and GetBonusBarOffset() == 3) then
-		K.Role = "Tank"
-	else
-		local playerint = select(2, UnitStat("player", 4))
-		local playeragi	= select(2, UnitStat("player", 2))
-		local base, posBuff, negBuff = UnitAttackPower("player")
-		local playerap = base + posBuff + negBuff
-
-		if ((playerap > playerint) or (playeragi > playerint)) and not (UnitBuff("player", GetSpellInfo(24858)) or UnitBuff("player", GetSpellInfo(65139))) then
-			K.Role = "Melee"
-		else
-			K.Role = "Caster"
+	
+	-- Throttle UNIT_AURA updates
+	if event == "UNIT_AURA" then
+		local now = GetTime()
+		if (now - roleUpdateThrottle) < ROLE_UPDATE_INTERVAL then
+			return
 		end
+		roleUpdateThrottle = now
 	end
+	
+	-- Wrap in pcall for error safety
+	local success, err = pcall(function()
+		if (K.Class == "PALADIN" and UnitBuff("player", GetSpellInfo(25780))) and GetCombatRatingBonus(CR_DEFENSE_SKILL) > 100 or
+		(K.Class == "WARRIOR" and GetBonusBarOffset() == 2) or
+		(K.Class == "DEATHKNIGHT" and UnitBuff("player", GetSpellInfo(48263))) or
+		(K.Class == "DRUID" and GetBonusBarOffset() == 3) then
+			K.Role = "Tank"
+		else
+			local playerint = select(2, UnitStat("player", 4))
+			local playeragi	= select(2, UnitStat("player", 2))
+			local base, posBuff, negBuff = UnitAttackPower("player")
+			local playerap = base + posBuff + negBuff
+
+			if ((playerap > playerint) or (playeragi > playerint)) and not (UnitBuff("player", GetSpellInfo(24858)) or UnitBuff("player", GetSpellInfo(65139))) then
+				K.Role = "Melee"
+			else
+				K.Role = "Caster"
+			end
+		end
+	end)
+	
+	if not success and C.General.DeveloperMode then
+		K.Print("CheckRole error:", err)
+	end
+	
 	-- Unregister useless events
 	if event == "PLAYER_ENTERING_WORLD" then
 		if K.Class ~= "WARRIOR" and K.Class ~= "DRUID" and K.Class ~= "PALADIN" and K.Class ~= "DEATHKNIGHT" then
