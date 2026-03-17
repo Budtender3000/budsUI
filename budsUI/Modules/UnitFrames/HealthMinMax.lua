@@ -4,6 +4,16 @@ if C.Unitframe.Enable ~= true then return end
 
 if C.Unitframe.ClassHealth == false and C.Unitframe.PercentHealth == true then
 	hooksecurefunc("HealthBar_OnValueChanged", function(self, value, smooth)
+		-- Skip secure frames to prevent taint
+		-- self is the health bar, check the unit property
+		if not self or not self.unit then return end
+		local unitType = self.unit
+		-- Skip pet, ToT, and raid frames
+		if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+		   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+			return
+		end
+		
 		if not value then return end
 		local r, g, b
 		local vMin, vMax = self:GetMinMaxValues()

@@ -90,11 +90,15 @@ K.PetBarUpdate = function(self, event)
 
 		if name then
 			if not C.ActionBar.ShowGrid then
-				petActionButton:SetAlpha(1)
+				if not InCombatLockdown() then
+					petActionButton:SetAlpha(1)
+				end
 			end
 		else
 			if not C.ActionBar.ShowGrid then
-				petActionButton:SetAlpha(0)
+				if not InCombatLockdown() then
+					petActionButton:SetAlpha(0)
+				end
 			end
 		end
 

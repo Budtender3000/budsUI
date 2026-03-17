@@ -25,6 +25,16 @@ local BEAUTY_SPACING = 1
 
 -- AURAS
 local function TargetAuraColour(self)
+	-- Skip secure frames to prevent taint
+	if not self or not self.unit then return end
+	local unitType = self.unit
+	-- Skip pet, ToT, raid, and party pet frames
+	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
+	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+		return
+	end
+	
 	-- buffs
 	for i = 1, MAX_TARGET_BUFFS do
 		local bframe = _G[self:GetName().."Buff"..i]
@@ -87,6 +97,16 @@ local beauty = _G["!BeautyCase"] or _G["BeautyCase"]
 
 -- reposition
 local function TargetAuraPosit(self, auraName, numAuras, numOppositeAuras, largeAuraList, updateFunc, maxRowWidth, offsetX, mirrorAurasVertically)
+	-- Skip secure frames to prevent taint
+	if not self or not self.unit then return end
+	local unitType = self.unit
+	-- Skip pet, ToT, raid, and party pet frames
+	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
+	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+		return
+	end
+	
 	if not beauty then return end
 	do
 		local AURA_OFFSET_Y = C.Unitframe.AuraOffsetY
@@ -126,6 +146,16 @@ end
 
 -- debuff reposition
 local function TargetDebuffPosit(self, debuffName, index, numBuffs, anchorIndex, size, offsetX, offsetY, mirrorVertically)
+	-- Skip secure frames to prevent taint
+	if not self or not self.unit then return end
+	local unitType = self.unit
+	-- Skip pet, ToT, raid, and party pet frames
+	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
+	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+		return
+	end
+	
 	local dbuff = _G[debuffName..index]
 	local isFriend = UnitIsFriend("player", self.unit)
 	local AURA_START_X = 3

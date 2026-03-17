@@ -136,10 +136,12 @@ if C.Unitframe.Enable == true then
 				end
 			end
 
-			-- Tweak Focus Frame
-			FocusFrameToT:SetScale(1.0)
-			FocusFrameToT:ClearAllPoints()
-			FocusFrameToT:SetPoint("TOP", FocusFrame, "BOTTOM", FOCUS_TOT_X, FOCUS_TOT_Y)
+			if not InCombatLockdown() then
+				-- Tweak Focus Frame ToT (must be protected)
+				FocusFrameToT:SetScale(1.0)
+				FocusFrameToT:ClearAllPoints()
+				FocusFrameToT:SetPoint("TOP", FocusFrame, "BOTTOM", FOCUS_TOT_X, FOCUS_TOT_Y)
+			end
 
 			-- Arena Frames Scaling
 			local function SetArenaFrames()
@@ -191,6 +193,16 @@ end
 if not InCombatLockdown() then
 	if C.Unitframe.ClassIcon == true then
 		hooksecurefunc("UnitFramePortrait_Update", function(self)
+			-- Skip secure frames to prevent taint
+			if not self or not self.unit then return end
+			local unitType = self.unit
+			-- Skip pet, ToT, raid, and party pet frames
+			if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
+			   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+			   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+				return
+			end
+			
 			if self.portrait then
 				if UnitIsPlayer(self.unit) then
 					local t = CLASS_ICON_TCOORDS[select(2, UnitClass(self.unit))]
@@ -208,6 +220,16 @@ if not InCombatLockdown() then
 	-- Class Color Bars
 	if C.Unitframe.ClassHealth == true then
 		local function colorHealthBar(statusbar, unit)
+			-- Skip secure frames to prevent taint
+			-- statusbar is the health bar, not the frame itself
+			if not statusbar or not statusbar.unit then return end
+			local unitType = statusbar.unit
+			-- Skip pet, ToT, and raid frames
+			if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+			   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+				return
+			end
+			
 			local _, class, color
 			if UnitIsPlayer(unit) and UnitIsConnected(unit) and unit == statusbar.unit and UnitClass(unit) then
 				_, class = UnitClass(unit)

@@ -196,9 +196,19 @@ EnhancedFrames_PlayerFrame_ToVehicleArt = function(self)
 end
 
 EnhancedFrames_TargetFrame_Update = function(self)
+	-- Skip secure frames to prevent taint
+	if not self or not self.unit then return end
+	local unitType = self.unit
+	-- Skip ToT, pet, and raid frames
+	if self == TargetFrameToT or self == FocusFrameToT or
+	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+		return
+	end
+	
 	-- Skip during combat to prevent taint
 	if InCombatLockdown() then return end
-	if not self or not self.unit or not self.healthbar then return end
+	if not self.healthbar then return end
 	-- Set back color of health bar
 	-- UnitIsTapDenied doesn't exist in WotLK, use UnitIsTapped and UnitIsTappedByPlayer instead
 	if (not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit)) then
@@ -208,6 +218,16 @@ EnhancedFrames_TargetFrame_Update = function(self)
 end
 
 EnhancedFrames_Target_Classification = function(self, forceNormalTexture)
+	-- Skip secure frames to prevent taint
+	if not self or not self.unit then return end
+	local unitType = self.unit
+	-- Skip ToT, pet, and raid frames
+	if self == TargetFrameToT or self == FocusFrameToT or
+	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+		return
+	end
+	
 	-- Skip during combat to prevent taint
 	if InCombatLockdown() then return end
 	
@@ -232,6 +252,16 @@ EnhancedFrames_Target_Classification = function(self, forceNormalTexture)
 end
 
 EnhancedFrames_TargetFrame_CheckFaction = function(self)
+	-- Skip secure frames to prevent taint
+	if not self or not self.unit then return end
+	local unitType = self.unit
+	-- Skip ToT, pet, and raid frames
+	if self == TargetFrameToT or self == FocusFrameToT or
+	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+		return
+	end
+	
 	-- Skip if in combat to avoid taint issues
 	if InCombatLockdown() then return end
 	
