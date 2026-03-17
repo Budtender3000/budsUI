@@ -66,6 +66,9 @@ if C.Unitframe.Enable == true then
 					-- Skip during combat to prevent taint on secure frames like PetFrame
 					if InCombatLockdown() then return end
 					if not self.name or not self:IsShown() then return end
+					
+					-- Skip PetFrame entirely to prevent taint
+					if self == PetFrame then return end
 
 					local PET_COLOR = {r = 157/255, g = 197/255, b = 255/255}
 					local unit, color = self.unit
