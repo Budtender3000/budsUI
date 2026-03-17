@@ -19,8 +19,8 @@ if C.General.DeveloperMode == true then
 	L_MISC_DRINKING = " is drinking."
 
 	-- Cache spell names at load time to avoid per-event GetSpellInfo cost
-	local drinkSpellName1 = GetSpellInfo(57073)
-	local drinkSpellName2 = GetSpellInfo(43183)
+	local drinkSpellName1 = K.GetSpellInfo(57073)
+	local drinkSpellName2 = K.GetSpellInfo(43183)
 
 	-- Announce enemy drinking in arena(by Duffed)
 	local frame = CreateFrame("Frame")
@@ -29,7 +29,7 @@ if C.General.DeveloperMode == true then
 		if not (event == "UNIT_SPELLCAST_SUCCEEDED" and GetZonePVPInfo() == "arena") then return end
 
 		local unit, _, _, _, spellID = ...
-		local castSpellName = GetSpellInfo(spellID)
+		local castSpellName = K.GetSpellInfo(spellID)
 		if UnitIsEnemy("player", unit) and (castSpellName == drinkSpellName1 or castSpellName == drinkSpellName2) then
 			SendChatMessage(UnitClass(unit).." "..UnitName(unit)..L_MISC_DRINKING, K.CheckChat(true))
 		end

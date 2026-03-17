@@ -288,7 +288,7 @@ function Filger:DisplayActives()
 		local activeIndex = self.sortedIndex[n]
 		local value = self.actives[activeIndex]
 		local bar = self.bars[index]
-		bar.spellName = GetSpellInfo(value.spid)
+		bar.spellName = K.GetSpellInfo(value.spid)
 		if self.Mode == "BAR" then
 			bar.spellname:SetText(bar.spellName)
 		end
@@ -345,9 +345,43 @@ function Filger:DisplayActives()
 	end
 end
 
+-- Throttle cache for Filger updates
+local filgerThrottle = {}
+local FILGER_UPDATE_INTERVAL = 0.15 -- ~6-7x/Sekunde
+
 function Filger:OnEvent(event, unit)
-	if event == "SPELL_UPDATE_COOLDOWN" or event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED" or event == "PLAYER_ENTERING_WORLD" or event == "UNIT_AURA" and (unit == "target" or unit == "player" or unit == "pet" or unit == "focus") then
+	-- Throttle UNIT_AURA events per unit
+	if event == "UNIT_AURA" then
+		if not (unit == "target" or unit == "player" or unit == "pet" or unit == "focus") then
+			return
+		end
+		
+		local now = GetTime()
+		local key = unit or "global"
+		local lastUpdate = filgerThrottle[key] or 0
+		if (now - lastUpdate) < FILGER_UPDATE_INTERVAL then
+			return
+		end
+		filgerThrottle[key] = now
+		
+		-- Nur betroffenen Unit-Cache löschen, nicht alles
+		if auraCache.buff[unit] then auraCache.buff[unit] = nil end
+		if auraCache.debuff[unit] then auraCache.debuff[unit] = nil end
+	elseif event == "PLAYER_TARGET_CHANGED" then
+		-- Nur target cache löschen
+		auraCache.buff.target = nil
+		auraCache.debuff.target = nil
+	elseif event == "PLAYER_FOCUS_CHANGED" then
+		-- Nur focus cache löschen
+		auraCache.buff.focus = nil
+		auraCache.debuff.focus = nil
+	elseif event == "SPELL_UPDATE_COOLDOWN" or event == "PLAYER_ENTERING_WORLD" then
+		-- Für andere Events: kompletter Wipe
 		WipeAuraCache()
+	end
+	
+	-- Wrap main logic in pcall
+	local success, err = pcall(function()
 		local needUpdate = false
 		local id = self.Id
 
@@ -359,7 +393,7 @@ function Filger:OnEvent(event, unit)
 
 			if data.filter == "BUFF" then
 				local caster, spn, expirationTime
-				spn, _, _ = GetSpellInfo(data.spellID)
+				spn, _, _ = K.GetSpellInfo(data.spellID)
 				if spn then
 					name, _, icon, count, _, duration, expirationTime, caster, _, _, spid = Filger:UnitBuff(data.unitID, data.spellID, spn, data.absID)
 					if name and (data.caster ~= 1 and (caster == data.caster or data.caster == "all") or MyUnits[caster]) then
@@ -371,7 +405,7 @@ function Filger:OnEvent(event, unit)
 				end
 			elseif data.filter == "DEBUFF" then
 				local caster, spn, expirationTime
-				spn, _, _ = GetSpellInfo(data.spellID)
+				spn, _, _ = K.GetSpellInfo(data.spellID)
 				if spn then
 					name, _, icon, count, _, duration, expirationTime, caster, _, _, spid = Filger:UnitDebuff(data.unitID, data.spellID, spn, data.absID)
 					if name and (data.caster ~= 1 and (caster == data.caster or data.caster == "all") or MyUnits[caster]) then
@@ -381,7 +415,7 @@ function Filger:OnEvent(event, unit)
 				end
 			elseif data.filter == "CD" then
 				if data.spellID then
-					name, _, icon = GetSpellInfo(data.spellID)
+					name, _, icon = K.GetSpellInfo(data.spellID)
 					if name then
 						if data.absID then
 							start, duration = GetSpellCooldown(data.spellID)
@@ -404,13 +438,13 @@ function Filger:OnEvent(event, unit)
 			elseif data.filter == "ICD" then
 				if data.trigger == "BUFF" then
 					local spn
-					spn, _, icon = GetSpellInfo(data.spellID)
+					spn, _, icon = K.GetSpellInfo(data.spellID)
 					if spn then
 						name, _, _, _, _, _, _, _, _, _, spid = Filger:UnitBuff("player", data.spellID, spn, data.absID)
 					end
 				elseif data.trigger == "DEBUFF" then
 					local spn
-					spn, _, icon = GetSpellInfo(data.spellID)
+					spn, _, icon = K.GetSpellInfo(data.spellID)
 					if spn then
 						name, _, _, _, _, _, _, _, _, _, spid = Filger:UnitDebuff("player", data.spellID, spn, data.absID)
 					end
@@ -453,6 +487,10 @@ function Filger:OnEvent(event, unit)
 		if needUpdate and self.actives then
 			Filger.DisplayActives(self)
 		end
+	end)
+	
+	if not success and C.General.DeveloperMode then
+		K.Print("Filger error:", err)
 	end
 end
 
@@ -499,7 +537,7 @@ if C["filger_spells"] and C["filger_spells"][K.Class] then
 		for j = 1, #data, 1 do
 			local spn
 			if data[j].spellID then
-				spn = GetSpellInfo(data[j].spellID)
+				spn = K.GetSpellInfo(data[j].spellID)
 			else
 				local slotLink = GetInventoryItemLink("player", data[j].slotID)
 				if slotLink then
@@ -547,7 +585,7 @@ if C["filger_spells"] and C["filger_spells"][K.Class] then
 				local data = C["filger_spells"][K.Class][i][j]
 				local name, icon
 				if data.spellID then
-					name, _, icon = GetSpellInfo(data.spellID)
+					name, _, icon = K.GetSpellInfo(data.spellID)
 				elseif data.slotID then
 					local slotLink = GetInventoryItemLink("player", data.slotID)
 					if slotLink then

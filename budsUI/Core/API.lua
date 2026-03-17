@@ -171,13 +171,38 @@ local function CreatePanel(f, t, w, h, a1, p, a2, x, y)
 end
 
 local function Kill(object)
-    if object.UnregisterAllEvents then
-        object:UnregisterAllEvents()
-    end
-    object:Hide()
-    if object.HookScript then
-        object:HookScript("OnShow", function(self) self:Hide() end)
-    end
+	if not object then return end
+	
+	-- Wrap in pcall for safety
+	local success, err = pcall(function()
+		-- Unregister all events
+		if object.UnregisterAllEvents then
+			object:UnregisterAllEvents()
+		end
+		
+		-- Clear all scripts
+		if object.SetScript then
+			object:SetScript("OnUpdate", nil)
+			object:SetScript("OnEvent", nil)
+			object:SetScript("OnShow", nil)
+			object:SetScript("OnHide", nil)
+		end
+		
+		-- Hide and prevent showing
+		object:Hide()
+		if object.HookScript then
+			object:HookScript("OnShow", function(self) self:Hide() end)
+		end
+		
+		-- Clear parent to help GC (only if not protected)
+		if object.SetParent and not object:IsProtected() then
+			object:SetParent(nil)
+		end
+	end)
+	
+	if not success and C.General.DeveloperMode then
+		K.Print("Kill() error:", err)
+	end
 end
 
 -- StripTextures

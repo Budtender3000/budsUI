@@ -24,9 +24,19 @@ frame:SetScript("OnEvent", function(self, event, addon, ...)
 		end
 	end
 
-	VideoOptionsResolutionPanelUIScaleSlider:Kill()
-	VideoOptionsResolutionPanelUseUIScale:Kill()
+	-- Don't kill UI scale controls - causes errors in Blizzard code
+	-- budsUI overrides scale in PixelPerfect.lua anyway
+	-- VideoOptionsResolutionPanelUIScaleSlider:Kill()
+	-- VideoOptionsResolutionPanelUseUIScale:Kill()
+	
 	TutorialFrameAlertButton:Kill()
+	
+	-- Disable TalkingHeadFrame to prevent Blizzard creatureID errors
+	if TalkingHeadFrame then
+		TalkingHeadFrame:UnregisterAllEvents()
+		TalkingHeadFrame:Hide()
+		TalkingHeadFrame:HookScript("OnShow", function(self) self:Hide() end)
+	end
 
 	if C.Chat.Enable then
 		InterfaceOptionsSocialPanelChatStyle:EnableMouse(false)

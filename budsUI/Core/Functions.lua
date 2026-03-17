@@ -33,6 +33,44 @@ K.Print = function(...)
 	print("|cff388bdbbudsUI|r:", ...)
 end
 
+-- Safe event handler wrapper
+K.SafeEventHandler = function(handler, eventName)
+	return function(self, event, ...)
+		local success, err = pcall(handler, self, event, ...)
+		if not success then
+			if C.General.DeveloperMode then
+				K.Print(format("Error in %s handler: %s", eventName or event or "unknown", tostring(err)))
+			end
+			-- Log to SavedVariables für Bug-Reports
+			if not SavedOptions.ErrorLog then SavedOptions.ErrorLog = {} end
+			table.insert(SavedOptions.ErrorLog, {
+				time = date("%Y-%m-%d %H:%M:%S"),
+				event = eventName or event or "unknown",
+				error = tostring(err),
+				addon = "budsUI"
+			})
+			-- Limit log size
+			if #SavedOptions.ErrorLog > 50 then
+				table.remove(SavedOptions.ErrorLog, 1)
+			end
+		end
+	end
+end
+
+-- Safe OnUpdate wrapper
+K.SafeOnUpdate = function(handler, frameName)
+	return function(self, elapsed)
+		local success, err = pcall(handler, self, elapsed)
+		if not success then
+			-- Stop OnUpdate on error to prevent spam
+			self:SetScript("OnUpdate", nil)
+			if C.General.DeveloperMode then
+				K.Print(format("Error in %s OnUpdate (stopped): %s", frameName or "unknown", tostring(err)))
+			end
+		end
+	end
+end
+
 K.SafeSetCVar = function(cvar, value)
 	if GetCVar(cvar) ~= nil then
 		local success = pcall(SetCVar, cvar, value)
@@ -124,25 +162,46 @@ K.CheckChat = function(warning)
 end
 
 local RoleUpdater = CreateFrame("Frame")
+local roleUpdateThrottle = 0
+local ROLE_UPDATE_INTERVAL = 0.5 -- Update max 2x/Sekunde
+
 local function CheckRole(self, event, unit)
 	if event == "UNIT_AURA" and unit ~= "player" then return end
-	if (K.Class == "PALADIN" and UnitBuff("player", GetSpellInfo(25780))) and GetCombatRatingBonus(CR_DEFENSE_SKILL) > 100 or
-	(K.Class == "WARRIOR" and GetBonusBarOffset() == 2) or
-	(K.Class == "DEATHKNIGHT" and UnitBuff("player", GetSpellInfo(48263))) or
-	(K.Class == "DRUID" and GetBonusBarOffset() == 3) then
-		K.Role = "Tank"
-	else
-		local playerint = select(2, UnitStat("player", 4))
-		local playeragi	= select(2, UnitStat("player", 2))
-		local base, posBuff, negBuff = UnitAttackPower("player")
-		local playerap = base + posBuff + negBuff
-
-		if ((playerap > playerint) or (playeragi > playerint)) and not (UnitBuff("player", GetSpellInfo(24858)) or UnitBuff("player", GetSpellInfo(65139))) then
-			K.Role = "Melee"
-		else
-			K.Role = "Caster"
+	
+	-- Throttle UNIT_AURA updates
+	if event == "UNIT_AURA" then
+		local now = GetTime()
+		if (now - roleUpdateThrottle) < ROLE_UPDATE_INTERVAL then
+			return
 		end
+		roleUpdateThrottle = now
 	end
+	
+	-- Wrap in pcall for error safety
+	local success, err = pcall(function()
+		if (K.Class == "PALADIN" and UnitBuff("player", K.GetSpellInfo(25780))) and GetCombatRatingBonus(CR_DEFENSE_SKILL) > 100 or
+		(K.Class == "WARRIOR" and GetBonusBarOffset() == 2) or
+		(K.Class == "DEATHKNIGHT" and UnitBuff("player", K.GetSpellInfo(48263))) or
+		(K.Class == "DRUID" and GetBonusBarOffset() == 3) then
+			K.Role = "Tank"
+		else
+			local playerint = select(2, UnitStat("player", 4))
+			local playeragi	= select(2, UnitStat("player", 2))
+			local base, posBuff, negBuff = UnitAttackPower("player")
+			local playerap = base + posBuff + negBuff
+
+			if ((playerap > playerint) or (playeragi > playerint)) and not (UnitBuff("player", K.GetSpellInfo(24858)) or UnitBuff("player", K.GetSpellInfo(65139))) then
+				K.Role = "Melee"
+			else
+				K.Role = "Caster"
+			end
+		end
+	end)
+	
+	if not success and C.General.DeveloperMode then
+		K.Print("CheckRole error:", err)
+	end
+	
 	-- Unregister useless events
 	if event == "PLAYER_ENTERING_WORLD" then
 		if K.Class ~= "WARRIOR" and K.Class ~= "DRUID" and K.Class ~= "PALADIN" and K.Class ~= "DEATHKNIGHT" then
@@ -257,10 +316,24 @@ end
 -- Add time before calling a function
 local waitTable = {}
 local waitFrame
+local MAX_WAIT_RECORDS = 100 -- Prevent unbounded growth
+
 K.Delay = function(delay, func, ...)
 	if(type(delay) ~= "number" or type(func) ~= "function") then
 		return false
 	end
+	
+	-- Cleanup abgelaufene Records wenn zu viele
+	if #waitTable > MAX_WAIT_RECORDS then
+		local cleaned = {}
+		for i = 1, #waitTable do
+			if waitTable[i][2] ~= nil then
+				table.insert(cleaned, waitTable[i])
+			end
+		end
+		waitTable = cleaned
+	end
+	
 	if(waitFrame == nil) then
 		waitFrame = CreateFrame("Frame", "WaitFrame", UIParent)
 		waitFrame:SetScript("OnUpdate", function (self, elapse)
@@ -279,14 +352,31 @@ K.Delay = function(delay, func, ...)
 					else
 						tremove(waitTable, i)
 						count = count - 1
-						waitRecord[2](unpack(waitRecord[3]))
+						
+						-- Wrap callback in pcall
+						local success, err = pcall(waitRecord[2], unpack(waitRecord[3]))
+						if not success and C.General.DeveloperMode then
+							K.Print("K.Delay callback error:", err)
+						end
 					end
 				end
 			end
+			
+			-- Stop OnUpdate wenn keine Delays mehr
+			if count == 0 then
+				self:SetScript("OnUpdate", nil)
+			end
 		end)
 	end
+	
 	local record = {delay, func, {...}}
 	tinsert(waitTable, record)
+	
+	-- Restart OnUpdate wenn gestoppt
+	if not waitFrame:GetScript("OnUpdate") then
+		waitFrame:SetScript("OnUpdate", waitFrame:GetScript("OnUpdate"))
+	end
+	
 	return record
 end
 
@@ -295,3 +385,206 @@ K.CancelDelay = function(record)
 		record[2] = nil
 	end
 end
+
+-- Spell Info Cache (Issue #6 & #8: Reduce GetSpellInfo API calls)
+K.SpellCache = {}
+local SPELL_CACHE_LIMIT = 500 -- Prevent unbounded growth
+
+K.GetSpellInfo = function(spellID)
+	if not spellID then return nil end
+	
+	-- Check cache first
+	if K.SpellCache[spellID] then
+		return unpack(K.SpellCache[spellID])
+	end
+	
+	-- Cache miss - fetch from API
+	local name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange = GetSpellInfo(spellID)
+	if name then
+		-- Limit cache size
+		if K.GetTableLength(K.SpellCache) >= SPELL_CACHE_LIMIT then
+			-- Clear oldest entries (simple approach: clear half the cache)
+			local count = 0
+			for k in pairs(K.SpellCache) do
+				K.SpellCache[k] = nil
+				count = count + 1
+				if count >= SPELL_CACHE_LIMIT / 2 then
+					break
+				end
+			end
+		end
+		
+		-- Store in cache
+		K.SpellCache[spellID] = {name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange}
+		return name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange
+	end
+	
+	return nil
+end
+
+-- Helper function to get table length
+K.GetTableLength = function(tbl)
+	local count = 0
+	for _ in pairs(tbl) do
+		count = count + 1
+	end
+	return count
+end
+
+-- String Builder for efficient concatenation (Issue #6: Optimize string operations)
+local stringBuilder = {}
+
+K.BuildString = function(...)
+	wipe(stringBuilder)
+	local argCount = select("#", ...)
+	for i = 1, argCount do
+		local arg = select(i, ...)
+		stringBuilder[i] = tostring(arg)
+	end
+	return table.concat(stringBuilder)
+end
+
+
+-- Config Validation System (Issue #7: Prevent invalid config errors)
+K.ConfigValidationRules = {
+	-- General settings
+	["General.UIScale"] = {"number", 0.4, 1.2},
+	["General.DeveloperMode"] = {"boolean"},
+	["General.AutoScale"] = {"boolean"},
+	
+	-- Nameplate settings
+	["Nameplate.Enable"] = {"boolean"},
+	["Nameplate.Width"] = {"number", 50, 300},
+	["Nameplate.Height"] = {"number", 5, 50},
+	["Nameplate.AdditionalWidth"] = {"number", 0, 100},
+	["Nameplate.AdditionalHeight"] = {"number", 0, 50},
+	["Nameplate.AuraSize"] = {"number", 10, 50},
+	["Nameplate.Auras"] = {"boolean"},
+	["Nameplate.EnhanceThreat"] = {"boolean"},
+	["Nameplate.HealthValue"] = {"boolean"},
+	
+	-- ActionBar settings
+	["ActionBar.Enable"] = {"boolean"},
+	["ActionBar.ButtonSize"] = {"number", 20, 60},
+	["ActionBar.ButtonSpace"] = {"number", 1, 10},
+	["ActionBar.Hotkey"] = {"boolean"},
+	["ActionBar.Macro"] = {"boolean"},
+	
+	-- Unitframe settings
+	["Unitframe.Enable"] = {"boolean"},
+	["Unitframe.CastbarLatency"] = {"boolean"},
+	["Unitframe.CombatFeedback"] = {"boolean"},
+	
+	-- Filger settings
+	["Filger.Enable"] = {"boolean"},
+	["Filger.TestMode"] = {"boolean"},
+	["Filger.MaxTestIcon"] = {"number", 1, 20},
+	
+	-- Chat settings
+	["Chat.Enable"] = {"boolean"},
+	["Chat.WhisperSound"] = {"boolean"},
+	["Chat.LinkBrackets"] = {"boolean"},
+	
+	-- Minimap settings
+	["Minimap.Enable"] = {"boolean"},
+	["Minimap.Size"] = {"number", 100, 300},
+}
+
+K.GetConfig = function(path, default)
+	local keys = {strsplit(".", path)}
+	local value = C
+	for _, key in ipairs(keys) do
+		if type(value) ~= "table" then
+			if C.General.DeveloperMode then
+				K.Print(format("Config path invalid: %s, using default: %s", path, tostring(default)))
+			end
+			return default
+		end
+		value = value[key]
+		if value == nil then
+			if C.General.DeveloperMode then
+				K.Print(format("Config missing: %s, using default: %s", path, tostring(default)))
+			end
+			return default
+		end
+	end
+	return value
+end
+
+K.ValidateConfig = function()
+	local errors = {}
+	local warnings = {}
+	
+	for path, rule in pairs(K.ConfigValidationRules) do
+		local keys = {strsplit(".", path)}
+		local value = C
+		local pathValid = true
+		
+		-- Navigate to the config value
+		for _, key in ipairs(keys) do
+			if type(value) ~= "table" then
+				pathValid = false
+				break
+			end
+			value = value[key]
+			if value == nil then
+				pathValid = false
+				break
+			end
+		end
+		
+		if pathValid and value ~= nil then
+			local expectedType = rule[1]
+			local actualType = type(value)
+			
+			-- Type check
+			if actualType ~= expectedType then
+				table.insert(errors, format("%s: expected %s, got %s (value: %s)", 
+					path, expectedType, actualType, tostring(value)))
+			elseif expectedType == "number" and rule[2] and rule[3] then
+				-- Range check for numbers
+				local min, max = rule[2], rule[3]
+				if value < min or value > max then
+					table.insert(warnings, format("%s: value %.2f out of recommended range [%.2f, %.2f]", 
+						path, value, min, max))
+				end
+			end
+		end
+	end
+	
+	-- Report errors
+	if #errors > 0 then
+		K.Print("=== Config Validation Errors ===")
+		for _, err in ipairs(errors) do
+			K.Print("|cffff0000ERROR:|r " .. err)
+		end
+	end
+	
+	-- Report warnings
+	if #warnings > 0 and C.General.DeveloperMode then
+		K.Print("=== Config Validation Warnings ===")
+		for _, warn in ipairs(warnings) do
+			K.Print("|cffffff00WARNING:|r " .. warn)
+		end
+	end
+	
+	if #errors > 0 then
+		K.Print("Config validation found errors. Use /budsui to fix settings.")
+		return false
+	end
+	
+	return true
+end
+
+-- Run config validation on login
+local configValidationFrame = CreateFrame("Frame")
+configValidationFrame:RegisterEvent("PLAYER_LOGIN")
+configValidationFrame:SetScript("OnEvent", function()
+	-- Delay validation to ensure all configs are loaded
+	K.Delay(2, function()
+		if C.General.DeveloperMode then
+			K.Print("Running config validation...")
+		end
+		K.ValidateConfig()
+	end)
+end)

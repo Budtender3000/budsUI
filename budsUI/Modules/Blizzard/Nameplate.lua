@@ -18,6 +18,19 @@ local goodR, goodG, goodB = unpack(C.Nameplate.GoodColor)
 local badR, badG, badB = unpack(C.Nameplate.BadColor)
 local transitionR, transitionG, transitionB = unpack(C.Nameplate.NearColor)
 
+-- Target name cache to reduce API calls
+local cachedTargetName = nil
+local targetNameCache = 0
+
+local function GetCachedTargetName()
+	local now = GetTime()
+	if (now - targetNameCache) > 0.1 then
+		cachedTargetName = UnitExists("target") and GetUnitName("target") or nil
+		targetNameCache = now
+	end
+	return cachedTargetName
+end
+
 local OVERLAY = [=[Interface\TargetingFrame\UI-TargetingFrame-Flash]=]
 
 -- Based on dNameplates(by Dawn, editor Kkthnx)
@@ -147,27 +160,47 @@ local function UpdateAuraIcon(button, unit, index, filter)
 	button:Show()
 end
 
+-- Throttle cache for aura updates
+local auraUpdateThrottle = {}
+local AURA_UPDATE_INTERVAL = 0.2 -- Max 5x/Sekunde pro Nameplate
+
 -- Filter auras on nameplate, and determine if we need to update them or not
 local function OnAura(frame, unit)
 	if not frame.icons or not frame.unit or not C.Nameplate.Auras then return end
-	local i = 1
-	for index = 1, 5 do -- Temp until I fix this to show 2 row if 5 is already shown
-		if i > C.Nameplate.Width / C.Nameplate.AuraSize then return end
-		local match
-		local name, _, _, _, _, duration, _, caster, _, _, spellid = UnitAura(frame.unit, index, "HARMFUL")
-
-		if K.DebuffWhiteList[name] and caster == "player" then match = true end
-
-		if duration and match == true then
-			if not frame.icons[i] then frame.icons[i] = CreateAuraIcon(frame) end
-			local icon = frame.icons[i]
-			if i == 1 then icon:SetPoint("RIGHT", frame.icons, "RIGHT") end
-			if i ~= 1 and i <= C.Nameplate.Width / C.Nameplate.AuraSize then icon:SetPoint("RIGHT", frame.icons[i-1], "LEFT", -2, 0) end
-			i = i + 1
-			UpdateAuraIcon(icon, frame.unit, index, "HARMFUL")
-		end
+	
+	-- Throttle per-frame updates
+	local now = GetTime()
+	local lastUpdate = auraUpdateThrottle[frame] or 0
+	if (now - lastUpdate) < AURA_UPDATE_INTERVAL then
+		return
 	end
-	for index = i, #frame.icons do frame.icons[index]:Hide() end
+	auraUpdateThrottle[frame] = now
+	
+	-- Wrap in pcall for error safety
+	local success, err = pcall(function()
+		local i = 1
+		for index = 1, 5 do -- Temp until I fix this to show 2 row if 5 is already shown
+			if i > C.Nameplate.Width / C.Nameplate.AuraSize then return end
+			local match
+			local name, _, _, _, _, duration, _, caster, _, _, spellid = UnitAura(frame.unit, index, "HARMFUL")
+
+			if K.DebuffWhiteList[name] and caster == "player" then match = true end
+
+			if duration and match == true then
+				if not frame.icons[i] then frame.icons[i] = CreateAuraIcon(frame) end
+				local icon = frame.icons[i]
+				if i == 1 then icon:SetPoint("RIGHT", frame.icons, "RIGHT") end
+				if i ~= 1 and i <= C.Nameplate.Width / C.Nameplate.AuraSize then icon:SetPoint("RIGHT", frame.icons[i-1], "LEFT", -2, 0) end
+				i = i + 1
+				UpdateAuraIcon(icon, frame.unit, index, "HARMFUL")
+			end
+		end
+		for index = i, #frame.icons do frame.icons[index]:Hide() end
+	end)
+	
+	if not success and C.General.DeveloperMode then
+		K.Print("OnAura error:", err)
+	end
 end
 
 local function CastTextUpdate(frame, curValue)
@@ -195,6 +228,17 @@ end
 
 -- We need to reset everything when a nameplate it hidden
 local function OnHide(frame)
+	-- Cleanup throttle cache
+	if auraUpdateThrottle[frame] then
+		auraUpdateThrottle[frame] = nil
+	end
+	
+	-- Unregister events wenn registriert
+	if frame.icons and frame:IsEventRegistered("UNIT_AURA") then
+		frame:UnregisterEvent("UNIT_AURA")
+	end
+	
+	-- Visual cleanup
 	frame.hp:SetStatusBarColor(frame.hp.rcolor, frame.hp.gcolor, frame.hp.bcolor)
 	frame.hp:SetScale(1)
 	frame.overlay:Hide()
@@ -207,6 +251,7 @@ local function OnHide(frame)
 	frame.hp.rcolor = nil
 	frame.hp.gcolor = nil
 	frame.hp.bcolor = nil
+	frame.blacklistChecked = nil -- Reset blacklist check flag
 	if frame.icons then
 		for _, icon in ipairs(frame.icons) do
 			icon:Hide()
@@ -548,7 +593,8 @@ end
 
 -- Force the name text of a nameplate to be behind other nameplates unless it is our target
 local function AdjustNameLevel(frame, ...)
-	if GetUnitName("target") == frame.hp.name:GetText() and frame:GetParent():GetAlpha() == 1 then
+	local targetName = GetCachedTargetName()
+	if targetName and frame.hp.name:GetText() == targetName and frame:GetParent():GetAlpha() == 1 then
 		frame.hp.name:SetDrawLayer("OVERLAY")
 	else
 		frame.hp.name:SetDrawLayer("BORDER")
@@ -569,7 +615,9 @@ local function ShowHealth(frame, ...)
 		frame.hp.value:SetFormattedText(K.ShortValue(valueHealth).." - ".."%d%%", percent)
 	end
 
-	if GetUnitName("target") and frame:GetParent():GetAlpha() == 1 then
+	-- Use cached target name
+	local targetName = GetCachedTargetName()
+	if targetName and frame.hp.name:GetText() == targetName and frame:GetParent():GetAlpha() == 1 then
 		frame.hp:SetSize((C.Nameplate.Width + C.Nameplate.AdditionalWidth) * K.NoScaleMult, (C.Nameplate.Height + C.Nameplate.AdditionalHeight) * K.NoScaleMult)
 		frame.cb:SetPoint("BOTTOMLEFT", frame.hp, "BOTTOMLEFT", 0, -8-((C.Nameplate.Height + C.Nameplate.AdditionalHeight) * K.NoScaleMult))
 		frame.cb.icon:SetSize(((C.Nameplate.Height + C.Nameplate.AdditionalHeight) * 2 * K.NoScaleMult) + 8, ((C.Nameplate.Height + C.Nameplate.AdditionalHeight) * 2 * K.NoScaleMult) + 8)
@@ -610,9 +658,35 @@ end
 
 -- Run a function for all visible nameplates, we use this for the blacklist, to check unitguid, and to hide drunken text
 local function ForEachPlate(functionToRun, ...)
+	local count = 0
 	for frame in pairs(frames) do
 		if frame:IsShown() then
-			functionToRun(frame, ...)
+			local success, err = pcall(functionToRun, frame, ...)
+			if not success and C.General.DeveloperMode then
+				K.Print("ForEachPlate error:", err)
+			end
+			count = count + 1
+		end
+	end
+	return count
+end
+
+-- Optimized version with batch-processing
+local visiblePlates = {}
+local function UpdateVisiblePlates()
+	wipe(visiblePlates)
+	for frame in pairs(frames) do
+		if frame:IsShown() then
+			table.insert(visiblePlates, frame)
+		end
+	end
+end
+
+local function ForEachVisiblePlate(functionToRun, ...)
+	for i = 1, #visiblePlates do
+		local success, err = pcall(functionToRun, visiblePlates[i], ...)
+		if not success and C.General.DeveloperMode then
+			K.Print("ForEachVisiblePlate error:", err)
 		end
 	end
 end
@@ -632,11 +706,13 @@ local function HookFrames(...)
 end
 
 
--- Throttle timers
-local healthThrottle, unitThrottle = 0, 0
+-- Consolidated update throttle
+local updateThrottle = 0
+local UPDATE_INTERVAL = 0.2
 
 -- Core right here, scan for any possible nameplate frames that are Children of the WorldFrame
-NamePlates:SetScript("OnUpdate", function(self, elapsed)
+NamePlates:SetScript("OnUpdate", K.SafeOnUpdate(function(self, elapsed)
+	-- Scan for new nameplates (faster check, 0.1s interval)
 	scanThrottle = scanThrottle + elapsed
 	if scanThrottle > 0.1 then
 		if WorldFrame:GetNumChildren() ~= numChildren then
@@ -645,32 +721,45 @@ NamePlates:SetScript("OnUpdate", function(self, elapsed)
 		end
 		scanThrottle = 0
 	end
-
-	if self.elapsed and self.elapsed > 0.2 then
-		ForEachPlate(UpdateThreat, self.elapsed)
-		ForEachPlate(AdjustNameLevel)
-		self.elapsed = 0
-	else
-		self.elapsed = (self.elapsed or 0) + elapsed
-	end
-
-	-- Throttle health and blacklist checks (0.2s interval)
-	healthThrottle = healthThrottle + elapsed
-	if healthThrottle > 0.2 then
-		ForEachPlate(ShowHealth)
-		ForEachPlate(CheckBlacklist)
-		healthThrottle = 0
-	end
-
-	-- Throttle unit GUID checks if auras enabled (0.2s interval)
-	if C.Nameplate.Auras then
-		unitThrottle = unitThrottle + elapsed
-		if unitThrottle > 0.2 then
-			ForEachPlate(CheckUnit_Guid)
-			unitThrottle = 0
+	
+	-- Consolidated update for all nameplate functions (0.2s interval)
+	updateThrottle = updateThrottle + elapsed
+	if updateThrottle >= UPDATE_INTERVAL then
+		-- Update visible plates cache once
+		UpdateVisiblePlates()
+		
+		-- Batch-update all functions in a single loop
+		for i = 1, #visiblePlates do
+			local frame = visiblePlates[i]
+			
+			-- Threat update (only when in combat and threat system active)
+			if C.Nameplate.EnhanceThreat and InCombatLockdown() then
+				UpdateThreat(frame, updateThrottle)
+			end
+			
+			-- Health update
+			ShowHealth(frame)
+			
+			-- Name level adjust (only when target exists)
+			if UnitExists("target") then
+				AdjustNameLevel(frame)
+			end
+			
+			-- Blacklist check (only once per frame)
+			if not frame.blacklistChecked then
+				CheckBlacklist(frame)
+				frame.blacklistChecked = true
+			end
+			
+			-- Unit GUID check (only when auras active)
+			if C.Nameplate.Auras then
+				CheckUnit_Guid(frame)
+			end
 		end
+		
+		updateThrottle = 0
 	end
-end)
+end, "NamePlates"))
 
 function NamePlates:COMBAT_LOG_EVENT_UNFILTERED(_, event, ...)
 	if event == "SPELL_AURA_REMOVED" then

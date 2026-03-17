@@ -10,7 +10,7 @@ local GetSpellInfo = GetSpellInfo
 local function SpellName(id)
 	local name = GetSpellInfo(id)
 	if not name then
-		if K.DeveloperMode then
+		if C.General.DeveloperMode then
 			print("|cffFF0000budsUI:|r Invalid SpellID: "..tostring(id))
 		end
 		return nil

@@ -242,3 +242,24 @@ StaticPopupDialogs.BOOST_UI_RELOAD = {
 	hideOnEscape = false,
 	preferredIndex = 3,
 }
+
+-- Error Log Viewer
+SlashCmdList["BUDSUIERRORS"] = function()
+	if not SavedOptions.ErrorLog or #SavedOptions.ErrorLog == 0 then
+		K.Print("No errors logged.")
+		return
+	end
+	
+	K.Print(format("=== budsUI Error Log (%d entries) ===", #SavedOptions.ErrorLog))
+	for i, entry in ipairs(SavedOptions.ErrorLog) do
+		K.Print(format("[%s] %s: %s", entry.time, entry.event, entry.error))
+	end
+	K.Print("Use /budsuiclearerrors to clear log")
+end
+SLASH_BUDSUIERRORS1 = "/budsuierrors"
+
+SlashCmdList["BUDSUICLEARERRORS"] = function()
+	SavedOptions.ErrorLog = {}
+	K.Print("Error log cleared.")
+end
+SLASH_BUDSUICLEARERRORS1 = "/budsuiclearerrors"
