@@ -49,52 +49,8 @@ if C.Unitframe.Enable == true then
 	Unitframes:SetScript("OnEvent", function(self, event, addon)
 		if (addon ~= "budsUI") then return end
 		if not InCombatLockdown() then
-			if C.Unitframe.ClassHealth ~= true then
-
-				CUSTOM_FACTION_BAR_COLORS = {
-					[1] = {r = 255/255, g = 0/255, b = 0/255},
-					[2] = {r = 255/255, g = 0/255, b = 0/255},
-					[3] = {r = 255/255, g = 255/255, b = 0/255},
-					[4] = {r = 255/255, g = 255/255, b = 0/255},
-					[5] = {r = 0/255, g = 255/255, b = 0/255},
-					[6] = {r = 0/255, g = 255/255, b = 0/255},
-					[7] = {r = 0/255, g = 255/255, b = 0/255},
-					[8] = {r = 0/255, g = 255/255, b = 0/255},
-				}
-
-				hooksecurefunc("UnitFrame_Update", function(self, isParty)
-					-- Skip during combat to prevent taint on secure frames like PetFrame
-					if InCombatLockdown() then return end
-					if not self.name or not self:IsShown() then return end
-					
-					-- Skip PetFrame entirely to prevent taint
-					if self == PetFrame then return end
-
-					local PET_COLOR = {r = 157/255, g = 197/255, b = 255/255}
-					local unit, color = self.unit
-					if UnitPlayerControlled(unit) then
-						if UnitIsPlayer(unit) then
-							color = RAID_CLASS_COLORS[select(2, UnitClass(unit))]
-						else
-							color = PET_COLOR
-						end
-					elseif UnitIsDeadOrGhost(unit) or (UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit)) then
-						color = GRAY_FONT_COLOR
-					else
-						color = CUSTOM_FACTION_BAR_COLORS[UnitIsEnemy(unit, "player") and 1 or UnitReaction(unit, "player") or 5]
-					end
-
-					if not color then
-						color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)["PRIEST"]
-					end
-
-					self.name:SetTextColor(color.r, color.g, color.b)
-					if isParty then
-						self.name:SetText(GetUnitName(self.overrideName or unit))
-					end
-				end)
-			end
-
+			-- UnitFrame_Update hook removed - caused PetFrame taint issues
+			
 			-- Font Helper
 			local function SetUnitFont(fontString, sizeAdj)
 				local size = C.Media.Font_Size + (sizeAdj or 0)

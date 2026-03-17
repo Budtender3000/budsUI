@@ -30,6 +30,13 @@ frame:SetScript("OnEvent", function(self, event, addon, ...)
 	-- VideoOptionsResolutionPanelUseUIScale:Kill()
 	
 	TutorialFrameAlertButton:Kill()
+	
+	-- Disable TalkingHeadFrame to prevent Blizzard creatureID errors
+	if TalkingHeadFrame then
+		TalkingHeadFrame:UnregisterAllEvents()
+		TalkingHeadFrame:Hide()
+		TalkingHeadFrame:HookScript("OnShow", function(self) self:Hide() end)
+	end
 
 	if C.Chat.Enable then
 		InterfaceOptionsSocialPanelChatStyle:EnableMouse(false)

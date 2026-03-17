@@ -8,9 +8,9 @@ local GetSpellInfo = GetSpellInfo
 --	Take the number ID at the end of the URL, and add it to the list
 ----------------------------------------------------------------------------------------
 local function SpellName(id)
-	local name = K.GetSpellInfo(id)
+	local name = GetSpellInfo(id)
 	if not name then
-		if K.DeveloperMode then
+		if C.General.DeveloperMode then
 			print("|cffFF0000budsUI:|r Invalid SpellID: "..tostring(id))
 		end
 		return nil

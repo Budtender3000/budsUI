@@ -120,22 +120,28 @@ EnhancedFrames_BossTargetFrame_Style = function(self)
 end
 
 EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
+	-- Skip during combat to prevent taint on secure frames
+	if InCombatLockdown() then
+		return
+	end
+	
+	-- Skip PetFrame to prevent taint
+	if textStatusBar and textStatusBar:GetParent() == PetFrame then
+		return
+	end
+	
 	local textString = textStatusBar.TextString
 	if(textString) then
 		local value = textStatusBar:GetValue()
 		local valueMin, valueMax = textStatusBar:GetMinMaxValues()
 
 		if ((tonumber(valueMax) ~= valueMax or valueMax > 0) and not (textStatusBar.pauseUpdates)) then
-			if not InCombatLockdown() then
-				textStatusBar:Show()
-			end
+			textStatusBar:Show()
 			if (value and valueMax > 0 and (GetCVarBool("statusTextPercentage") or textStatusBar.showPercentage) and not textStatusBar.showNumeric) then
 				if (value == 0 and textStatusBar.zeroText) then
 					textString:SetText(textStatusBar.zeroText)
 					textStatusBar.isZero = 1
-					if not InCombatLockdown() then
-						textString:Show()
-					end
+					textString:Show()
 					return
 				end
 				value = tostring(ceil((value / valueMax) * 100)) .. "%"
@@ -143,9 +149,7 @@ EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
 			elseif (value == 0 and textStatusBar.zeroText) then
 				textString:SetText(textStatusBar.zeroText)
 				textStatusBar.isZero = 1
-				if not InCombatLockdown() then
-					textString:Show()
-				end
+				textString:Show()
 				return
 			else
 				textStatusBar.isZero = nil
@@ -156,24 +160,18 @@ EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
 				textString:SetText(value)
 			end
 
-			if not InCombatLockdown() then
-				if ((textStatusBar.cvar and GetCVar(textStatusBar.cvar) == "1" and textStatusBar.textLockable) or textStatusBar.forceShow) then
-					textString:Show()
-				elseif (textStatusBar.lockShow > 0 and (not textStatusBar.forceHideText)) then
-					textString:Show()
-				else
-					textString:Hide()
-				end
-			end
-		else
-			if not InCombatLockdown() then
+			if ((textStatusBar.cvar and GetCVar(textStatusBar.cvar) == "1" and textStatusBar.textLockable) or textStatusBar.forceShow) then
+				textString:Show()
+			elseif (textStatusBar.lockShow > 0 and (not textStatusBar.forceHideText)) then
+				textString:Show()
+			else
 				textString:Hide()
 			end
+		else
+			textString:Hide()
 			textString:SetText("")
 			if (not textStatusBar.alwaysShow) then
-				if not InCombatLockdown() then
-					textStatusBar:Hide()
-				end
+				textStatusBar:Hide()
 			else
 				textStatusBar:SetValue(0)
 			end
