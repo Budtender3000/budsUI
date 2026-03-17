@@ -345,9 +345,43 @@ function Filger:DisplayActives()
 	end
 end
 
+-- Throttle cache for Filger updates
+local filgerThrottle = {}
+local FILGER_UPDATE_INTERVAL = 0.15 -- ~6-7x/Sekunde
+
 function Filger:OnEvent(event, unit)
-	if event == "SPELL_UPDATE_COOLDOWN" or event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED" or event == "PLAYER_ENTERING_WORLD" or event == "UNIT_AURA" and (unit == "target" or unit == "player" or unit == "pet" or unit == "focus") then
+	-- Throttle UNIT_AURA events per unit
+	if event == "UNIT_AURA" then
+		if not (unit == "target" or unit == "player" or unit == "pet" or unit == "focus") then
+			return
+		end
+		
+		local now = GetTime()
+		local key = unit or "global"
+		local lastUpdate = filgerThrottle[key] or 0
+		if (now - lastUpdate) < FILGER_UPDATE_INTERVAL then
+			return
+		end
+		filgerThrottle[key] = now
+		
+		-- Nur betroffenen Unit-Cache löschen, nicht alles
+		if auraCache.buff[unit] then auraCache.buff[unit] = nil end
+		if auraCache.debuff[unit] then auraCache.debuff[unit] = nil end
+	elseif event == "PLAYER_TARGET_CHANGED" then
+		-- Nur target cache löschen
+		auraCache.buff.target = nil
+		auraCache.debuff.target = nil
+	elseif event == "PLAYER_FOCUS_CHANGED" then
+		-- Nur focus cache löschen
+		auraCache.buff.focus = nil
+		auraCache.debuff.focus = nil
+	elseif event == "SPELL_UPDATE_COOLDOWN" or event == "PLAYER_ENTERING_WORLD" then
+		-- Für andere Events: kompletter Wipe
 		WipeAuraCache()
+	end
+	
+	-- Wrap main logic in pcall
+	local success, err = pcall(function()
 		local needUpdate = false
 		local id = self.Id
 
@@ -453,6 +487,10 @@ function Filger:OnEvent(event, unit)
 		if needUpdate and self.actives then
 			Filger.DisplayActives(self)
 		end
+	end)
+	
+	if not success and C.General.DeveloperMode then
+		K.Print("Filger error:", err)
 	end
 end
 
