@@ -39,8 +39,50 @@ function EnhancedFrames:PLAYER_ENTERING_WORLD()
 end
 
 EnableEnhancedFrames = function()
-	-- GENERIC STATUS TEXT HOOK
-	hooksecurefunc("TextStatusBar_UpdateTextString", EnhancedFrames_UpdateTextStringWithValues)
+	-- SPECIFIC STATUS TEXT HOOKS - Only for non-secure frames to prevent taint
+	-- Instead of global TextStatusBar_UpdateTextString hook, we hook specific frames
+	if PlayerFrameHealthBar then
+		hooksecurefunc(PlayerFrameHealthBar, "SetValue", function(self)
+			if not InCombatLockdown() then
+				EnhancedFrames_UpdateTextStringWithValues(self)
+			end
+		end)
+	end
+	if PlayerFrameManaBar then
+		hooksecurefunc(PlayerFrameManaBar, "SetValue", function(self)
+			if not InCombatLockdown() then
+				EnhancedFrames_UpdateTextStringWithValues(self)
+			end
+		end)
+	end
+	if TargetFrameHealthBar then
+		hooksecurefunc(TargetFrameHealthBar, "SetValue", function(self)
+			if not InCombatLockdown() then
+				EnhancedFrames_UpdateTextStringWithValues(self)
+			end
+		end)
+	end
+	if TargetFrameManaBar then
+		hooksecurefunc(TargetFrameManaBar, "SetValue", function(self)
+			if not InCombatLockdown() then
+				EnhancedFrames_UpdateTextStringWithValues(self)
+			end
+		end)
+	end
+	if FocusFrameHealthBar then
+		hooksecurefunc(FocusFrameHealthBar, "SetValue", function(self)
+			if not InCombatLockdown() then
+				EnhancedFrames_UpdateTextStringWithValues(self)
+			end
+		end)
+	end
+	if FocusFrameManaBar then
+		hooksecurefunc(FocusFrameManaBar, "SetValue", function(self)
+			if not InCombatLockdown() then
+				EnhancedFrames_UpdateTextStringWithValues(self)
+			end
+		end)
+	end
 
 	-- HOOK PLAYERFRAME FUNCTIONS
 	hooksecurefunc("PlayerFrame_ToPlayerArt", EnhancedFrames_PlayerFrame_ToPlayerArt)
@@ -129,35 +171,7 @@ EnhancedFrames_BossTargetFrame_Style = function(self)
 end
 
 EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
-	-- Skip secure frames FIRST to prevent taint (must be before any other checks)
 	if not textStatusBar then return end
-	
-	local parent = textStatusBar:GetParent()
-	
-	-- Check if textStatusBar itself or its parent is a secure frame
-	if textStatusBar == TargetFrameToT or textStatusBar == FocusFrameToT or
-	   parent == PetFrame or parent == TargetFrameToT or parent == FocusFrameToT or
-	   (parent and parent:GetParent() == PetFrame) or
-	   (parent and parent:GetParent() == TargetFrameToT) or
-	   (parent and parent:GetParent() == FocusFrameToT) then
-		return
-	end
-	
-	-- Check for Boss and Raid frames by name
-	if parent and parent:GetName() then
-		local parentName = parent:GetName()
-		if parentName:match("^Boss%d+TargetFrame") or
-		   parentName:match("^RaidGroupButton%d+") or
-		   parentName:match("^TargetFrameToT") or
-		   parentName:match("^FocusFrameToT") then
-			return
-		end
-	end
-	
-	-- Skip during combat to prevent taint on secure frames
-	if InCombatLockdown() then
-		return
-	end
 	
 	local textString = textStatusBar.TextString
 	if(textString) then
