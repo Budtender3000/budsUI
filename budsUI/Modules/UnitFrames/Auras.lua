@@ -28,10 +28,11 @@ local function TargetAuraColour(self)
 	-- Skip secure frames to prevent taint
 	if not self or not self.unit then return end
 	local unitType = self.unit
-	-- Skip pet, ToT, raid, and party pet frames
+	-- Skip pet, ToT, raid, party pet, and boss frames
 	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
 	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
+	   unitType:match("^boss%d+") then
 		return
 	end
 	
@@ -100,10 +101,11 @@ local function TargetAuraPosit(self, auraName, numAuras, numOppositeAuras, large
 	-- Skip secure frames to prevent taint
 	if not self or not self.unit then return end
 	local unitType = self.unit
-	-- Skip pet, ToT, raid, and party pet frames
+	-- Skip pet, ToT, raid, party pet, and boss frames
 	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
 	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
+	   unitType:match("^boss%d+") then
 		return
 	end
 	
@@ -151,10 +153,11 @@ local function TargetDebuffPosit(self, debuffName, index, numBuffs, anchorIndex,
 	-- Skip secure frames to prevent taint
 	if not self or not self.unit then return end
 	local unitType = self.unit
-	-- Skip pet, ToT, raid, and party pet frames
+	-- Skip pet, ToT, raid, party pet, and boss frames
 	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
 	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
+	   unitType:match("^boss%d+") then
 		return
 	end
 	

@@ -8,9 +8,10 @@ if C.Unitframe.ClassHealth == false and C.Unitframe.PercentHealth == true then
 		-- self is the health bar, check the unit property
 		if not self or not self.unit then return end
 		local unitType = self.unit
-		-- Skip pet, ToT, and raid frames
+		-- Skip pet, ToT, raid, and boss frames
 		if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-		   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+		   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
+		   unitType:match("^boss%d+") then
 			return
 		end
 		

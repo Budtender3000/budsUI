@@ -196,10 +196,11 @@ if not InCombatLockdown() then
 			-- Skip secure frames to prevent taint
 			if not self or not self.unit then return end
 			local unitType = self.unit
-			-- Skip pet, ToT, raid, and party pet frames
+			-- Skip pet, ToT, raid, party pet, and boss frames
 			if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
 			   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-			   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+			   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
+			   unitType:match("^boss%d+") then
 				return
 			end
 			
@@ -224,9 +225,10 @@ if not InCombatLockdown() then
 			-- statusbar is the health bar, not the frame itself
 			if not statusbar or not statusbar.unit then return end
 			local unitType = statusbar.unit
-			-- Skip pet, ToT, and raid frames
+			-- Skip pet, ToT, raid, and boss frames
 			if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-			   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+			   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
+			   unitType:match("^boss%d+") then
 				return
 			end
 			

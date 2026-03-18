@@ -86,6 +86,12 @@ EnhancedFrames_Style_PlayerFrame = function()
 end
 
 EnhancedFrames_Style_TargetFrame = function(self)
+	-- Skip secure frames to prevent taint
+	if not self or not self.unit then return end
+	local unitType = self.unit
+	-- Skip boss frames
+	if unitType:match("^boss%d+") then return end
+	
 	if not InCombatLockdown() then
 		local classification = UnitClassification(self.unit)
 		if (classification == "minus") then
@@ -111,6 +117,9 @@ end
 
 EnhancedFrames_BossTargetFrame_Style = function(self)
 	if not self then return end
+	
+	-- Skip during combat to prevent taint
+	if InCombatLockdown() then return end
 
 	if self.borderTexture then
 		self.borderTexture:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\UI-UnitFrame-Boss]])
@@ -199,10 +208,11 @@ EnhancedFrames_TargetFrame_Update = function(self)
 	-- Skip secure frames to prevent taint
 	if not self or not self.unit then return end
 	local unitType = self.unit
-	-- Skip ToT, pet, and raid frames
+	-- Skip ToT, pet, raid, and boss frames
 	if self == TargetFrameToT or self == FocusFrameToT or
 	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
+	   unitType:match("^boss%d+") then
 		return
 	end
 	
@@ -221,10 +231,11 @@ EnhancedFrames_Target_Classification = function(self, forceNormalTexture)
 	-- Skip secure frames to prevent taint
 	if not self or not self.unit then return end
 	local unitType = self.unit
-	-- Skip ToT, pet, and raid frames
+	-- Skip ToT, pet, raid, and boss frames
 	if self == TargetFrameToT or self == FocusFrameToT or
 	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
+	   unitType:match("^boss%d+") then
 		return
 	end
 	
@@ -255,10 +266,11 @@ EnhancedFrames_TargetFrame_CheckFaction = function(self)
 	-- Skip secure frames to prevent taint
 	if not self or not self.unit then return end
 	local unitType = self.unit
-	-- Skip ToT, pet, and raid frames
+	-- Skip ToT, pet, raid, and boss frames
 	if self == TargetFrameToT or self == FocusFrameToT or
 	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") then
+	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
+	   unitType:match("^boss%d+") then
 		return
 	end
 	
