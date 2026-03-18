@@ -130,15 +130,26 @@ end
 
 EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
 	-- Skip secure frames FIRST to prevent taint (must be before any other checks)
-	if textStatusBar then
-		local parent = textStatusBar:GetParent()
-		-- Check for PetFrame, ToT frames, Boss frames, and Raid frames
-		if parent == PetFrame or parent == TargetFrameToT or parent == FocusFrameToT or
-		   (parent and parent:GetParent() == PetFrame) or
-		   (parent and parent:GetName() and (
-		       parent:GetName():match("^Boss%d+TargetFrame") or
-		       parent:GetName():match("^RaidGroupButton%d+")
-		   )) then
+	if not textStatusBar then return end
+	
+	local parent = textStatusBar:GetParent()
+	
+	-- Check if textStatusBar itself or its parent is a secure frame
+	if textStatusBar == TargetFrameToT or textStatusBar == FocusFrameToT or
+	   parent == PetFrame or parent == TargetFrameToT or parent == FocusFrameToT or
+	   (parent and parent:GetParent() == PetFrame) or
+	   (parent and parent:GetParent() == TargetFrameToT) or
+	   (parent and parent:GetParent() == FocusFrameToT) then
+		return
+	end
+	
+	-- Check for Boss and Raid frames by name
+	if parent and parent:GetName() then
+		local parentName = parent:GetName()
+		if parentName:match("^Boss%d+TargetFrame") or
+		   parentName:match("^RaidGroupButton%d+") or
+		   parentName:match("^TargetFrameToT") or
+		   parentName:match("^FocusFrameToT") then
 			return
 		end
 	end
