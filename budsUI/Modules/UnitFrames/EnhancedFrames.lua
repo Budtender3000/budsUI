@@ -129,11 +129,16 @@ EnhancedFrames_BossTargetFrame_Style = function(self)
 end
 
 EnhancedFrames_UpdateTextStringWithValues = function(textStatusBar)
-	-- Skip PetFrame FIRST to prevent taint (must be before any other checks)
+	-- Skip secure frames FIRST to prevent taint (must be before any other checks)
 	if textStatusBar then
 		local parent = textStatusBar:GetParent()
-		-- Check direct parent and parent's parent for PetFrame
-		if parent == PetFrame or (parent and parent:GetParent() == PetFrame) then
+		-- Check for PetFrame, ToT frames, Boss frames, and Raid frames
+		if parent == PetFrame or parent == TargetFrameToT or parent == FocusFrameToT or
+		   (parent and parent:GetParent() == PetFrame) or
+		   (parent and parent:GetName() and (
+		       parent:GetName():match("^Boss%d+TargetFrame") or
+		       parent:GetName():match("^RaidGroupButton%d+")
+		   )) then
 			return
 		end
 	end
