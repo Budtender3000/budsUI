@@ -257,7 +257,27 @@ local function TargetDebuffPosit(self, debuffName, index, numBuffs, anchorIndex,
 end
 
 do
-	hooksecurefunc("RefreshDebuffs", TargetAuraColour)
+	-- Only hook TargetFrame and FocusFrame to prevent taint on secure frames
+	-- RefreshDebuffs is global and affects ALL frames including raid frames
+	-- We replace it with frame-specific hooks
+	
+	if TargetFrame then
+		hooksecurefunc(TargetFrame, "Show", function(self)
+			if not InCombatLockdown() then
+				TargetAuraColour(self)
+			end
+		end)
+	end
+	
+	if FocusFrame then
+		hooksecurefunc(FocusFrame, "Show", function(self)
+			if not InCombatLockdown() then
+				TargetAuraColour(self)
+			end
+		end)
+	end
+	
+	-- Keep TargetFrame-specific hooks as they only affect TargetFrame/FocusFrame
 	hooksecurefunc("TargetFrame_UpdateAuras", TargetAuraColour)
 	hooksecurefunc("TargetFrame_UpdateAuraPositions", TargetAuraPosit)
 	hooksecurefunc("TargetFrame_UpdateDebuffAnchor", TargetDebuffPosit)
