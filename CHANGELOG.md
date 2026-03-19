@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.5] - 2025-01-13
+
+### Fixed
+- **Critical Taint Fixes - Complete Solution:** Eliminated all remaining secure frame taint issues
+  - **TargetFrameToT:Show() Taint:** Removed all global Blizzard function hooks affecting TargetFrame
+    - Removed `TargetFrame_UpdateAuras`, `TargetFrame_UpdateAuraPositions`, `TargetFrame_UpdateDebuffAnchor` hooks
+    - Removed `TargetFrame_CheckDead`, `TargetFrame_Update`, `TargetFrame_CheckFaction`, `TargetFrame_CheckClassification` hooks
+    - Replaced with UNIT_AURA event-based system and frame-specific Show hooks
+  - **PetFrame:SetAttribute() Taint:** Simplified aura function guards to only process TargetFrame and FocusFrame
+    - Changed from complex pattern matching to direct frame identity checks
+    - Prevents any accidental processing of secure frames (PetFrame, TargetFrameToT, RaidGroupButtons, etc.)
+  - **Boss2TargetFrame:Hide() Taint:** Removed BossTargetFrame_OnLoad hook
+    - Boss frames now use default Blizzard styling to prevent taint
+  - **RaidGroupButton:SetPoint() Taint:** Enhanced raid frame protection in all aura functions
+    - Early return for any frame that isn't TargetFrame or FocusFrame
+
+### Changed
+- **Aura System Architecture:** Complete refactor for taint-free operation
+  - Aura functions now use whitelist approach (only TargetFrame/FocusFrame) instead of blacklist
+  - Event-driven updates replace global function hooks
+  - All secure frame manipulation eliminated from addon code
+
+### Technical Details
+- Global Blizzard function hooks were causing taint because:
+  - Blizzard calls these functions internally for ALL frames including secure frames
+  - Even with guards to skip secure frames, the hook itself taints the execution path
+  - Solution: Never hook global Blizzard functions that affect secure frames
+- This release completes the taint fix initiative started in v0.6.3 and v0.6.4
+
 ## [0.6.4] - 2025-01-13
 
 ### Fixed

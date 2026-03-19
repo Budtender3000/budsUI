@@ -33,30 +33,12 @@ local BEAUTY_SPACING = 1
 
 -- AURAS
 local function TargetAuraColour(self)
-	-- Skip secure frames FIRST to prevent taint
-	if not self then return end
-	
-	-- Check frame object directly before accessing properties
-	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT then
+	-- CRITICAL: Only process TargetFrame and FocusFrame, reject everything else immediately
+	if self ~= TargetFrame and self ~= FocusFrame then
 		return
 	end
 	
-	-- Check by name pattern for raid/boss frames
-	local frameName = self:GetName()
-	if frameName and (frameName:match("^RaidGroupButton%d+") or 
-	                  frameName:match("^Boss%d+TargetFrame") or
-	                  frameName:match("^CompactRaidFrame%d+")) then
-		return
-	end
-	
-	-- Check unit type
-	if not self.unit then return end
-	local unitType = self.unit
-	if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
-	   unitType:match("^boss%d+") then
-		return
-	end
+	if not self or not self.unit then return end
 	
 	-- buffs
 	for i = 1, MAX_TARGET_BUFFS do
@@ -120,32 +102,12 @@ local beauty = _G["!BeautyCase"] or _G["BeautyCase"]
 
 -- reposition
 local function TargetAuraPosit(self, auraName, numAuras, numOppositeAuras, largeAuraList, updateFunc, maxRowWidth, offsetX, mirrorAurasVertically)
-	-- Skip secure frames FIRST to prevent taint
-	if not self then return end
-	
-	-- Check frame object directly
-	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT then
+	-- CRITICAL: Only process TargetFrame and FocusFrame, reject everything else immediately
+	if self ~= TargetFrame and self ~= FocusFrame then
 		return
 	end
 	
-	-- Check by name pattern
-	local frameName = self:GetName()
-	if frameName and (frameName:match("^RaidGroupButton%d+") or 
-	                  frameName:match("^Boss%d+TargetFrame") or
-	                  frameName:match("^CompactRaidFrame%d+")) then
-		return
-	end
-	
-	-- Check unit type
-	if not self.unit then return end
-	local unitType = self.unit
-	if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
-	   unitType:match("^boss%d+") then
-		return
-	end
-	
-	if not beauty then return end
+	if not self or not self.unit or not beauty then return end
 	do
 		local AURA_OFFSET_Y = C.Unitframe.AuraOffsetY
 		local LARGE_AURA_SIZE = C.Unitframe.LargeAuraSize
@@ -186,30 +148,12 @@ end
 
 -- debuff reposition
 local function TargetDebuffPosit(self, debuffName, index, numBuffs, anchorIndex, size, offsetX, offsetY, mirrorVertically)
-	-- Skip secure frames FIRST to prevent taint
-	if not self then return end
-	
-	-- Check frame object directly
-	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT then
+	-- CRITICAL: Only process TargetFrame and FocusFrame, reject everything else immediately
+	if self ~= TargetFrame and self ~= FocusFrame then
 		return
 	end
 	
-	-- Check by name pattern
-	local frameName = self:GetName()
-	if frameName and (frameName:match("^RaidGroupButton%d+") or 
-	                  frameName:match("^Boss%d+TargetFrame") or
-	                  frameName:match("^CompactRaidFrame%d+")) then
-		return
-	end
-	
-	-- Check unit type
-	if not self.unit then return end
-	local unitType = self.unit
-	if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
-	   unitType:match("^boss%d+") then
-		return
-	end
+	if not self or not self.unit then return end
 	
 	local dbuff = _G[debuffName..index]
 	local isFriend = UnitIsFriend("player", self.unit)
@@ -274,6 +218,11 @@ do
 	local auraWatcher = CreateFrame("Frame")
 	auraWatcher:RegisterEvent("UNIT_AURA")
 	auraWatcher:SetScript("OnEvent", function(self, event, unit)
+		-- CRITICAL: Only handle target and focus, never raid/party/pet units
+		if not unit or unit:match("^raid") or unit:match("^party") or unit == "pet" then
+			return
+		end
+		
 		if not InCombatLockdown() then
 			if unit == "target" and TargetFrame and TargetFrame:IsVisible() then
 				TargetAuraColour(TargetFrame)

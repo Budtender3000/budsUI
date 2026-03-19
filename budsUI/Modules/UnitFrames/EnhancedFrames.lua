@@ -88,25 +88,45 @@ EnableEnhancedFrames = function()
 	hooksecurefunc("PlayerFrame_ToPlayerArt", EnhancedFrames_PlayerFrame_ToPlayerArt)
 	hooksecurefunc("PlayerFrame_ToVehicleArt", EnhancedFrames_PlayerFrame_ToVehicleArt)
 
-	-- HOOK TARGETFRAME FUNCTIONS
-	hooksecurefunc("TargetFrame_CheckDead", EnhancedFrames_TargetFrame_Update)
-	hooksecurefunc("TargetFrame_Update", EnhancedFrames_TargetFrame_Update)
-	hooksecurefunc("TargetFrame_CheckFaction", EnhancedFrames_TargetFrame_CheckFaction)
-	hooksecurefunc("TargetFrame_CheckClassification", EnhancedFrames_Target_Classification)
-	-- Removed TargetofTarget_Update hook to prevent taint on TargetFrameToT:Show()
+	-- HOOK TARGETFRAME FUNCTIONS - Use frame-specific hooks to prevent taint
+	-- Global hooks (TargetFrame_Update, etc.) affect ALL frames including TargetFrameToT
+	-- This causes taint on TargetFrameToT:Show() even with guards in the hook functions
+	
+	-- Hook TargetFrame specifically
+	if TargetFrame then
+		hooksecurefunc(TargetFrame, "Show", function(self)
+			if not InCombatLockdown() then
+				EnhancedFrames_TargetFrame_Update(self)
+			end
+		end)
+	end
+	
+	-- Hook FocusFrame specifically
+	if FocusFrame then
+		hooksecurefunc(FocusFrame, "Show", function(self)
+			if not InCombatLockdown() then
+				EnhancedFrames_TargetFrame_Update(self)
+			end
+		end)
+	end
+	
+	-- Removed global hooks to prevent taint:
+	-- hooksecurefunc("TargetFrame_CheckDead", EnhancedFrames_TargetFrame_Update)
+	-- hooksecurefunc("TargetFrame_Update", EnhancedFrames_TargetFrame_Update)
+	-- hooksecurefunc("TargetFrame_CheckFaction", EnhancedFrames_TargetFrame_CheckFaction)
+	-- hooksecurefunc("TargetFrame_CheckClassification", EnhancedFrames_Target_Classification)
 
-	-- BOSSFRAME HOOKS
-	hooksecurefunc("BossTargetFrame_OnLoad", EnhancedFrames_BossTargetFrame_Style)
+	-- BOSSFRAME HOOKS REMOVED - Causes taint on Boss2TargetFrame:Hide()
+	-- Boss frames will use default Blizzard styling to prevent taint issues
+	-- hooksecurefunc("BossTargetFrame_OnLoad", EnhancedFrames_BossTargetFrame_Style)
 
 	hooksecurefunc("PartyMemberFrame_ToPlayerArt", EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt)
 	hooksecurefunc("PartyMemberFrame_ToVehicleArt", EnhancedPartyFrames_PartyMemberFrame_ToVehicleArt)
 
 	-- SET UP SOME STYLINGS
 	EnhancedFrames_Style_PlayerFrame()
-	EnhancedFrames_BossTargetFrame_Style(Boss1TargetFrame)
-	EnhancedFrames_BossTargetFrame_Style(Boss2TargetFrame)
-	EnhancedFrames_BossTargetFrame_Style(Boss3TargetFrame)
-	EnhancedFrames_BossTargetFrame_Style(Boss4TargetFrame)
+	-- Boss frames are styled via BossTargetFrame_OnLoad hook only, not directly
+	-- Direct styling causes taint on Boss2TargetFrame:Hide()
 	EnhancedFrames_Style_TargetFrame(TargetFrame)
 	EnhancedFrames_Style_TargetFrame(FocusFrame)
 
