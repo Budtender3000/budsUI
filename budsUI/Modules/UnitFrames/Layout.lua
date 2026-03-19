@@ -48,175 +48,198 @@ if C.Unitframe.Enable == true then
 	Unitframes:RegisterEvent("ADDON_LOADED")
 	Unitframes:SetScript("OnEvent", function(self, event, addon)
 		if (addon ~= "budsUI") then return end
-		if not InCombatLockdown() then
-			-- UnitFrame_Update hook removed - caused PetFrame taint issues
-			
-			-- Font Helper
-			local function SetUnitFont(fontString, sizeAdj)
-				local size = C.Media.Font_Size + (sizeAdj or 0)
-				if C.Unitframe.Outline then
-					fontString:SetFont(C.Media.Font, size, C.Media.Font_Style)
-					fontString:SetShadowOffset(0, -0)
-				else
-					fontString:SetFont(C.Media.Font, size)
-					fontString:SetShadowOffset(K.Mult, -K.Mult)
-				end
-			end
-
-			-- Font Strings Configuration
-			local unitFramesFontStrings = {
-				-- Generic Unit Font
-				[1] = {
-					PlayerName, TargetFrameTextureFrameName, FocusFrameTextureFrameName,
-					PlayerFrameHealthBarText, PlayerFrameManaBarText,
-					TargetFrameTextureFrameHealthBarText, TargetFrameTextureFrameManaBarText,
-					FocusFrameTextureFrameHealthBarText, FocusFrameTextureFrameManaBarText,
-					PetFrameHealthBarText, PetFrameManaBarText
-				},
-				-- Party Font (Size adjusted)
-				[-3] = {
-					PartyMemberFrame1HealthBarText, PartyMemberFrame1ManaBarText,
-					PartyMemberFrame2HealthBarText, PartyMemberFrame2ManaBarText,
-					PartyMemberFrame3HealthBarText, PartyMemberFrame3ManaBarText,
-					PartyMemberFrame4HealthBarText, PartyMemberFrame4ManaBarText,
-				},
-				-- Level Font (Size adjusted)
-				[1] = {
-					PlayerLevelText, TargetFrameTextureFrameLevelText, FocusFrameTextureFrameLevelText
-				}
-			}
-
-			for adj, frames in pairs(unitFramesFontStrings) do
-				for _, fontString in ipairs(frames) do
-					SetUnitFont(fontString, adj)
-				end
-			end
-
-
-			-- Tweak Party Frame
-			for i = 1, MAX_PARTY_MEMBERS do
-				_G["PartyMemberFrame"..i]:SetScale(C.Unitframe.Scale)
-			end
-			PartyMemberBuffTooltip:Kill() -- I personally hate this shit.
-
-			if not InCombatLockdown() then
-				-- Tweak Player Frame
-				PlayerFrame:SetMovable(true)
-				PlayerFrame:ClearAllPoints()
-				PlayerFrame:SetPoint("CENTER", PlayerFrameAnchor, "CENTER", -PLAYER_TARGET_X, PLAYER_TARGET_Y)
-				PlayerFrame:SetMovable(false)
-			end
-
-			-- Hide Pet Name.
-			PetName:Hide()
-
-			if not InCombatLockdown() then
-				-- Tweak Target Frame
-				TargetFrame:SetMovable(true)
-				TargetFrame:ClearAllPoints()
-				TargetFrame:SetPoint("CENTER", TargetFrameAnchor, "CENTER", PLAYER_TARGET_X, PLAYER_TARGET_Y)
-				TargetFrame:SetMovable(false)
-			end
-			-- Tweak Name Background
-			TargetFrameNameBackground:SetTexture(0, 0, 0, 0.01)
-
-			-- Tweak Focus Frame
-			FocusFrame:ClearAllPoints()
-			FocusFrame:SetPoint(unpack(C.Position.UnitFrames.Focus))
-			-- Tweak Name Background
-			FocusFrameNameBackground:SetTexture(0, 0, 0, 0.01)
-
-			if not InCombatLockdown() then
-				for _, FrameScale in pairs({
-					PlayerFrame,
-					TargetFrame,
-					FocusFrame,
-				}) do
-					FrameScale:SetScale(C.Unitframe.Scale)
-				end
-			end
-
-			if not InCombatLockdown() then
-				-- Tweak Focus Frame ToT (must be protected)
-				FocusFrameToT:SetScale(1.0)
-				FocusFrameToT:ClearAllPoints()
-				FocusFrameToT:SetPoint("TOP", FocusFrame, "BOTTOM", FOCUS_TOT_X, FOCUS_TOT_Y)
-			end
-
-			-- Arena Frames Scaling
-			local function SetArenaFrames()
-				for i = 1, MAX_ARENA_ENEMIES do
-					_G["ArenaEnemyFrame"..i]:SetScale(C.Unitframe.Scale)
-					ArenaEnemyFrames:SetPoint(unpack(C.Position.UnitFrames.Arena))
-				end
-			end
-
-			if IsAddOnLoaded("Blizzard_ArenaUI") then
-				SetArenaFrames()
-			else
-				local f = CreateFrame("Frame")
-				f:RegisterEvent("ADDON_LOADED")
-				f:SetScript("OnEvent", function(self, event, addon)
-					if (addon == "Blizzard_ArenaUI") then
-						self:UnregisterEvent(event)
-						SetArenaFrames()
-					end
-				end)
-			end
-
-			-- RuneFrame
-			if K.Class == "DEATHKNIGHT" then
-				RuneFrame:ClearAllPoints()
-				RuneFrame:SetPoint("TOPLEFT", PlayerFrameManaBar, "BOTTOMLEFT", RUNE_OFFSET_X, RUNE_OFFSET_Y)
-				for i = 1, 6 do
-					_G["RuneButtonIndividual"..i]:SetScale(C.Unitframe.Scale)
-				end
-			end
-
-			-- ComboFrame
-			if K.Class == "ROGUE" or K.Class == "DRUID" then
-				for i = 1, 5 do
-					_G["ComboPoint"..i]:SetScale(C.Unitframe.Scale)
-				end
-
-				if C.Unitframe.ComboFrame == true then
-					ComboFrame:Kill()
-				end
-			end
-
-			self:UnregisterEvent("ADDON_LOADED")
+		-- TAINT FIX: All frame manipulation must be outside combat
+		if InCombatLockdown() then
+			-- Defer to after combat
+			local combatFrame = CreateFrame("Frame")
+			combatFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+			combatFrame:SetScript("OnEvent", function(cf)
+				cf:UnregisterAllEvents()
+				-- Retry the initialization
+				Unitframes:GetScript("OnEvent")(Unitframes, "ADDON_LOADED", "budsUI")
+			end)
+			return
 		end
+		
+		-- UnitFrame_Update hook removed - caused PetFrame taint issues
+		
+		-- Font Helper
+		local function SetUnitFont(fontString, sizeAdj)
+			local size = C.Media.Font_Size + (sizeAdj or 0)
+			if C.Unitframe.Outline then
+				fontString:SetFont(C.Media.Font, size, C.Media.Font_Style)
+				fontString:SetShadowOffset(0, -0)
+			else
+				fontString:SetFont(C.Media.Font, size)
+				fontString:SetShadowOffset(K.Mult, -K.Mult)
+			end
+		end
+
+		-- Font Strings Configuration
+		local unitFramesFontStrings = {
+			-- Generic Unit Font
+			[1] = {
+				PlayerName, TargetFrameTextureFrameName, FocusFrameTextureFrameName,
+				PlayerFrameHealthBarText, PlayerFrameManaBarText,
+				TargetFrameTextureFrameHealthBarText, TargetFrameTextureFrameManaBarText,
+				FocusFrameTextureFrameHealthBarText, FocusFrameTextureFrameManaBarText,
+				PetFrameHealthBarText, PetFrameManaBarText
+			},
+			-- Party Font (Size adjusted)
+			[-3] = {
+				PartyMemberFrame1HealthBarText, PartyMemberFrame1ManaBarText,
+				PartyMemberFrame2HealthBarText, PartyMemberFrame2ManaBarText,
+				PartyMemberFrame3HealthBarText, PartyMemberFrame3ManaBarText,
+				PartyMemberFrame4HealthBarText, PartyMemberFrame4ManaBarText,
+			},
+			-- Level Font (Size adjusted)
+			[1] = {
+				PlayerLevelText, TargetFrameTextureFrameLevelText, FocusFrameTextureFrameLevelText
+			}
+		}
+
+		for adj, frames in pairs(unitFramesFontStrings) do
+			for _, fontString in ipairs(frames) do
+				SetUnitFont(fontString, adj)
+			end
+		end
+
+
+		-- Tweak Party Frame
+		for i = 1, MAX_PARTY_MEMBERS do
+			_G["PartyMemberFrame"..i]:SetScale(C.Unitframe.Scale)
+		end
+		PartyMemberBuffTooltip:Kill() -- I personally hate this shit.
+
+		-- TAINT FIX: Tweak Player Frame (protected frame)
+		PlayerFrame:SetMovable(true)
+		PlayerFrame:ClearAllPoints()
+		PlayerFrame:SetPoint("CENTER", PlayerFrameAnchor, "CENTER", -PLAYER_TARGET_X, PLAYER_TARGET_Y)
+		PlayerFrame:SetMovable(false)
+
+		-- Hide Pet Name.
+		PetName:Hide()
+
+		-- TAINT FIX: Tweak Target Frame (protected frame)
+		TargetFrame:SetMovable(true)
+		TargetFrame:ClearAllPoints()
+		TargetFrame:SetPoint("CENTER", TargetFrameAnchor, "CENTER", PLAYER_TARGET_X, PLAYER_TARGET_Y)
+		TargetFrame:SetMovable(false)
+		-- Tweak Name Background
+		TargetFrameNameBackground:SetTexture(0, 0, 0, 0.01)
+
+		-- Tweak Focus Frame
+		FocusFrame:ClearAllPoints()
+		FocusFrame:SetPoint(unpack(C.Position.UnitFrames.Focus))
+		-- Tweak Name Background
+		FocusFrameNameBackground:SetTexture(0, 0, 0, 0.01)
+
+		-- TAINT FIX: Scale frames (protected frames)
+		for _, FrameScale in pairs({
+			PlayerFrame,
+			TargetFrame,
+			FocusFrame,
+		}) do
+			FrameScale:SetScale(C.Unitframe.Scale)
+		end
+
+		-- TAINT FIX: Tweak Focus Frame ToT (protected frame)
+		FocusFrameToT:SetScale(1.0)
+		FocusFrameToT:ClearAllPoints()
+		FocusFrameToT:SetPoint("TOP", FocusFrame, "BOTTOM", FOCUS_TOT_X, FOCUS_TOT_Y)
+
+		-- Arena Frames Scaling
+		local function SetArenaFrames()
+			for i = 1, MAX_ARENA_ENEMIES do
+				_G["ArenaEnemyFrame"..i]:SetScale(C.Unitframe.Scale)
+				ArenaEnemyFrames:SetPoint(unpack(C.Position.UnitFrames.Arena))
+			end
+		end
+
+		if IsAddOnLoaded("Blizzard_ArenaUI") then
+			SetArenaFrames()
+		else
+			local f = CreateFrame("Frame")
+			f:RegisterEvent("ADDON_LOADED")
+			f:SetScript("OnEvent", function(self, event, addon)
+				if (addon == "Blizzard_ArenaUI") then
+					self:UnregisterEvent(event)
+					SetArenaFrames()
+				end
+			end)
+		end
+
+		-- RuneFrame
+		if K.Class == "DEATHKNIGHT" then
+			RuneFrame:ClearAllPoints()
+			RuneFrame:SetPoint("TOPLEFT", PlayerFrameManaBar, "BOTTOMLEFT", RUNE_OFFSET_X, RUNE_OFFSET_Y)
+			for i = 1, 6 do
+				_G["RuneButtonIndividual"..i]:SetScale(C.Unitframe.Scale)
+			end
+		end
+
+		-- ComboFrame
+		if K.Class == "ROGUE" or K.Class == "DRUID" then
+			for i = 1, 5 do
+				_G["ComboPoint"..i]:SetScale(C.Unitframe.Scale)
+			end
+
+			if C.Unitframe.ComboFrame == true then
+				ComboFrame:Kill()
+			end
+		end
+
+		self:UnregisterEvent("ADDON_LOADED")
 	end)
 end
 
 -- Class Icons
 if not InCombatLockdown() then
 	if C.Unitframe.ClassIcon == true then
-		hooksecurefunc("UnitFramePortrait_Update", function(self)
-			-- Skip secure frames FIRST to prevent taint
-			if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT then
-				return
-			end
+		-- TAINT FIX: Use frame-specific hooks instead of global UnitFramePortrait_Update
+		-- Global hook affects PetFrame and causes taint on PetFrame:SetAttribute()
+		
+		local function UpdateClassIcon(self)
+			if not self or not self.unit or not self.portrait then return end
 			
-			if not self or not self.unit then return end
-			local unitType = self.unit
-			-- Skip pet, ToT, raid, party pet, and boss frames by unit type
-			if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-			   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
-			   unitType:match("^boss%d+") then
-				return
-			end
-			
-			if self.portrait then
-				if UnitIsPlayer(self.unit) then
-					local t = CLASS_ICON_TCOORDS[select(2, UnitClass(self.unit))]
-					if t then
-						self.portrait:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
-						self.portrait:SetTexCoord(unpack(t))
-					end
-				else
-					self.portrait:SetTexCoord(0, 1, 0, 1)
+			if UnitIsPlayer(self.unit) then
+				local t = CLASS_ICON_TCOORDS[select(2, UnitClass(self.unit))]
+				if t then
+					self.portrait:SetTexture("Interface\\TargetingFrame\\UI-Classes-Circles")
+					self.portrait:SetTexCoord(unpack(t))
 				end
+			else
+				self.portrait:SetTexCoord(0, 1, 0, 1)
+			end
+		end
+		
+		-- Hook only specific frames, not the global function
+		if PlayerFrame then
+			hooksecurefunc(PlayerFrame, "Show", function(self)
+				UpdateClassIcon(self)
+			end)
+		end
+		if TargetFrame then
+			hooksecurefunc(TargetFrame, "Show", function(self)
+				UpdateClassIcon(self)
+			end)
+		end
+		if FocusFrame then
+			hooksecurefunc(FocusFrame, "Show", function(self)
+				UpdateClassIcon(self)
+			end)
+		end
+		
+		-- Use UNIT_PORTRAIT_UPDATE event for updates
+		local portraitWatcher = CreateFrame("Frame")
+		portraitWatcher:RegisterEvent("UNIT_PORTRAIT_UPDATE")
+		portraitWatcher:SetScript("OnEvent", function(self, event, unit)
+			if unit == "player" and PlayerFrame then
+				UpdateClassIcon(PlayerFrame)
+			elseif unit == "target" and TargetFrame then
+				UpdateClassIcon(TargetFrame)
+			elseif unit == "focus" and FocusFrame then
+				UpdateClassIcon(FocusFrame)
 			end
 		end)
 	end

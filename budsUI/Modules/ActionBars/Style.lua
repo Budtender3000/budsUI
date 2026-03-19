@@ -10,16 +10,17 @@ local tostring = tostring
 local NUM_PET_ACTION_SLOTS = NUM_PET_ACTION_SLOTS
 local hooksecurefunc = hooksecurefunc
 
+-- Cache for hotkey strings to avoid repeated gsub calls
+local hotkeyCache = {}
+
 local function StyleNormalButton(self)
 	if not self then return end
 	local name = self:GetName()
 	if not name or name:match("MultiCast") then return end
 	
+	-- TAINT FIX: Handle already skinned buttons during combat
 	if self.isSkinned then
-		if self:GetHeight() ~= C.ActionBar.ButtonSize and not InCombatLockdown() then
-			self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
-		end
-
+		-- Only visual updates during combat (no SetSize/SetPoint)
 		local border = _G[name.."Border"]
 		if border and self.backdrop then
 			if border:IsShown() and C.ActionBar.EquipBorder then
@@ -27,6 +28,11 @@ local function StyleNormalButton(self)
 			else
 				self.backdrop:SetBackdropBorderColor(unpack(C.Media.Border_Color))
 			end
+		end
+		
+		-- Resize only outside combat
+		if not InCombatLockdown() and self:GetHeight() ~= C.ActionBar.ButtonSize then
+			self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
 		end
 		return 
 	end
@@ -85,12 +91,12 @@ local function StyleNormalButton(self)
 		end
 	end
 
-	if self:GetHeight() ~= C.ActionBar.ButtonSize and not InCombatLockdown() then
+	-- Skip all secure operations during combat to prevent taint
+	if InCombatLockdown() then return end
+	
+	if self:GetHeight() ~= C.ActionBar.ButtonSize then
 		self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
 	end
-	
-	-- Skip backdrop creation during combat to prevent taint
-	if InCombatLockdown() then return end
 	
 	button:CreateBackdrop()
 	button.backdrop:SetOutside()
@@ -208,50 +214,66 @@ end
 
 local function UpdateHotkey(button, type)
 	local hotkey = _G[button:GetName() .. "HotKey"]
+	if not hotkey then return end
+	
 	local text = hotkey:GetText()
 	local indicator = _G["RANGE_INDICATOR"]
 
 	if (not text) then
 		return
 	end
+	
+	-- Check cache first
+	if hotkeyCache[text] then
+		if text == indicator then
+			hotkey:SetText("")
+		else
+			hotkey:SetText(hotkeyCache[text])
+		end
+		return
+	end
 
-	text = gsub(text, "(s%-)", "S")
-	text = gsub(text, "(a%-)", "A")
-	text = gsub(text, "(c%-)", "C")
-	text = gsub(text, KEY_MOUSEWHEELDOWN , "MDn")
-    text = gsub(text, KEY_MOUSEWHEELUP , "MUp")
-	text = gsub(text, KEY_BUTTON3, "M3")
-	text = gsub(text, KEY_BUTTON4, "M4")
-	text = gsub(text, KEY_BUTTON5, "M5")
-	text = gsub(text, KEY_MOUSEWHEELUP, "MU")
-	text = gsub(text, KEY_MOUSEWHEELDOWN, "MD")
-	text = gsub(text, KEY_NUMPAD0, "N0")
-    text = gsub(text, KEY_NUMPAD1, "N1")
-    text = gsub(text, KEY_NUMPAD2, "N2")
-    text = gsub(text, KEY_NUMPAD3, "N3")
-    text = gsub(text, KEY_NUMPAD4, "N4")
-    text = gsub(text, KEY_NUMPAD5, "N5")
-    text = gsub(text, KEY_NUMPAD6, "N6")
-    text = gsub(text, KEY_NUMPAD7, "N7")
-    text = gsub(text, KEY_NUMPAD8, "N8")
-    text = gsub(text, KEY_NUMPAD9, "N9")
-    text = gsub(text, KEY_NUMPADDECIMAL, "N.")
-    text = gsub(text, KEY_NUMPADDIVIDE, "N/")
-    text = gsub(text, KEY_NUMPADMINUS, "N-")
-    text = gsub(text, KEY_NUMPADMULTIPLY, "N*")
-    text = gsub(text, KEY_NUMPADPLUS, "N+")
-	text = gsub(text, KEY_PAGEUP, "PU")
-	text = gsub(text, KEY_PAGEDOWN, "PD")
-	text = gsub(text, KEY_SPACE, "SpB")
-	text = gsub(text, KEY_INSERT, "Ins")
-	text = gsub(text, KEY_HOME, "Hm")
-	text = gsub(text, KEY_DELETE, "Del")
-	text = gsub(text, KEY_INSERT_MAC, "Hlp") -- mac
+	-- Process and cache the result
+	local processedText = text
+	processedText = gsub(processedText, "(s%-)", "S")
+	processedText = gsub(processedText, "(a%-)", "A")
+	processedText = gsub(processedText, "(c%-)", "C")
+	processedText = gsub(processedText, KEY_MOUSEWHEELDOWN , "MDn")
+	processedText = gsub(processedText, KEY_MOUSEWHEELUP , "MUp")
+	processedText = gsub(processedText, KEY_BUTTON3, "M3")
+	processedText = gsub(processedText, KEY_BUTTON4, "M4")
+	processedText = gsub(processedText, KEY_BUTTON5, "M5")
+	processedText = gsub(processedText, KEY_MOUSEWHEELUP, "MU")
+	processedText = gsub(processedText, KEY_MOUSEWHEELDOWN, "MD")
+	processedText = gsub(processedText, KEY_NUMPAD0, "N0")
+	processedText = gsub(processedText, KEY_NUMPAD1, "N1")
+	processedText = gsub(processedText, KEY_NUMPAD2, "N2")
+	processedText = gsub(processedText, KEY_NUMPAD3, "N3")
+	processedText = gsub(processedText, KEY_NUMPAD4, "N4")
+	processedText = gsub(processedText, KEY_NUMPAD5, "N5")
+	processedText = gsub(processedText, KEY_NUMPAD6, "N6")
+	processedText = gsub(processedText, KEY_NUMPAD7, "N7")
+	processedText = gsub(processedText, KEY_NUMPAD8, "N8")
+	processedText = gsub(processedText, KEY_NUMPAD9, "N9")
+	processedText = gsub(processedText, KEY_NUMPADDECIMAL, "N.")
+	processedText = gsub(processedText, KEY_NUMPADDIVIDE, "N/")
+	processedText = gsub(processedText, KEY_NUMPADMINUS, "N-")
+	processedText = gsub(processedText, KEY_NUMPADMULTIPLY, "N*")
+	processedText = gsub(processedText, KEY_NUMPADPLUS, "N+")
+	processedText = gsub(processedText, KEY_PAGEUP, "PU")
+	processedText = gsub(processedText, KEY_PAGEDOWN, "PD")
+	processedText = gsub(processedText, KEY_SPACE, "SpB")
+	processedText = gsub(processedText, KEY_INSERT, "Ins")
+	processedText = gsub(processedText, KEY_HOME, "Hm")
+	processedText = gsub(processedText, KEY_DELETE, "Del")
+	processedText = gsub(processedText, KEY_INSERT_MAC, "Hlp") -- mac
+	
+	hotkeyCache[text] = processedText
 
-	if hotkey:GetText() == indicator then
+	if text == indicator then
 		hotkey:SetText("")
 	else
-		hotkey:SetText(text)
+		hotkey:SetText(processedText)
 	end
 end
 

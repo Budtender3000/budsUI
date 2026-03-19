@@ -17,9 +17,18 @@ local ToggleBarText = function(i, text, plus, neg)
 end
 
 local MainBars = function()
+	-- Initialize SavedOptionsPerChar if it doesn't exist
+	if not SavedOptionsPerChar then SavedOptionsPerChar = {} end
+	
 	local bottomBars = SavedOptionsPerChar.BottomBars or C.ActionBar.BottomBars
 	local splitBars = SavedOptionsPerChar.SplitBars
 	if splitBars == nil then splitBars = C.ActionBar.SplitBars end
+	
+	-- Validate bottomBars value
+	if bottomBars < 1 or bottomBars > 3 then
+		bottomBars = C.ActionBar.BottomBars
+		SavedOptionsPerChar.BottomBars = bottomBars
+	end
 
 	if bottomBars == 1 then
 		ActionBarAnchor:SetHeight(C.ActionBar.ButtonSize)
@@ -72,7 +81,16 @@ local MainBars = function()
 end
 
 local RightBars = function()
+	-- Initialize SavedOptionsPerChar if it doesn't exist
+	if not SavedOptionsPerChar then SavedOptionsPerChar = {} end
+	
 	local rightBars = SavedOptionsPerChar.RightBars or C.ActionBar.RightBars
+	
+	-- Validate rightBars value
+	if rightBars < 0 or rightBars > 3 then
+		rightBars = C.ActionBar.RightBars
+		SavedOptionsPerChar.RightBars = rightBars
+	end
 	if rightBars == 0 then
 		if not C.ActionBar.PetBarHorizontal == true then
 			PetActionBarAnchor:ClearAllPoints()
@@ -130,6 +148,9 @@ local RightBars = function()
 end
 
 local SplitBars = function()
+	-- Initialize SavedOptionsPerChar if it doesn't exist
+	if not SavedOptionsPerChar then SavedOptionsPerChar = {} end
+	
 	local splitBars = SavedOptionsPerChar.SplitBars
 	if splitBars == nil then splitBars = C.ActionBar.SplitBars end
 	local rightBars = SavedOptionsPerChar.RightBars or C.ActionBar.RightBars
@@ -216,6 +237,7 @@ for i = 1, 5 do
 		ToggleBar[i]:SetScript("OnMouseDown", function()
 			if InCombatLockdown() then K.Print("|cffffff00"..ERR_NOT_IN_COMBAT.."|r") return end
 			
+			if not SavedOptionsPerChar.BottomBars then SavedOptionsPerChar.BottomBars = C.ActionBar.BottomBars end
 			SavedOptionsPerChar.BottomBars = SavedOptionsPerChar.BottomBars + 1
 			if SavedOptionsPerChar.BottomBars > 3 then
 				SavedOptionsPerChar.BottomBars = 1
@@ -241,6 +263,7 @@ for i = 1, 5 do
 		ToggleBar[i]:SetScript("OnMouseDown", function()
 			if InCombatLockdown() then K.Print("|cffffff00"..ERR_NOT_IN_COMBAT.."|r") return end
 			
+			if not SavedOptionsPerChar.RightBars then SavedOptionsPerChar.RightBars = C.ActionBar.RightBars end
 			SavedOptionsPerChar.RightBars = SavedOptionsPerChar.RightBars - 1
 			if SavedOptionsPerChar.RightBars < 0 then
 				SavedOptionsPerChar.RightBars = 3
@@ -303,6 +326,7 @@ for i = 1, 5 do
 		ToggleBar[i]:SetScript("OnMouseDown", function()
 			if InCombatLockdown() then K.Print("|cffffff00"..ERR_NOT_IN_COMBAT.."|r") return end
 
+			if SavedOptionsPerChar.SplitBars == nil then SavedOptionsPerChar.SplitBars = C.ActionBar.SplitBars end
 			if SavedOptionsPerChar.SplitBars == false then
 				SavedOptionsPerChar.SplitBars = true
 				-- Conflict resolution: SplitBars is incompatible with 3 bars on either side

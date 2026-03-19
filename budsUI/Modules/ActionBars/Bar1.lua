@@ -52,25 +52,30 @@ bar:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 bar:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR")
 bar:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR")
 bar:SetScript("OnEvent", function(self, event, ...)
-	if event == "PLAYER_LOGIN" or event == "ACTIVE_TALENT_GROUP_CHANGED" then
+	if event == "PLAYER_LOGIN" then
 		for i = 1, NUM_ACTIONBAR_BUTTONS do
 			local button = _G["ActionButton"..i]
 			self:SetFrameRef("ActionButton"..i, button)
 		end
 
 		self:Execute([[
-		buttons = table.new()
-		for i = 1, 12 do
-			table.insert(buttons, self:GetFrameRef("ActionButton"..i))
-		end
+			buttons = newtable()
+			for i = 1, 12 do
+				table.insert(buttons, self:GetFrameRef("ActionButton"..i))
+			end
 		]])
 
 		self:SetAttribute("_onstate-page", [[
-		for i, button in ipairs(buttons) do
-			button:SetAttribute("actionpage", tonumber(newstate))
-		end
+			if buttons then
+				for i, button in ipairs(buttons) do
+					button:SetAttribute("actionpage", tonumber(newstate))
+				end
+			end
 		]])
 
+		RegisterStateDriver(self, "page", GetBar())
+	elseif event == "ACTIVE_TALENT_GROUP_CHANGED" then
+		-- Just update the state driver, buttons are already set up
 		RegisterStateDriver(self, "page", GetBar())
 	elseif event == "UPDATE_VEHICLE_ACTIONBAR" or event == "UPDATE_OVERRIDE_ACTIONBAR" then
 		if not InCombatLockdown() and (HasVehicleActionBar() or HasOverrideActionBar()) then
@@ -80,6 +85,8 @@ bar:SetScript("OnEvent", function(self, event, ...)
 			end
 		end
 	else
-		MainMenuBar_OnEvent(self, event, ...)
+		if MainMenuBar_OnEvent then
+			MainMenuBar_OnEvent(self, event, ...)
+		end
 	end
 end)

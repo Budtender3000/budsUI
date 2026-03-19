@@ -12,7 +12,6 @@ local getmetatable = getmetatable
 local CreateFrame = CreateFrame
 local GetTime = GetTime
 local GetActionCooldown = GetActionCooldown
-local GetActionCharges = GetActionCharges
 
 local ICON_SIZE = 36
 local FONT_SIZE = C.Cooldown.FontSize
@@ -98,11 +97,9 @@ local function Timer_Create(self)
 	return timer
 end
 
-local function Timer_Start(self, start, duration, charges, maxCharges)
-	local remainingCharges = charges or 0
-
+local function Timer_Start(self, start, duration)
 	if self:GetName() and find(self:GetName(), "ChargeCooldown") then return end
-	if start > 0 and duration > MIN_DURATION and remainingCharges == 0 and (not self.noOCC) then
+	if start > 0 and duration > MIN_DURATION and (not self.noOCC) then
 		local timer = self.timer or Timer_Create(self)
 		timer.start = start
 		timer.duration = duration

@@ -1233,17 +1233,12 @@ function Stuffing:SortBags()
 	end
 
 	-- Throw various stuff out of the search list
-	local changed = true
-	while changed do
-		changed = false
-		-- XXX why doesn't this remove all x->x moves in one pass?
-
-		for i, v in ipairs(st) do
-			-- Source is same as destination
-			if (v.sslot == v.dslot) and (v.sbag == v.dbag) then
-				table.remove(st, i)
-				changed = true
-			end
+	-- Optimized: iterate backwards to avoid index shifting issues
+	for i = #st, 1, -1 do
+		local v = st[i]
+		-- Source is same as destination
+		if (v.sslot == v.dslot) and (v.sbag == v.dbag) then
+			table.remove(st, i)
 		end
 	end
 

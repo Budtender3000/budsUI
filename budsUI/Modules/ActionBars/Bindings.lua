@@ -14,7 +14,9 @@ local IsModifiedClick = IsModifiedClick
 local hooksecurefunc = hooksecurefunc
 local InCombatLockdown = InCombatLockdown
 
-local bind, oneBind, localmacros = CreateFrame("Frame", "HoverBind", UIParent), true, 0
+local bind = CreateFrame("Frame", "HoverBind", UIParent)
+local oneBind = true
+local localmacros = 0
 SlashCmdList.MOUSEOVERBIND = function()
 	if InCombatLockdown() then K.Print("|cffffe02e"..ERR_NOT_IN_COMBAT.."|r") return end
 	if not bind.loaded then
@@ -30,7 +32,18 @@ SlashCmdList.MOUSEOVERBIND = function()
 		bind:Hide()
 
 		local elapsed = 0
+		local tooltipUpdateActive = false
+		GameTooltip:HookScript("OnShow", function(self)
+			tooltipUpdateActive = true
+		end)
+		GameTooltip:HookScript("OnHide", function(self)
+			tooltipUpdateActive = false
+			for _, frame in pairs(self.shoppingTooltips) do
+				frame:Hide()
+			end
+		end)
 		GameTooltip:HookScript("OnUpdate", function(self, e)
+			if not tooltipUpdateActive then return end
 			elapsed = elapsed + e
 			if elapsed < 0.2 then return else elapsed = 0 end
 			if not self.comparing and IsModifiedClick("COMPAREITEMS") then
@@ -68,8 +81,10 @@ SlashCmdList.MOUSEOVERBIND = function()
 			ShoppingTooltip1:Hide()
 
 			if spellmacro == "SPELL" then
-				self.button.id = SpellBook_GetSpellBookSlot(self.button)
+				self.button.id = self.button:GetID()
 				self.button.name = GetSpellBookItemName(self.button.id, SpellBookFrame.bookType)
+				
+				if not self.button.name then return end
 
 				GameTooltip:Show()
 				GameTooltip:SetScript("OnHide", function(self)
@@ -94,6 +109,8 @@ SlashCmdList.MOUSEOVERBIND = function()
 				if localmacros == 1 then self.button.id = self.button.id + 36 end
 
 				self.button.name = GetMacroInfo(self.button.id)
+				
+				if not self.button.name then return end
 
 				GameTooltip:SetOwner(bind, "ANCHOR_NONE")
 				GameTooltip:SetPoint("BOTTOM", bind, "TOP", 0, 1)

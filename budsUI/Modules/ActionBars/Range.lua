@@ -4,7 +4,7 @@ if C.ActionBar.Enable ~= true then return end
 local _G = _G
 local next = next
 local pairs = pairs
-local UPDATE_DELAY = 0.1
+local UPDATE_DELAY = 0.2
 local ATTACK_BUTTON_FLASH_TIME = ATTACK_BUTTON_FLASH_TIME
 local ActionButton_GetPagedID = ActionButton_GetPagedID
 local ActionButton_IsFlashing = ActionButton_IsFlashing
@@ -21,6 +21,7 @@ function tullaRange:Load()
 	self:SetScript("OnHide", self.OnHide)
 	self:SetScript("OnEvent", self.OnEvent)
 	self.elapsed = 0
+	self.buttonsToUpdate = {}
 
 	self:RegisterEvent("PLAYER_LOGIN")
 end

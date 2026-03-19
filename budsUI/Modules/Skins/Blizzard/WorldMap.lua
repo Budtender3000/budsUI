@@ -151,6 +151,9 @@ local function InitializeMap()
 
 	-- Karte skalieren und Transparenz setzen
 	hooksecurefunc(WorldMapFrame, "Show", function(self)
+		-- TAINT FIX: Skip secure operations during combat
+		if InCombatLockdown() then return end
+		
 		-- Restore scale from config
 		local scaleKey = GetMapScaleKey()
 		local scale = C.Skins[scaleKey] or (scaleKey == "WorldMapScaleMini" and 1.0 or 0.80)
@@ -162,6 +165,9 @@ local function InitializeMap()
 	-- Update scale when toggling modes (3.3.5 function names)
 	if WorldMap_ToggleSizeUp then
 		hooksecurefunc("WorldMap_ToggleSizeUp", function()
+			-- TAINT FIX: Skip during combat
+			if InCombatLockdown() then return end
+			
 			local scaleKey = GetMapScaleKey()
 			local scale = C.Skins[scaleKey] or (scaleKey == "WorldMapScaleMini" and 1.0 or 0.80)
 			WorldMapFrame:SetScale(scale)
@@ -170,6 +176,9 @@ local function InitializeMap()
 	end
 	if WorldMap_ToggleSizeDown then
 		hooksecurefunc("WorldMap_ToggleSizeDown", function()
+			-- TAINT FIX: Skip during combat
+			if InCombatLockdown() then return end
+			
 			local scaleKey = GetMapScaleKey()
 			local scale = C.Skins[scaleKey] or (scaleKey == "WorldMapScaleMini" and 1.0 or 0.80)
 			WorldMapFrame:SetScale(scale)

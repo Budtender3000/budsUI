@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.4] - 2025-01-13
+
+### Fixed
+- **Critical Taint Fixes:** Resolved multiple taint issues causing "Interface action failed" errors
+  - Fixed global COMBAT_TEXT variables causing taint spread across the UI
+  - Fixed MAX_TARGET_BUFFS/DEBUFFS global variable taint affecting secure frames
+  - Fixed TargetFrame_UpdateAuras hook affecting secure raid frames during combat
+  - Fixed ActionButton_Update causing taint during combat state changes
+  - Fixed UnitFrame manipulation taint issues in party/raid frames
+  - Fixed WorldMapFrame SetScale/SetAlpha taint during combat transitions
+  - Fixed PetActionButton inconsistent combat checks causing action failures
+  - Fixed PetFrame:SetAttribute() taint from global UnitFramePortrait_Update hook
+  - Replaced global hooks with frame-specific hooks to prevent taint spread
+  - Implemented event-based updates instead of direct function hooks
+  - Added combat-defer mechanism for frame initialization and updates
+  - Improved overall addon stability and combat compatibility
+
+### Changed
+- **Hook Architecture:** Refactored hooking system for better taint isolation
+  - Moved from global function hooks to frame-specific SecureHook implementations
+  - Implemented deferred initialization for combat-sensitive frames
+  - Added combat state checks before all secure frame operations
+
 ## [0.6.3] - 2025-01-13
 
 ### Fixed
@@ -302,7 +325,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored item info extraction for grey selling
 - Optimized target name retrieval
 
-[Unreleased]: https://github.com/Budtender3000/budsUI/compare/v0.6.3...HEAD
+[Unreleased]: https://github.com/Budtender3000/budsUI/compare/v0.6.4...HEAD
+[0.6.4]: https://github.com/Budtender3000/budsUI/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/Budtender3000/budsUI/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/Budtender3000/budsUI/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/Budtender3000/budsUI/compare/v0.6.0...v0.6.1
