@@ -193,12 +193,15 @@ end
 if not InCombatLockdown() then
 	if C.Unitframe.ClassIcon == true then
 		hooksecurefunc("UnitFramePortrait_Update", function(self)
-			-- Skip secure frames to prevent taint
+			-- Skip secure frames FIRST to prevent taint
+			if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT then
+				return
+			end
+			
 			if not self or not self.unit then return end
 			local unitType = self.unit
-			-- Skip pet, ToT, raid, party pet, and boss frames
-			if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
-			   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+			-- Skip pet, ToT, raid, party pet, and boss frames by unit type
+			if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
 			   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
 			   unitType:match("^boss%d+") then
 				return
@@ -218,19 +221,10 @@ if not InCombatLockdown() then
 		end)
 	end
 
-	-- Class Color Bars
+	-- Class Color Bars - Use frame-specific hooks to prevent taint
 	if C.Unitframe.ClassHealth == true then
 		local function colorHealthBar(statusbar, unit)
-			-- Skip secure frames to prevent taint
-			-- statusbar is the health bar, not the frame itself
 			if not statusbar or not statusbar.unit then return end
-			local unitType = statusbar.unit
-			-- Skip pet, ToT, raid, and boss frames
-			if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
-			   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
-			   unitType:match("^boss%d+") then
-				return
-			end
 			
 			local _, class, color
 			if UnitIsPlayer(unit) and UnitIsConnected(unit) and unit == statusbar.unit and UnitClass(unit) then
@@ -240,10 +234,22 @@ if not InCombatLockdown() then
 			end
 		end
 
-		hooksecurefunc("UnitFrameHealthBar_Update", colorHealthBar)
-		hooksecurefunc("HealthBar_OnValueChanged", function(self)
-			colorHealthBar(self, self.unit)
-		end)
+		-- Hook specific frames instead of global functions to prevent taint
+		if PlayerFrameHealthBar then
+			hooksecurefunc(PlayerFrameHealthBar, "SetValue", function(self)
+				colorHealthBar(self, "player")
+			end)
+		end
+		if TargetFrameHealthBar then
+			hooksecurefunc(TargetFrameHealthBar, "SetValue", function(self)
+				colorHealthBar(self, "target")
+			end)
+		end
+		if FocusFrameHealthBar then
+			hooksecurefunc(FocusFrameHealthBar, "SetValue", function(self)
+				colorHealthBar(self, "focus")
+			end)
+		end
 	end
 end
 -- Remove Portrait Damage Spam
