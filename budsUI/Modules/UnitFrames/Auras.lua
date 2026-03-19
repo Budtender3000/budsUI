@@ -25,12 +25,26 @@ local BEAUTY_SPACING = 1
 
 -- AURAS
 local function TargetAuraColour(self)
-	-- Skip secure frames to prevent taint
-	if not self or not self.unit then return end
+	-- Skip secure frames FIRST to prevent taint
+	if not self then return end
+	
+	-- Check frame object directly before accessing properties
+	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT then
+		return
+	end
+	
+	-- Check by name pattern for raid/boss frames
+	local frameName = self:GetName()
+	if frameName and (frameName:match("^RaidGroupButton%d+") or 
+	                  frameName:match("^Boss%d+TargetFrame") or
+	                  frameName:match("^CompactRaidFrame%d+")) then
+		return
+	end
+	
+	-- Check unit type
+	if not self.unit then return end
 	local unitType = self.unit
-	-- Skip pet, ToT, raid, party pet, and boss frames
-	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
-	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
 	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
 	   unitType:match("^boss%d+") then
 		return
@@ -98,12 +112,26 @@ local beauty = _G["!BeautyCase"] or _G["BeautyCase"]
 
 -- reposition
 local function TargetAuraPosit(self, auraName, numAuras, numOppositeAuras, largeAuraList, updateFunc, maxRowWidth, offsetX, mirrorAurasVertically)
-	-- Skip secure frames to prevent taint
-	if not self or not self.unit then return end
+	-- Skip secure frames FIRST to prevent taint
+	if not self then return end
+	
+	-- Check frame object directly
+	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT then
+		return
+	end
+	
+	-- Check by name pattern
+	local frameName = self:GetName()
+	if frameName and (frameName:match("^RaidGroupButton%d+") or 
+	                  frameName:match("^Boss%d+TargetFrame") or
+	                  frameName:match("^CompactRaidFrame%d+")) then
+		return
+	end
+	
+	-- Check unit type
+	if not self.unit then return end
 	local unitType = self.unit
-	-- Skip pet, ToT, raid, party pet, and boss frames
-	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
-	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
 	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
 	   unitType:match("^boss%d+") then
 		return
@@ -150,12 +178,26 @@ end
 
 -- debuff reposition
 local function TargetDebuffPosit(self, debuffName, index, numBuffs, anchorIndex, size, offsetX, offsetY, mirrorVertically)
-	-- Skip secure frames to prevent taint
-	if not self or not self.unit then return end
+	-- Skip secure frames FIRST to prevent taint
+	if not self then return end
+	
+	-- Check frame object directly
+	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT then
+		return
+	end
+	
+	-- Check by name pattern
+	local frameName = self:GetName()
+	if frameName and (frameName:match("^RaidGroupButton%d+") or 
+	                  frameName:match("^Boss%d+TargetFrame") or
+	                  frameName:match("^CompactRaidFrame%d+")) then
+		return
+	end
+	
+	-- Check unit type
+	if not self.unit then return end
 	local unitType = self.unit
-	-- Skip pet, ToT, raid, party pet, and boss frames
-	if self == PetFrame or self == TargetFrameToT or self == FocusFrameToT or
-	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	if unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
 	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
 	   unitType:match("^boss%d+") then
 		return
