@@ -248,7 +248,9 @@ local function AuctionFrameAuctions_Update ()
 		local texture = _G["AuctionsButton" .. i .. "ItemIconTexture"]
 
 		if ( texture and texture:IsShown() ) then
-			local _, _, _, _, canUse, _, _, _, _, _, _, _, saleStatus = GetAuctionItemInfo("owner", index)
+			-- WoW 3.3.5 Compatibility: GetAuctionItemInfo returns only 11 values, not 13
+			-- saleStatus is at position 11 in 3.3.5, not 13
+			local _, _, _, _, canUse, _, _, _, _, _, saleStatus = GetAuctionItemInfo("owner", index)
 
 			if ( canUse and IsAlreadyKnown(GetAuctionItemLink("owner", index)) ) then
 				local r, g, b = knowncolor.r, knowncolor.g, knowncolor.b

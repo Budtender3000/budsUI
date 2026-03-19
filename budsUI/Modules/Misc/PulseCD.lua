@@ -55,24 +55,26 @@ local function OnUpdate(_, update)
 				if K.pulse_ignored_spells[i] then
 					watching[i] = nil
 				else
-					local start, duration, enabled, texture, isPet
+					-- WoW 3.3.5 Compatibility: Cooldown functions return only 2 values (start, duration)
+					-- The 3rd parameter (enabled) was added in Cataclysm 4.0
+					local start, duration, texture, isPet
 					if v[2] == "spell" then
 						texture = GetSpellTexture(v[3])
-						start, duration, enabled = GetSpellCooldown(v[3])
+						start, duration = GetSpellCooldown(v[3])
 					elseif v[2] == "item" then
 						texture = v[3]
-						start, duration, enabled = GetItemCooldown(i)
+						start, duration = GetItemCooldown(i)
 					elseif v[2] == "pet" then
 						texture = select(3, GetPetActionInfo(v[3]))
-						start, duration, enabled = GetPetActionCooldown(v[3])
+						start, duration = GetPetActionCooldown(v[3])
 						isPet = true
 					end
-					if enabled ~= 0 then
-						if duration and duration > threshold and texture then
-							cooldowns[i] = {start, duration, texture, isPet}
-						end
+					-- In 3.3.5, if start > 0 the cooldown is active (no enabled flag needed)
+					if start and start > 0 and duration and duration > threshold and texture then
+						cooldowns[i] = {start, duration, texture, isPet}
 					end
-					if not (enabled == 0 and v[2] == "spell") then
+					-- Remove from watching if cooldown started or spell type
+					if (start and start > 0) or v[2] == "spell" then
 						watching[i] = nil
 					end
 				end

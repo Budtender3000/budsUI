@@ -5,8 +5,14 @@ local _G = _G
 local select = select
 local pairs = pairs
 local GetName, GetItem = GetName, GetItem
-local GetItemIcon = GetItemIcon
+local GetItemInfo = GetItemInfo
 local GetSpellInfo = GetSpellInfo
+
+-- WoW 3.3.5: GetItemIcon doesn't exist, use GetItemInfo instead
+local function GetItemIcon(link)
+	local _, _, _, _, _, _, _, _, _, icon = GetItemInfo(link)
+	return icon
+end
 
 -- Adds item icons to tooltips(Tipachu by Tuller)
 local function setTooltipIcon(self, icon)

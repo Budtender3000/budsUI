@@ -39,48 +39,53 @@ function EnhancedFrames:PLAYER_ENTERING_WORLD()
 end
 
 EnableEnhancedFrames = function()
-	-- SPECIFIC STATUS TEXT HOOKS - Only for non-secure frames to prevent taint
-	-- Instead of global TextStatusBar_UpdateTextString hook, we hook specific frames
+	-- SPECIFIC STATUS TEXT HOOKS - Use OnUpdate delay to prevent taint
+	-- SetValue hooks run DURING Blizzard's frame update, which taints TargetFrameToT:Show()
+	-- Solution: Delay our updates with OnUpdate to run AFTER Blizzard's update chain completes
+	
+	local updateQueue = {}
+	local updateFrame = CreateFrame("Frame")
+	updateFrame:SetScript("OnUpdate", function(self)
+		for statusBar, _ in pairs(updateQueue) do
+			if not InCombatLockdown() then
+				EnhancedFrames_UpdateTextStringWithValues(statusBar)
+			end
+			updateQueue[statusBar] = nil
+		end
+	end)
+	
+	local function QueueUpdate(statusBar)
+		updateQueue[statusBar] = true
+	end
+	
 	if PlayerFrameHealthBar then
 		hooksecurefunc(PlayerFrameHealthBar, "SetValue", function(self)
-			if not InCombatLockdown() then
-				EnhancedFrames_UpdateTextStringWithValues(self)
-			end
+			QueueUpdate(self)
 		end)
 	end
 	if PlayerFrameManaBar then
 		hooksecurefunc(PlayerFrameManaBar, "SetValue", function(self)
-			if not InCombatLockdown() then
-				EnhancedFrames_UpdateTextStringWithValues(self)
-			end
+			QueueUpdate(self)
 		end)
 	end
 	if TargetFrameHealthBar then
 		hooksecurefunc(TargetFrameHealthBar, "SetValue", function(self)
-			if not InCombatLockdown() then
-				EnhancedFrames_UpdateTextStringWithValues(self)
-			end
+			QueueUpdate(self)
 		end)
 	end
 	if TargetFrameManaBar then
 		hooksecurefunc(TargetFrameManaBar, "SetValue", function(self)
-			if not InCombatLockdown() then
-				EnhancedFrames_UpdateTextStringWithValues(self)
-			end
+			QueueUpdate(self)
 		end)
 	end
 	if FocusFrameHealthBar then
 		hooksecurefunc(FocusFrameHealthBar, "SetValue", function(self)
-			if not InCombatLockdown() then
-				EnhancedFrames_UpdateTextStringWithValues(self)
-			end
+			QueueUpdate(self)
 		end)
 	end
 	if FocusFrameManaBar then
 		hooksecurefunc(FocusFrameManaBar, "SetValue", function(self)
-			if not InCombatLockdown() then
-				EnhancedFrames_UpdateTextStringWithValues(self)
-			end
+			QueueUpdate(self)
 		end)
 	end
 
@@ -88,33 +93,27 @@ EnableEnhancedFrames = function()
 	hooksecurefunc("PlayerFrame_ToPlayerArt", EnhancedFrames_PlayerFrame_ToPlayerArt)
 	hooksecurefunc("PlayerFrame_ToVehicleArt", EnhancedFrames_PlayerFrame_ToVehicleArt)
 
-	-- HOOK TARGETFRAME FUNCTIONS - Use frame-specific hooks to prevent taint
-	-- Global hooks (TargetFrame_Update, etc.) affect ALL frames including TargetFrameToT
-	-- This causes taint on TargetFrameToT:Show() even with guards in the hook functions
+	-- HOOK TARGETFRAME FUNCTIONS - Use UNIT_TARGET events instead of Show hooks
+	-- Show hooks taint the entire TargetFrame update chain including TargetFrameToT
+	-- This causes "TargetFrameToT:Show()" taint when PvE mobs have no target
 	
-	-- Hook TargetFrame specifically
-	if TargetFrame then
-		hooksecurefunc(TargetFrame, "Show", function(self)
-			if not InCombatLockdown() then
-				EnhancedFrames_TargetFrame_Update(self)
-			end
-		end)
-	end
+	-- Create event watcher for target/focus updates
+	local targetWatcher = CreateFrame("Frame")
+	targetWatcher:RegisterEvent("PLAYER_TARGET_CHANGED")
+	targetWatcher:RegisterEvent("PLAYER_FOCUS_CHANGED")
+	targetWatcher:SetScript("OnEvent", function(self, event)
+		if InCombatLockdown() then return end
+		
+		if event == "PLAYER_TARGET_CHANGED" and TargetFrame and TargetFrame:IsVisible() then
+			EnhancedFrames_TargetFrame_Update(TargetFrame)
+		elseif event == "PLAYER_FOCUS_CHANGED" and FocusFrame and FocusFrame:IsVisible() then
+			EnhancedFrames_TargetFrame_Update(FocusFrame)
+		end
+	end)
 	
-	-- Hook FocusFrame specifically
-	if FocusFrame then
-		hooksecurefunc(FocusFrame, "Show", function(self)
-			if not InCombatLockdown() then
-				EnhancedFrames_TargetFrame_Update(self)
-			end
-		end)
-	end
-	
-	-- Removed global hooks to prevent taint:
-	-- hooksecurefunc("TargetFrame_CheckDead", EnhancedFrames_TargetFrame_Update)
-	-- hooksecurefunc("TargetFrame_Update", EnhancedFrames_TargetFrame_Update)
-	-- hooksecurefunc("TargetFrame_CheckFaction", EnhancedFrames_TargetFrame_CheckFaction)
-	-- hooksecurefunc("TargetFrame_CheckClassification", EnhancedFrames_Target_Classification)
+	-- Removed Show hooks to prevent taint chain:
+	-- hooksecurefunc(TargetFrame, "Show", ...) causes taint on TargetFrameToT
+	-- hooksecurefunc(FocusFrame, "Show", ...) causes taint on FocusFrameToT
 
 	-- BOSSFRAME HOOKS REMOVED - Causes taint on Boss2TargetFrame:Hide()
 	-- Boss frames will use default Blizzard styling to prevent taint issues

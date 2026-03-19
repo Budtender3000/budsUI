@@ -210,42 +210,37 @@ end
 
 do
 	-- Frame-specific hooks to prevent taint on secure frames like TargetFrameToT and PetFrame
-	-- CRITICAL: Do NOT hook global Blizzard functions (TargetFrame_UpdateAuras, etc.)
-	-- because they are called internally for ALL frames including secure frames
-	-- This causes taint on TargetFrameToT:Show() and PetFrame:SetAttribute()
+	-- CRITICAL: Do NOT hook Show on TargetFrame/FocusFrame
+	-- Show hooks taint the entire frame update chain including TargetFrameToT
+	-- This causes "TargetFrameToT:Show()" taint when PvE mobs have no target
 	
 	-- Create event frame to monitor aura updates
 	local auraWatcher = CreateFrame("Frame")
 	auraWatcher:RegisterEvent("UNIT_AURA")
+	auraWatcher:RegisterEvent("PLAYER_TARGET_CHANGED")
+	auraWatcher:RegisterEvent("PLAYER_FOCUS_CHANGED")
 	auraWatcher:SetScript("OnEvent", function(self, event, unit)
 		-- CRITICAL: Only handle target and focus, never raid/party/pet units
-		if not unit or unit:match("^raid") or unit:match("^party") or unit == "pet" then
-			return
+		if event == "UNIT_AURA" then
+			if not unit or unit:match("^raid") or unit:match("^party") or unit == "pet" then
+				return
+			end
 		end
 		
 		if not InCombatLockdown() then
-			if unit == "target" and TargetFrame and TargetFrame:IsVisible() then
-				TargetAuraColour(TargetFrame)
-			elseif unit == "focus" and FocusFrame and FocusFrame:IsVisible() then
-				TargetAuraColour(FocusFrame)
+			if (event == "UNIT_AURA" and unit == "target") or event == "PLAYER_TARGET_CHANGED" then
+				if TargetFrame and TargetFrame:IsVisible() then
+					TargetAuraColour(TargetFrame)
+				end
+			elseif (event == "UNIT_AURA" and unit == "focus") or event == "PLAYER_FOCUS_CHANGED" then
+				if FocusFrame and FocusFrame:IsVisible() then
+					TargetAuraColour(FocusFrame)
+				end
 			end
 		end
 	end)
 	
-	-- Hook Show to update auras when frame becomes visible
-	if TargetFrame then
-		hooksecurefunc(TargetFrame, "Show", function(self)
-			if not InCombatLockdown() then
-				TargetAuraColour(self)
-			end
-		end)
-	end
-	
-	if FocusFrame then
-		hooksecurefunc(FocusFrame, "Show", function(self)
-			if not InCombatLockdown() then
-				TargetAuraColour(self)
-			end
-		end)
-	end
+	-- Removed Show hooks to prevent taint chain:
+	-- hooksecurefunc(TargetFrame, "Show", ...) causes taint on TargetFrameToT
+	-- hooksecurefunc(FocusFrame, "Show", ...) causes taint on FocusFrameToT
 end

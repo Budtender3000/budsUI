@@ -100,11 +100,14 @@ local function UpdateStacks()
     MaelstromAnchor:SetSize(size, size / 2)
     f:SetSize(size, size / 2)
 
-    -- Robust ID-based lookup for Ascension compatibility
+    -- WoW 3.3.5 Compatibility: UnitBuff returns only 10 values, not 11 (no spellID)
+    -- We need to match by spell name instead of ID
     for i = 1, 40 do
-        local name, _, _, count, _, _, _, _, _, _, spellId = UnitBuff("player", i)
+        local name, _, _, count = UnitBuff("player", i)
         if not name then break end
-        if killList[spellId] then
+        -- Check if this buff name matches any of our Maelstrom weapon buffs
+        -- In 3.3.5 we need to use spell names, not IDs
+        if name == "Maelstrom Weapon" or name == GetSpellInfo(53817) then
             stacks = count or 1
             break
         end

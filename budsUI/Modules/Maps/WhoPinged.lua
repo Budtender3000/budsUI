@@ -3,7 +3,7 @@ if C.Minimap.Ping ~= true then return end
 
 local format = string.format
 local select = select
-local time = time
+local GetTime = GetTime -- WoW 3.3.5: Use GetTime() for frame timing instead of time()
 local CreateFrame = CreateFrame
 local CUSTOM_CLASS_COLORS = CUSTOM_CLASS_COLORS
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
@@ -18,12 +18,12 @@ PingText:SetJustifyH("CENTER")
 
 local function OnEvent(self, event, unit)
 	if UnitName(unit) ~= K.Name then
-		if self.timer and time() - self.timer > 1 or not self.timer then
+		if self.timer and GetTime() - self.timer > 1 or not self.timer then
 			local Class = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS[select(2, UnitClass(unit))]
 			PingText:SetText(format("|cfff02c35*|r %s |cfff02c35*|r", UnitName(unit)))
 			PingText:SetTextColor(Class.r, Class.g, Class.b)
 			UIFrameFlash(self, 0.2, 2.8, 5, false, 0, 5)
-			self.timer = time()
+			self.timer = GetTime()
 		end
 	end
 end

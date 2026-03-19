@@ -115,8 +115,10 @@ function Stuffing:SlotUpdate(b)
 	local clink = GetContainerItemLink(b.bag, b.slot)
 
 	if b.cooldown and StuffingFrameBags and StuffingFrameBags:IsShown() then
-		local start, duration, enable = GetContainerItemCooldown(b.bag, b.slot)
-		CooldownFrame_SetTimer(b.cooldown, start, duration, enable)
+		-- WoW 3.3.5 Compatibility: GetContainerItemCooldown returns only 2 values (start, duration)
+		-- The 3rd parameter (enable) was added in Cataclysm 4.0
+		local start, duration = GetContainerItemCooldown(b.bag, b.slot)
+		CooldownFrame_SetTimer(b.cooldown, start, duration, 1)
 	end
 
 	if(clink) then

@@ -137,13 +137,15 @@ end
 
 -- Update an aura icon
 local function UpdateAuraIcon(button, unit, index, filter)
-	local _, _, icon, count, _, duration, expirationTime, _, _, _, spellID = UnitAura(unit, index, filter)
+	-- WoW 3.3.5 Compatibility: UnitAura returns only 10 values, not 11
+	-- spellID (11th value) was added in Cataclysm 4.0
+	local name, _, icon, count, _, duration, expirationTime = UnitAura(unit, index, filter)
 
 	button.icon:SetTexture(icon)
 	button.cd:SetCooldown(expirationTime - duration, duration)
 	button.expirationTime = expirationTime
 	button.duration = duration
-	button.spellID = spellID
+	button.spellID = name -- Use spell name instead of ID in 3.3.5
 	if count > 1 then
 		button.count:SetText(count)
 	else
@@ -182,7 +184,8 @@ local function OnAura(frame, unit)
 		for index = 1, 5 do -- Temp until I fix this to show 2 row if 5 is already shown
 			if i > C.Nameplate.Width / C.Nameplate.AuraSize then return end
 			local match
-			local name, _, _, _, _, duration, _, caster, _, _, spellid = UnitAura(frame.unit, index, "HARMFUL")
+			-- WoW 3.3.5 Compatibility: UnitAura returns only 10 values, not 11 (no spellID)
+			local name, _, _, _, _, duration, _, caster = UnitAura(frame.unit, index, "HARMFUL")
 
 			if K.DebuffWhiteList[name] and caster == "player" then match = true end
 
@@ -772,16 +775,18 @@ function NamePlates:COMBAT_LOG_EVENT_UNFILTERED(_, event, ...)
 end
 
 -- Only show nameplates when in combat
+-- WoW 3.3.5 Compatibility: CVar "nameplateShowEnemies" doesn't exist in 3.3.5
+-- It was added in Legion 7.0. In 3.3.5 we use "ShowNameplates" instead
 if C.Nameplate.Combat == true then
 	NamePlates:RegisterEvent("PLAYER_REGEN_ENABLED")
 	NamePlates:RegisterEvent("PLAYER_REGEN_DISABLED")
 
 	function NamePlates:PLAYER_REGEN_ENABLED()
-		SetCVar("nameplateShowEnemies", 0)
+		SetCVar("ShowNameplates", 0)
 	end
 
 	function NamePlates:PLAYER_REGEN_DISABLED()
-		SetCVar("nameplateShowEnemies", 1)
+		SetCVar("ShowNameplates", 1)
 	end
 end
 
@@ -789,9 +794,9 @@ NamePlates:RegisterEvent("PLAYER_ENTERING_WORLD")
 function NamePlates:PLAYER_ENTERING_WORLD()
 	if C.Nameplate.Combat == true then
 		if InCombatLockdown() then
-			SetCVar("nameplateShowEnemies", 1)
+			SetCVar("ShowNameplates", 1)
 		else
-			SetCVar("nameplateShowEnemies", 0)
+			SetCVar("ShowNameplates", 0)
 		end
 	end
 end

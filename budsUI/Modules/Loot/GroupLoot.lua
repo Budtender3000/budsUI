@@ -218,9 +218,22 @@ local function START_LOOT_ROLL(rollid, time)
 	f.pass:SetText(0)
 	f.disenchant:SetText(0)
 
-	local texture, name, count, quality, bop, canNeed, canGreed, canDisenchant = GetLootRollItemInfo(rollid)
+	-- WoW 3.3.5: GetLootRollItemInfo() doesn't exist, use GetLootRollItemLink() + GetItemInfo()
+	local itemLink = GetLootRollItemLink(rollid)
+	if not itemLink then return end
+	
+	local name, _, quality, _, _, _, _, _, _, texture = GetItemInfo(itemLink)
+	if not name then return end
+	
+	-- In 3.3.5, we can't directly get canNeed/canGreed/canDisenchant, so enable all by default
+	-- The server will reject invalid rolls anyway
+	local bop = select(14, GetItemInfo(itemLink)) == 1
+	local canNeed = true
+	local canGreed = true
+	local canDisenchant = true
+	
 	f.button.icon:SetTexture(texture)
-	f.button.link = GetLootRollItemLink(rollid)
+	f.button.link = itemLink
 
 	if C.Loot.AutoGreed and K.Level == MAX_PLAYER_LEVEL and quality == 2 and not bop then return end
 

@@ -26,14 +26,31 @@ if C.Unitframe.ClassHealth == false and C.Unitframe.PercentHealth == true then
 		self:SetStatusBarColor(r, g, b)
 	end
 	
+	-- OnUpdate delay to prevent taint during Blizzard's frame update chain
+	local colorQueue = {}
+	local colorFrame = CreateFrame("Frame")
+	colorFrame:SetScript("OnUpdate", function(self)
+		for statusBar, _ in pairs(colorQueue) do
+			local value = statusBar:GetValue()
+			updateHealthColor(statusBar, value)
+			colorQueue[statusBar] = nil
+		end
+	end)
+	
 	-- Hook specific frames instead of global function to prevent taint
 	if PlayerFrameHealthBar then
-		hooksecurefunc(PlayerFrameHealthBar, "SetValue", updateHealthColor)
+		hooksecurefunc(PlayerFrameHealthBar, "SetValue", function(self)
+			colorQueue[self] = true
+		end)
 	end
 	if TargetFrameHealthBar then
-		hooksecurefunc(TargetFrameHealthBar, "SetValue", updateHealthColor)
+		hooksecurefunc(TargetFrameHealthBar, "SetValue", function(self)
+			colorQueue[self] = true
+		end)
 	end
 	if FocusFrameHealthBar then
-		hooksecurefunc(FocusFrameHealthBar, "SetValue", updateHealthColor)
+		hooksecurefunc(FocusFrameHealthBar, "SetValue", function(self)
+			colorQueue[self] = true
+		end)
 	end
 end

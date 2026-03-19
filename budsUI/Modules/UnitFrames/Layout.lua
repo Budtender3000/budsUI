@@ -143,10 +143,23 @@ if C.Unitframe.Enable == true then
 			FrameScale:SetScale(C.Unitframe.Scale)
 		end
 
-		-- TAINT FIX: Tweak Focus Frame ToT (protected frame)
-		FocusFrameToT:SetScale(1.0)
-		FocusFrameToT:ClearAllPoints()
-		FocusFrameToT:SetPoint("TOP", FocusFrame, "BOTTOM", FOCUS_TOT_X, FOCUS_TOT_Y)
+		-- TAINT FIX: Completely disable budsUI modifications to ToT frames
+		-- TargetFrameToT and FocusFrameToT will use Blizzard's default behavior
+		-- This prevents the persistent "TargetFrameToT:Show()" taint error
+		
+		if C.Unitframe.DisableToT then
+			-- Ensure ToT frames are not touched by budsUI at all
+			if TargetFrameToT then
+				-- Reset to Blizzard defaults - no scaling, no repositioning
+				TargetFrameToT:SetScale(1.0)
+				-- Let Blizzard handle all ToT positioning and visibility
+			end
+			
+			if FocusFrameToT then
+				-- Reset to Blizzard defaults
+				FocusFrameToT:SetScale(1.0)
+			end
+		end
 
 		-- Arena Frames Scaling
 		local function SetArenaFrames()
@@ -196,8 +209,9 @@ end
 -- Class Icons
 if not InCombatLockdown() then
 	if C.Unitframe.ClassIcon == true then
-		-- TAINT FIX: Use frame-specific hooks instead of global UnitFramePortrait_Update
-		-- Global hook affects PetFrame and causes taint on PetFrame:SetAttribute()
+		-- TAINT FIX: Use UNIT_PORTRAIT_UPDATE events instead of Show hooks
+		-- Show hooks taint the entire frame update chain including TargetFrameToT
+		-- This causes "TargetFrameToT:Show()" taint when PvE mobs have no target
 		
 		local function UpdateClassIcon(self)
 			if not self or not self.unit or not self.portrait then return end
@@ -213,38 +227,29 @@ if not InCombatLockdown() then
 			end
 		end
 		
-		-- Hook only specific frames, not the global function
-		if PlayerFrame then
-			hooksecurefunc(PlayerFrame, "Show", function(self)
-				UpdateClassIcon(self)
-			end)
-		end
-		if TargetFrame then
-			hooksecurefunc(TargetFrame, "Show", function(self)
-				UpdateClassIcon(self)
-			end)
-		end
-		if FocusFrame then
-			hooksecurefunc(FocusFrame, "Show", function(self)
-				UpdateClassIcon(self)
-			end)
-		end
-		
-		-- Use UNIT_PORTRAIT_UPDATE event for updates
+		-- Use UNIT_PORTRAIT_UPDATE and target change events instead of Show hooks
 		local portraitWatcher = CreateFrame("Frame")
 		portraitWatcher:RegisterEvent("UNIT_PORTRAIT_UPDATE")
+		portraitWatcher:RegisterEvent("PLAYER_TARGET_CHANGED")
+		portraitWatcher:RegisterEvent("PLAYER_FOCUS_CHANGED")
 		portraitWatcher:SetScript("OnEvent", function(self, event, unit)
-			if unit == "player" and PlayerFrame then
-				UpdateClassIcon(PlayerFrame)
-			elseif unit == "target" and TargetFrame then
+			if event == "UNIT_PORTRAIT_UPDATE" then
+				if unit == "player" and PlayerFrame then
+					UpdateClassIcon(PlayerFrame)
+				elseif unit == "target" and TargetFrame then
+					UpdateClassIcon(TargetFrame)
+				elseif unit == "focus" and FocusFrame then
+					UpdateClassIcon(FocusFrame)
+				end
+			elseif event == "PLAYER_TARGET_CHANGED" and TargetFrame then
 				UpdateClassIcon(TargetFrame)
-			elseif unit == "focus" and FocusFrame then
+			elseif event == "PLAYER_FOCUS_CHANGED" and FocusFrame then
 				UpdateClassIcon(FocusFrame)
 			end
 		end)
 	end
 
-	-- Class Color Bars - Use frame-specific hooks to prevent taint
+	-- Class Color Bars - Use OnUpdate delay to prevent taint
 	if C.Unitframe.ClassHealth == true then
 		local function colorHealthBar(statusbar, unit)
 			if not statusbar or not statusbar.unit then return end
@@ -257,21 +262,41 @@ if not InCombatLockdown() then
 			end
 		end
 
+		-- OnUpdate delay to prevent taint during Blizzard's frame update chain
+		local colorQueue = {}
+		local colorFrame = CreateFrame("Frame")
+		colorFrame:SetScript("OnUpdate", function(self)
+			for statusBar, unit in pairs(colorQueue) do
+				colorHealthBar(statusBar, unit)
+				colorQueue[statusBar] = nil
+			end
+		end)
+
 		-- Hook specific frames instead of global functions to prevent taint
 		if PlayerFrameHealthBar then
 			hooksecurefunc(PlayerFrameHealthBar, "SetValue", function(self)
-				colorHealthBar(self, "player")
+				colorQueue[self] = "player"
 			end)
 		end
 		if TargetFrameHealthBar then
 			hooksecurefunc(TargetFrameHealthBar, "SetValue", function(self)
-				colorHealthBar(self, "target")
+				colorQueue[self] = "target"
 			end)
 		end
 		if FocusFrameHealthBar then
 			hooksecurefunc(FocusFrameHealthBar, "SetValue", function(self)
-				colorHealthBar(self, "focus")
+				colorQueue[self] = "focus"
 			end)
+		end
+		
+		-- Party Member Frames Class Colors
+		for i = 1, MAX_PARTY_MEMBERS do
+			local partyHealthBar = _G["PartyMemberFrame"..i.."HealthBar"]
+			if partyHealthBar then
+				hooksecurefunc(partyHealthBar, "SetValue", function(self)
+					colorQueue[self] = "party"..i
+				end)
+			end
 		end
 	end
 end

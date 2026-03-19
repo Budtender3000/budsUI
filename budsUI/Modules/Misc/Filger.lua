@@ -62,9 +62,12 @@ local function BuildAuraCache(unitID, auraType)
 	local cache = {}
 	local scanner = (auraType == "buff") and UnitBuff or UnitDebuff
 	for i = 1, 40 do
-		local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID = scanner(unitID, i)
+		-- WoW 3.3.5 Compatibility: UnitBuff/UnitDebuff return only 10 values, not 11
+		-- spellID (11th value) was added in Cataclysm 4.0
+		-- We use the spell name as key instead
+		local name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate = scanner(unitID, i)
 		if not name then break end
-		cache[spellID] = {name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID}
+		cache[name] = {name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, name}
 	end
 	auraCache[auraType][unitID] = cache
 	return cache
@@ -92,7 +95,8 @@ end
 function Filger:UnitBuff(unitID, inSpellID, spn, absID)
 	if absID then
 		local cache = auraCache.buff[unitID] or BuildAuraCache(unitID, "buff")
-		local data = cache[inSpellID]
+		-- WoW 3.3.5: Use spell name as key instead of spellID
+		local data = cache[spn]
 		if data then
 			return unpack(data)
 		end
@@ -105,7 +109,8 @@ end
 function Filger:UnitDebuff(unitID, inSpellID, spn, absID)
 	if absID then
 		local cache = auraCache.debuff[unitID] or BuildAuraCache(unitID, "debuff")
-		local data = cache[inSpellID]
+		-- WoW 3.3.5: Use spell name as key instead of spellID
+		local data = cache[spn]
 		if data then
 			return unpack(data)
 		end
@@ -395,6 +400,7 @@ function Filger:OnEvent(event, unit)
 				local caster, spn, expirationTime
 				spn, _, _ = K.GetSpellInfo(data.spellID)
 				if spn then
+					-- WoW 3.3.5: UnitBuff returns only 10 values, spid is set to spell name
 					name, _, icon, count, _, duration, expirationTime, caster, _, _, spid = Filger:UnitBuff(data.unitID, data.spellID, spn, data.absID)
 					if name and (data.caster ~= 1 and (caster == data.caster or data.caster == "all") or MyUnits[caster]) then
 						if not data.count or count >= data.count then
@@ -407,6 +413,7 @@ function Filger:OnEvent(event, unit)
 				local caster, spn, expirationTime
 				spn, _, _ = K.GetSpellInfo(data.spellID)
 				if spn then
+					-- WoW 3.3.5: UnitDebuff returns only 10 values, spid is set to spell name
 					name, _, icon, count, _, duration, expirationTime, caster, _, _, spid = Filger:UnitDebuff(data.unitID, data.spellID, spn, data.absID)
 					if name and (data.caster ~= 1 and (caster == data.caster or data.caster == "all") or MyUnits[caster]) then
 						start = expirationTime - duration
@@ -440,12 +447,14 @@ function Filger:OnEvent(event, unit)
 					local spn
 					spn, _, icon = K.GetSpellInfo(data.spellID)
 					if spn then
+						-- WoW 3.3.5: UnitBuff returns only 10 values, spid is set to spell name
 						name, _, _, _, _, _, _, _, _, _, spid = Filger:UnitBuff("player", data.spellID, spn, data.absID)
 					end
 				elseif data.trigger == "DEBUFF" then
 					local spn
 					spn, _, icon = K.GetSpellInfo(data.spellID)
 					if spn then
+						-- WoW 3.3.5: UnitDebuff returns only 10 values, spid is set to spell name
 						name, _, _, _, _, _, _, _, _, _, spid = Filger:UnitDebuff("player", data.spellID, spn, data.absID)
 					end
 				end

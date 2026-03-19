@@ -293,6 +293,7 @@ C["Unitframe"] = {
 	["ClassHealth"] = false,
 	["ClassIcon"] = false,
 	["CombatFeedback"] = false,
+	["DisableToT"] = false, -- Disable budsUI ToT modifications, use Blizzard default (prevents taint)
 	["Enable"] = false,
 	["EnhancedFrames"] = false,
 	["GroupNumber"] = false,

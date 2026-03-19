@@ -1,5 +1,16 @@
 local K, C, L, _ = select(2, ...):unpack()
 
+local GetSpellInfo = GetSpellInfo
+
+-- WoW 3.3.5: GetSpellLink doesn't exist, create spell link manually
+local function GetSpellLink(spellID)
+	local name = GetSpellInfo(spellID)
+	if name then
+		return "|cff71d5ff|Hspell:"..spellID.."|h["..name.."]|h|r"
+	end
+	return nil
+end
+
 local function InGroup()
 	return (GetNumPartyMembers() > 0 or GetNumRaidMembers() > 0) and true or false
 end

@@ -59,7 +59,8 @@ end
 -- Disband party or raid (by Monolit)
 SlashCmdList["GROUPDISBAND"] = function()
 	SendChatMessage(L_INFO_DISBAND, GetNumRaidMembers() > 0 and "RAID" or "PARTY")
-	if UnitInRaid("player") then
+	-- WoW 3.3.5: UnitInRaid() exists, but check with GetNumRaidMembers() is more reliable
+	if GetNumRaidMembers() > 0 then
 		for i = 1, GetNumRaidMembers() do
 			local name, _, _, _, _, _, _, online = GetRaidRosterInfo(i)
 			if online and name ~= K.Name then
@@ -68,7 +69,8 @@ SlashCmdList["GROUPDISBAND"] = function()
 		end
 	else
 		for i = MAX_PARTY_MEMBERS, 1, -1 do
-			if GetPartyMember(i) then
+			-- WoW 3.3.5: GetPartyMember() is deprecated, use UnitExists()
+			if UnitExists("party"..i) then
 				UninviteUnit(UnitName("party"..i))
 			end
 		end
@@ -98,7 +100,8 @@ SLASH_LUAERROR1 = "/luaerror"
 -- Convert party to raid
 SlashCmdList.PARTYTORAID = function()
 	if GetNumPartyMembers() > 0 then
-		if UnitInParty("player") and IsGroupLeader() then
+		-- WoW 3.3.5: IsGroupLeader() doesn't exist, use UnitIsPartyLeader()
+		if UnitIsPartyLeader("player") then
 			ConvertToRaid()
 		end
 	else

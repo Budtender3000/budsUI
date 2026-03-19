@@ -6,9 +6,18 @@ local gsub = string.gsub
 local pairs = pairs
 local CreateFrame = CreateFrame
 local GetInstanceInfo = GetInstanceInfo
-local GetSpellLink = GetSpellLink
+local GetSpellInfo = GetSpellInfo
 local SendChatMessage = SendChatMessage
 local playerGUID = UnitGUID("player")
+
+-- WoW 3.3.5: GetSpellLink doesn't exist, create spell link manually
+local function GetSpellLink(spellID)
+	local name = GetSpellInfo(spellID)
+	if name then
+		return "|cff71d5ff|Hspell:"..spellID.."|h["..name.."]|h|r"
+	end
+	return nil
+end
 
 -- Announce some spells
 local frame = CreateFrame("Frame")

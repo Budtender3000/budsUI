@@ -35,9 +35,14 @@ GameTooltip:HookScript("OnTooltipSetSpell", function(self)
 end)
 
 hooksecurefunc(GameTooltip, "SetUnitAura", function(self, ...)
-	local id = select(11, UnitAura(...))
-	if id then addLine(self, id) end
-	if debuginfo == true and id and IsModifierKeyDown() then K.Print(UnitAura(...)..": "..id) end
+	-- WoW 3.3.5 Compatibility: UnitAura returns only 10 values, not 11
+	-- spellID (11th value) was added in Cataclysm 4.0
+	-- In 3.3.5 we cannot show spell IDs from auras, only spell names
+	local name = select(1, UnitAura(...))
+	if name and debuginfo == true and IsModifierKeyDown() then 
+		K.Print("Aura: "..name.." (SpellID not available in 3.3.5)")
+	end
+	-- Note: We skip adding the ID line since it's not available in 3.3.5
 end)
 
 hooksecurefunc("SetItemRef", function(link, ...)

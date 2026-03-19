@@ -171,7 +171,22 @@ end
 
 local function UpdateBarValue()
 	local powerType = UnitPowerType("player")
-	f.Power:SetMinMaxValues(0, UnitPowerMax("player", powerType))
+	-- WoW 3.3.5: UnitPowerMax() doesn't exist, use specific functions
+	local maxPower
+	if powerType == 0 then
+		maxPower = UnitManaMax("player")
+	elseif powerType == 1 then
+		maxPower = UnitRageMax("player")
+	elseif powerType == 2 then
+		maxPower = UnitFocusMax("player")
+	elseif powerType == 3 then
+		maxPower = UnitEnergyMax("player")
+	elseif powerType == 6 then
+		maxPower = UnitRunicPowerMax("player")
+	else
+		maxPower = 100 -- Fallback
+	end
+	f.Power:SetMinMaxValues(0, maxPower)
 	local curValue = UnitPower("player", powerType)
 	f.Power:SetValue(curValue)
 

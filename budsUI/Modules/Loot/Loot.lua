@@ -52,7 +52,9 @@ function Butsu:LOOT_OPENED(event, autoloot)
 	if items > 0 then
 		for i = 1, items do
 			local slot = _NS.slots[i] or _NS.CreateSlot(i)
-			local texture, item, quantity, quality, locked, isQuestItem, questId, isActive = GetLootSlotInfo(i)
+			-- WoW 3.3.5 Compatibility: GetLootSlotInfo returns only 7 values, not 8
+			-- The 8th parameter (isActive) was added in later expansions
+			local texture, item, quantity, quality, locked, isQuestItem, questId = GetLootSlotInfo(i)
 			if texture then
 				local color = ITEM_QUALITY_COLORS[quality or 0] or ITEM_QUALITY_COLORS[0]
 				local r, g, b = color.r, color.g, color.b
@@ -68,7 +70,8 @@ function Butsu:LOOT_OPENED(event, autoloot)
 					slot.count:Hide()
 				end
 
-				if questId and not isActive then
+				-- WoW 3.3.5: isActive doesn't exist, just check questId
+				if questId then
 					slot.quest:Show()
 				else
 					slot.quest:Hide()
