@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.6] - 2025-01-13
+
+### Fixed
+- **WoW 3.3.5 API Compatibility:** Enhanced compatibility with WotLK 3.3.5 API
+  - **PLAYER_EQUIPMENT_CHANGED Event:** Replaced with UNIT_INVENTORY_CHANGED for proper 3.3.5 support
+    - Fixed ItemLevel module to use correct event (PLAYER_EQUIPMENT_CHANGED doesn't exist in 3.3.5)
+    - Updated event handler to use unit parameter: `UNIT_INVENTORY_CHANGED` with `unit == "player"` check
+  - **table.wipe() Function:** Replaced with wipe() for better Lua 5.1 compatibility
+    - Fixed Announcements module (Drinking.lua, Interrupt.lua, SaySapped.lua)
+    - Fixed Automation module (AutoInvite.lua)
+    - Fixed Miscellaneous module (AlreadyKnown.lua, ThreatMeter.lua)
+    - wipe() is the correct WoW API function, table.wipe() doesn't exist in 3.3.5
+  - **Improved Stability:** Better error handling and API usage across multiple modules
+
+### Changed
+- **Code Quality:** Standardized API usage across all modules for consistency
+- **Performance:** Reduced potential errors from incorrect API calls
+
 ## [0.6.5] - 2025-01-13
 
 ### Fixed
@@ -354,7 +372,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored item info extraction for grey selling
 - Optimized target name retrieval
 
-[Unreleased]: https://github.com/Budtender3000/budsUI/compare/v0.6.4...HEAD
+[Unreleased]: https://github.com/Budtender3000/budsUI/compare/v0.6.6...HEAD
+[0.6.6]: https://github.com/Budtender3000/budsUI/compare/v0.6.5...v0.6.6
+[0.6.5]: https://github.com/Budtender3000/budsUI/compare/v0.6.4...v0.6.5
 [0.6.4]: https://github.com/Budtender3000/budsUI/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/Budtender3000/budsUI/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/Budtender3000/budsUI/compare/v0.6.1...v0.6.2
