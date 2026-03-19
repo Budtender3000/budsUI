@@ -6,11 +6,19 @@ local GetName = GetName
 local UnitIsFriend = UnitIsFriend
 local hooksecurefunc = hooksecurefunc
 
-TargetFrame.maxBuffs = 16
-TargetFrame.maxDebuffs = 16
-MAX_TARGET_BUFFS = 16
-MAX_TARGET_DEBUFFS = 16
-TargetFrame_UpdateAuras(TargetFrame)
+-- Initialize aura settings after PLAYER_ENTERING_WORLD to prevent early taint
+local auraInit = CreateFrame("Frame")
+auraInit:RegisterEvent("PLAYER_ENTERING_WORLD")
+auraInit:SetScript("OnEvent", function(self, event)
+	if event == "PLAYER_ENTERING_WORLD" then
+		TargetFrame.maxBuffs = 16
+		TargetFrame.maxDebuffs = 16
+		MAX_TARGET_BUFFS = 16
+		MAX_TARGET_DEBUFFS = 16
+		TargetFrame_UpdateAuras(TargetFrame)
+		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	end
+end)
 
 -- Aura Constants
 local AURA_BORDER_SIZE = 8
@@ -257,10 +265,25 @@ local function TargetDebuffPosit(self, debuffName, index, numBuffs, anchorIndex,
 end
 
 do
-	-- Only hook TargetFrame and FocusFrame to prevent taint on secure frames
-	-- RefreshDebuffs is global and affects ALL frames including raid frames
-	-- We replace it with frame-specific hooks
+	-- Frame-specific hooks to prevent taint on secure frames like TargetFrameToT and PetFrame
+	-- CRITICAL: Do NOT hook global Blizzard functions (TargetFrame_UpdateAuras, etc.)
+	-- because they are called internally for ALL frames including secure frames
+	-- This causes taint on TargetFrameToT:Show() and PetFrame:SetAttribute()
 	
+	-- Create event frame to monitor aura updates
+	local auraWatcher = CreateFrame("Frame")
+	auraWatcher:RegisterEvent("UNIT_AURA")
+	auraWatcher:SetScript("OnEvent", function(self, event, unit)
+		if not InCombatLockdown() then
+			if unit == "target" and TargetFrame and TargetFrame:IsVisible() then
+				TargetAuraColour(TargetFrame)
+			elseif unit == "focus" and FocusFrame and FocusFrame:IsVisible() then
+				TargetAuraColour(FocusFrame)
+			end
+		end
+	end)
+	
+	-- Hook Show to update auras when frame becomes visible
 	if TargetFrame then
 		hooksecurefunc(TargetFrame, "Show", function(self)
 			if not InCombatLockdown() then
@@ -276,9 +299,4 @@ do
 			end
 		end)
 	end
-	
-	-- Keep TargetFrame-specific hooks as they only affect TargetFrame/FocusFrame
-	hooksecurefunc("TargetFrame_UpdateAuras", TargetAuraColour)
-	hooksecurefunc("TargetFrame_UpdateAuraPositions", TargetAuraPosit)
-	hooksecurefunc("TargetFrame_UpdateDebuffAnchor", TargetDebuffPosit)
 end
