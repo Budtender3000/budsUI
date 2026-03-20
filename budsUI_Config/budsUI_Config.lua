@@ -46,27 +46,26 @@ InitSavedVariables()
 
 local ALLOWED_GROUPS = {
 	["General"] = 1,
-	["ActionBar"] = 2,
-	["Announcements"] = 3,
-	["Automation"] = 4,
-	["Bag"] = 5,
-	["Blizzard"] = 6,
-	["Aura"] = 7,
-	["Chat"] = 8,
-	["Cooldown"] = 9,
-	["Error"] = 10,
-	["Filger"] = 11,
-	["Loot"] = 12,
-	["Minimap"] = 13,
-	["Misc"] = 14,
-	["Nameplate"] = 15,
-	["PowerBar"] = 16,
-	["PulseCD"] = 17,
-	["Skins"] = 18,
-	["Tooltip"] = 19,
-	["Unitframe"] = 20,
-	["Profiles"] = 21,
-	["MoverPositions"] = 22,
+	["Profiles"] = 2,
+	["ActionBar"] = 3,
+	["Announcements"] = 4,
+	["Automation"] = 5,
+	["Bag"] = 6,
+	["Blizzard"] = 7,
+	["Aura"] = 8,
+	["Chat"] = 9,
+	["Cooldown"] = 10,
+	["Error"] = 11,
+	["Filger"] = 12,
+	["Loot"] = 13,
+	["Minimap"] = 14,
+	["Misc"] = 15,
+	["Nameplate"] = 16,
+	["PowerBar"] = 17,
+	["PulseCD"] = 18,
+	["Skins"] = 19,
+	["Tooltip"] = 20,
+	["Unitframe"] = 21,
 }
 
 local function Local(o)
@@ -607,9 +606,11 @@ function CreateUIConfig()
 
 	if not slider.bg then
 		slider.bg = CreateFrame("Frame", nil, slider)
-		slider.bg:SetPoint("TOPLEFT", slider:GetThumbTexture(), "TOPLEFT", 10, -7)
-		slider.bg:SetPoint("BOTTOMRIGHT", slider:GetThumbTexture(), "BOTTOMRIGHT", -7, 7)
-		slider:GetThumbTexture():SetAlpha(0)
+		slider.bg:SetPoint("TOPLEFT", 0, 0)
+		slider.bg:SetPoint("BOTTOMRIGHT", 0, 0)
+		slider.bg:SetBackdrop(K.Backdrop)
+		slider.bg:SetBackdropColor(unpack(C["Media"].Backdrop_Color))
+		slider.bg:SetBackdropBorderColor(unpack(C["Media"].Border_Color))
 	end
 
 	local function sortMyTable(a, b)
@@ -702,6 +703,15 @@ function CreateUIConfig()
 	slider:SetOrientation("VERTICAL")
 	slider:SetValueStep(20)
 	slider:SetScript("OnValueChanged", function(self, value) UIConfigGroup:SetVerticalScroll(value) end)
+	
+	if not slider.bg then
+		slider.bg = CreateFrame("Frame", nil, slider)
+		slider.bg:SetPoint("TOPLEFT", 0, 0)
+		slider.bg:SetPoint("BOTTOMRIGHT", 0, 0)
+		slider.bg:SetBackdrop(K.Backdrop)
+		slider.bg:SetBackdropColor(unpack(C["Media"].Backdrop_Color))
+		slider.bg:SetBackdropBorderColor(unpack(C["Media"].Border_Color))
+	end
 
 	for i in pairs(ALLOWED_GROUPS) do
 		if i ~= "Profiles" then
