@@ -108,7 +108,6 @@ K.BudtenderPreset = {
 		["DeveloperMode"] = false,
 		["MultisampleCheck"] = false,
 		["ReplaceBlizzardFonts"] = true,
-		["TranslateMessage"] = true,
 		["UIScale"] = 0.71111111111111,
 		["WelcomeMessage"] = true,
 	},
