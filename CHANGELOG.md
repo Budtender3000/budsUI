@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.7] - 2026-03-20
+
+### Changed
+- **Unitframe Integration:** Fully combined the "budsUI Layout" and "Modified Blizzard unitframe graphics" (Fatbars) into a single, permanent core UI configuration. The Enhanced Fatbars are now unconditionally active, eliminating legacy layout fragmentation.
+- **Config UI Improvements:** Swapped out text `EditBox`es for fluid `Slider` inputs in the Unitframes options menu for settings like `Scale`, `CastBarScale`, and `AuraSize`.
+- **Settings Cleansing:** Removed deprecated variables (`SmoothBars`, `DarkTextures`, `Enable` etc.) from `Settings.lua` so they no longer incorrectly render in the in-game GUI matrix.
+- **Settings Safety:** Added bounded config validation (min/max clamps) for all unitframe slider variables in `Settings.lua` to ensure stability.
+
+### Fixed
+- **Missing Frames Crash:** Resolved a startup error affecting `Filger.lua` by systematically stripping stale `C.Unitframe.Enable` config blocks from `FilgerSpells.lua` so anchor frames construct appropriately.
+- **Syntax Bug:** Repaired a broken terminal `end` statement in `Settings.lua` validation introduced during UI cleanup.
+- **Unitframe Conflicts:** Converted all Core features to depend directly on checking the client for competing Addons (e.g. `ShadowedUnitFrames`, `PitBull4`, `XPerl`, `Stuf`) rather than internal layout booleans.
 ## [0.6.6] - 2025-01-13
 
 ### Fixed
@@ -372,7 +384,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored item info extraction for grey selling
 - Optimized target name retrieval
 
-[Unreleased]: https://github.com/Budtender3000/budsUI/compare/v0.6.6...HEAD
+[Unreleased]: https://github.com/Budtender3000/budsUI/compare/v0.6.7...HEAD
+[0.6.7]: https://github.com/Budtender3000/budsUI/compare/v0.6.6...v0.6.7
 [0.6.6]: https://github.com/Budtender3000/budsUI/compare/v0.6.5...v0.6.6
 [0.6.5]: https://github.com/Budtender3000/budsUI/compare/v0.6.4...v0.6.5
 [0.6.4]: https://github.com/Budtender3000/budsUI/compare/v0.6.3...v0.6.4
