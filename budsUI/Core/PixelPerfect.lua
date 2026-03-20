@@ -22,9 +22,11 @@ PixelPerfect:SetScript("OnEvent", function(self, event)
 	end
 
 	-- Multisample need to be at 1 for pixel perfectness
-	if (C.General.MultisampleCheck) and (gxMultisample ~= "1") then
+	if C.General.MultisampleCheck then
 		local gxMultisample = GetCVar("gxMultisample")
-		pcall(SetMultisampleFormat, 1)
+		if gxMultisample ~= "1" then
+			pcall(SetMultisampleFormat, 1)
+		end
 	end
 
 	-- UIScale Security

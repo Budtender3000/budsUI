@@ -178,6 +178,7 @@ local function Local(o)
 	if o == "UIConfigGeneralUIScale" then o = L_GUI_GENERAL_UISCALE end
 	if o == "UIConfigGeneralBubbleFontSize" then o = L_GUI_GENERAL_CHATBUBBLE_FONTSIZE end
 	if o == "UIConfigGeneralBubbleBackdrop" then o = L_GUI_GENERAL_CHATBUBBLE_NOBACKDROP end
+	if o == "UIConfigGeneralDeveloperMode" then o = L_GUI_GENERAL_DEVELOPER_MODE end
 	if o == "UIConfigGeneralWelcomeMessage" then o = L_GUI_GENERAL_WELCOME_MESSAGE end
 	-- Loot Settings
 	if o == "UIConfigLoot" then o = LOOT end
