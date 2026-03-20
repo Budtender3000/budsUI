@@ -19,7 +19,11 @@ Engine[1].Race = select(2, UnitRace("player"))
 Engine[1].Level = UnitLevel("player")
 Engine[1].Client = GetLocale()
 Engine[1].Realm = GetRealmName()
-Engine[1].Resolution = GetCVar("gxResolution")
+local res = GetCVar("gxResolution")
+if not res or not string.match(res, "%d+x%d+") then
+	res = "1920x1080"
+end
+Engine[1].Resolution = res
 Engine[1].Color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[Engine[1].Class]
 Engine[1].Version = "0.6.7"
 Engine[1].ScreenHeight = tonumber(string.match(Engine[1].Resolution, "%d+x(%d+)"))

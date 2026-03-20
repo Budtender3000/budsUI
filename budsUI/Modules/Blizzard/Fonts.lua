@@ -78,5 +78,5 @@ Fonts:SetScript("OnEvent", function(self, event, addon)
 	SetFont = nil
 	self:SetScript("OnEvent", nil)
 	self:UnregisterAllEvents()
-	self = nil
+
 end)
