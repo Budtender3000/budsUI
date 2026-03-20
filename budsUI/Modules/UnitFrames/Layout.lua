@@ -149,16 +149,7 @@ if not (IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("Sha
 		
 		if C.Unitframe.DisableToT then
 			-- Ensure ToT frames are not touched by budsUI at all
-			if TargetFrameToT then
-				-- Reset to Blizzard defaults - no scaling, no repositioning
-				TargetFrameToT:SetScale(1.0)
-				-- Let Blizzard handle all ToT positioning and visibility
-			end
-			
-			if FocusFrameToT then
-				-- Reset to Blizzard defaults
-				FocusFrameToT:SetScale(1.0)
-			end
+			-- Let Blizzard handle all ToT positioning and visibility
 		end
 
 		-- Arena Frames Scaling
