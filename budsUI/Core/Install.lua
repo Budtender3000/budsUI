@@ -208,6 +208,13 @@ local function InstallStep5_ChatWindows()
 	ChangeChatColor("CHANNEL1", 195/255, 230/255, 232/255)
 	ChangeChatColor("CHANNEL2", 232/255, 158/255, 121/255)
 	ChangeChatColor("CHANNEL3", 232/255, 228/255, 121/255)
+
+	-- Force default chat position upon installation
+	ChatFrame1:ClearAllPoints()
+	ChatFrame1:SetSize(C.Chat.Width, C.Chat.Height)
+	ChatFrame1:SetPoint(C.Position.Chat[1], C.Position.Chat[2], C.Position.Chat[3], C.Position.Chat[4], C.Position.Chat[5])
+	FCF_SavePositionAndDimensions(ChatFrame1)
+	ChatFrame1:SetUserPlaced(true)
 end
 
 -- Step 6: Misc Settings
@@ -229,19 +236,24 @@ end
 
 -- Step 7: Finalize
 local function InstallStep7_Finalize()
-	SavedPositions = {}
-	SavedOptionsPerChar = {}
+	if not budsUIData then budsUIData = {} end
+	if type(budsUIData.CharacterData) ~= "table" then budsUIData.CharacterData = {} end
 	
-	if not GUIConfigAll then GUIConfigAll = {} end
-	if not GUIConfigAll.CharacterMap then GUIConfigAll.CharacterMap = {} end
-	GUIConfigAll.CharacterMap[K.Realm.."-"..K.Name] = "Default"
+	local realmKey = K.Realm .. "-" .. K.Name
+	if type(budsUIData.CharacterData[realmKey]) ~= "table" then budsUIData.CharacterData[realmKey] = {} end
+	local charSettings = budsUIData.CharacterData[realmKey]
 	
-	SavedOptionsPerChar.Install = true
-	SavedOptionsPerChar.AutoInvite = false
-	SavedOptionsPerChar.BarsLocked = false
-	SavedOptionsPerChar.SplitBars = true
-	SavedOptionsPerChar.RightBars = C.ActionBar.RightBars
-	SavedOptionsPerChar.BottomBars = C.ActionBar.BottomBars
+	charSettings.Install = true
+	charSettings.AutoInvite = false
+	charSettings.BarsLocked = false
+	charSettings.SplitBars = true
+	charSettings.RightBars = C.ActionBar.RightBars
+	charSettings.BottomBars = C.ActionBar.BottomBars
+	
+	local activeProfile = K.GetActiveProfile()
+	if activeProfile and budsUIData.Profiles[activeProfile] then
+		budsUIData.Profiles[activeProfile] = {}
+	end
 end
 
 
@@ -278,7 +290,7 @@ local function CreateInstallWizard()
 	-- Title
 	local title = InstallFrame:FontString(nil, C.Media.Font, 18)
 	title:SetPoint("TOP", logo, "BOTTOM", 0, -10)
-	title:SetText("|cff388bdbInstallations-Assistent|r")
+	title:SetText(L_INSTALL_TITLE)
 	
 	-- Step indicator
 	local stepText = InstallFrame:FontString(nil, C.Media.Font, 16)
@@ -307,7 +319,7 @@ local function CreateInstallWizard()
 	local prevBtn = CreateFrame("Button", nil, InstallFrame, "UIPanelButtonTemplate")
 	prevBtn:SetSize(120, 30)
 	prevBtn:SetPoint("BOTTOMLEFT", InstallFrame, "BOTTOMLEFT", 20, 15)
-	prevBtn:SetText("< Zurück")
+	prevBtn:SetText(L_INSTALL_BTN_PREV)
 	prevBtn:StyleButton()
 	InstallFrame.prevBtn = prevBtn
 	
@@ -315,7 +327,7 @@ local function CreateInstallWizard()
 	local nextBtn = CreateFrame("Button", nil, InstallFrame, "UIPanelButtonTemplate")
 	nextBtn:SetSize(120, 30)
 	nextBtn:SetPoint("BOTTOMRIGHT", InstallFrame, "BOTTOMRIGHT", -20, 15)
-	nextBtn:SetText("Weiter >")
+	nextBtn:SetText(L_INSTALL_BTN_NEXT)
 	nextBtn:StyleButton()
 	InstallFrame.nextBtn = nextBtn
 	
@@ -323,10 +335,13 @@ local function CreateInstallWizard()
 	local skipBtn = CreateFrame("Button", nil, InstallFrame, "UIPanelButtonTemplate")
 	skipBtn:SetSize(120, 30)
 	skipBtn:SetPoint("BOTTOM", InstallFrame, "BOTTOM", 0, 15)
-	skipBtn:SetText("Überspringen")
+	skipBtn:SetText(L_INSTALL_BTN_SKIP)
 	skipBtn:StyleButton()
 	skipBtn:SetScript("OnClick", function()
-		SavedOptionsPerChar.Install = false
+		if not budsUIData then budsUIData = {} end
+		if not budsUIData.CharacterData then budsUIData.CharacterData = {} end
+		if not budsUIData.CharacterData[K.Realm.."-"..K.Name] then budsUIData.CharacterData[K.Realm.."-"..K.Name] = {} end
+		budsUIData.CharacterData[K.Realm.."-"..K.Name].Install = false
 		InstallFrame:Hide()
 	end)
 	InstallFrame.skipBtn = skipBtn
@@ -334,43 +349,43 @@ end
 
 local installSteps = {
 	{
-		title = "Willkommen bei budsUI!",
-		desc = "Dieser Assistent hilft dir, budsUI optimal einzurichten.\n\nWir werden folgende Bereiche konfigurieren:\n\n• Interface-Einstellungen\n• Grafik & Kamera\n• Kampf & Tooltips\n• Chat-Einstellungen\n• Chat-Fenster Layout\n• Verschiedenes\n\nKlicke auf 'Weiter' um zu beginnen.",
+		title = L_INSTALL_STEP1_TITLE,
+		desc = L_INSTALL_STEP1_DESC,
 		func = nil
 	},
 	{
-		title = "Schritt 1: Interface",
-		desc = "Konfiguriere grundlegende Interface-Einstellungen:\n\n• Aktionsleisten immer anzeigen\n• Aktionsleisten sperren\n• Auto-Dismount aktivieren\n• Quest-Tracking aktivieren\n• Loot-Taste auf SHIFT setzen\n• Selbstzauber-Taste auf ALT setzen",
+		title = L_INSTALL_STEP2_TITLE,
+		desc = L_INSTALL_STEP2_DESC,
 		func = InstallStep1_Interface
 	},
 	{
-		title = "Schritt 2: Grafik & Kamera",
-		desc = "Optimiere Grafik- und Kamera-Einstellungen:\n\n• Maximale Kameradistanz auf 50\n• Screenshot-Qualität auf Maximum\n• UI-Skalierung automatisch anpassen\n• Gewaltlevel auf Maximum",
+		title = L_INSTALL_STEP3_TITLE,
+		desc = L_INSTALL_STEP3_DESC,
 		func = InstallStep2_Graphics
 	},
 	{
-		title = "Schritt 3: Kampf & Tooltips",
-		desc = "Konfiguriere Kampf-relevante Einstellungen:\n\n• Buff-Dauer anzeigen\n• Bedrohungswarnung aktivieren\n• Erweiterte Tooltips\n• Klassenfarben in Namensplaketten\n• Buff-Konsolidierung deaktivieren",
+		title = L_INSTALL_STEP4_TITLE,
+		desc = L_INSTALL_STEP4_DESC,
 		func = InstallStep3_Combat
 	},
 	{
-		title = "Schritt 4: Chat-Einstellungen",
-		desc = "Optimiere Chat-Funktionen:\n\n• Mausrad-Scrollen aktivieren\n• Klassischen Chat-Stil verwenden\n• Chat-Verzögerung entfernen\n• Spam-Filter konfigurieren",
+		title = L_INSTALL_STEP5_TITLE,
+		desc = L_INSTALL_STEP5_DESC,
 		func = InstallStep4_Chat
 	},
 	{
-		title = "Schritt 5: Chat-Fenster",
-		desc = "Richte Chat-Fenster ein:\n\n• 5 Chat-Fenster erstellen\n• Fenster 1: Allgemein (Say, Yell, Emote, System)\n• Fenster 2: Gilden-Log\n• Fenster 3: Beute (Loot, XP, Gold)\n• Fenster 4: Handel\n• Fenster 5: Gruppe (Whisper, Party, Raid, BG)\n• Klassenfarben in allen Kanälen aktivieren",
+		title = L_INSTALL_STEP6_TITLE,
+		desc = L_INSTALL_STEP6_DESC,
 		func = InstallStep5_ChatWindows
 	},
 	{
-		title = "Schritt 6: Verschiedenes",
-		desc = "Letzte Einstellungen:\n\n• Minimap-Rotation deaktivieren\n• Anfänger-Tipps ausblenden\n• Tutorials deaktivieren\n• Fehlerberichte konfigurieren",
+		title = L_INSTALL_STEP7_TITLE,
+		desc = L_INSTALL_STEP7_DESC,
 		func = InstallStep6_Misc
 	},
 	{
-		title = "Installation abgeschlossen!",
-		desc = "Alle Einstellungen wurden erfolgreich konfiguriert.\n\nbudsUI ist nun einsatzbereit!\n\nKlicke auf 'Fertig' um das Interface neu zu laden.\n\nViel Spaß mit budsUI!\n\nBesuche: |cff388bdbwww.github.com/Budtender3000/budsUI|r",
+		title = L_INSTALL_STEP8_TITLE,
+		desc = L_INSTALL_STEP8_DESC,
 		func = InstallStep7_Finalize
 	}
 }
@@ -381,22 +396,22 @@ local function UpdateInstallWizard(step)
 	local stepData = installSteps[step]
 	if not stepData then return end
 	
-	InstallFrame.stepText:SetText(string.format("Schritt %d von %d", step, #installSteps))
+	InstallFrame.stepText:SetText(string.format(L_INSTALL_STEP_TXT, step, #installSteps))
 	InstallFrame.desc:SetText(stepData.desc)
 	InstallFrame.progressBar:SetValue(step)
 	
 	-- Update buttons
 	if step == 1 then
 		InstallFrame.prevBtn:Disable()
-		InstallFrame.nextBtn:SetText("Weiter >")
+		InstallFrame.nextBtn:SetText(L_INSTALL_BTN_NEXT)
 		InstallFrame.skipBtn:Show()
 	elseif step == #installSteps then
 		InstallFrame.prevBtn:Enable()
-		InstallFrame.nextBtn:SetText("Fertig")
+		InstallFrame.nextBtn:SetText(L_INSTALL_BTN_DONE)
 		InstallFrame.skipBtn:Hide()
 	else
 		InstallFrame.prevBtn:Enable()
-		InstallFrame.nextBtn:SetText("Weiter >")
+		InstallFrame.nextBtn:SetText(L_INSTALL_BTN_NEXT)
 		InstallFrame.skipBtn:Show()
 	end
 end
@@ -417,7 +432,10 @@ local function ShowInstallWizard()
 	InstallFrame.nextBtn:SetScript("OnClick", function()
 		local stepData = installSteps[InstallStep]
 		if stepData.func then
-			stepData.func()
+			local ok, err = pcall(stepData.func)
+			if not ok then
+				print(L_INSTALL_ERROR .. tostring(err))
+			end
 		end
 		
 		if InstallStep < #installSteps then
@@ -439,7 +457,10 @@ StaticPopupDialogs["INSTALL_UI"] = {
 	OnAccept = function()
 		ShowInstallWizard()
 	end,
-	OnCancel = function() SavedOptionsPerChar.Install = false end,
+	OnCancel = function() 
+		if not budsUIData.CharacterData[K.Realm.."-"..K.Name] then budsUIData.CharacterData[K.Realm.."-"..K.Name] = {} end
+		budsUIData.CharacterData[K.Realm.."-"..K.Name].Install = false 
+	end,
 	timeout = 0,
 	whileDead = 1,
 	hideOnEscape = false,
@@ -477,7 +498,10 @@ StaticPopupDialogs["RESET_UI"] = {
 	OnAccept = function()
 		ShowInstallWizard()
 	end,
-	OnCancel = function() SavedOptionsPerChar.Install = true end,
+	OnCancel = function() 
+		if not budsUIData.CharacterData[K.Realm.."-"..K.Name] then budsUIData.CharacterData[K.Realm.."-"..K.Name] = {} end
+		budsUIData.CharacterData[K.Realm.."-"..K.Name].Install = true 
+	end,
 	showAlert = true,
 	timeout = 0,
 	whileDead = 1,
@@ -510,15 +534,19 @@ Install:SetScript("OnEvent", function(self, event, addon)
 		return
 	end
 
-	-- Create empty CVar if they don't exist
-	if type(SavedOptions) ~= "table" then SavedOptions = {} end
-	if type(SavedPositions) ~= "table" then SavedPositions = {} end
-	if type(SavedOptionsPerChar) ~= "table" then SavedOptionsPerChar = {} end
-	if SavedOptionsPerChar.AutoInvite == nil then SavedOptionsPerChar.AutoInvite = false end
-	if SavedOptionsPerChar.BarsLocked == nil then SavedOptionsPerChar.BarsLocked = false end
-	if SavedOptionsPerChar.SplitBars == nil then SavedOptionsPerChar.SplitBars = true end
-	if SavedOptionsPerChar.RightBars == nil then SavedOptionsPerChar.RightBars = C.ActionBar.RightBars end
-	if SavedOptionsPerChar.BottomBars == nil then SavedOptionsPerChar.BottomBars = C.ActionBar.BottomBars end
+	-- Initialize budsUIData structure if missed
+	if type(budsUIData) ~= "table" then budsUIData = {} end
+	if type(budsUIData.CharacterData) ~= "table" then budsUIData.CharacterData = {} end
+	
+	local realmKey = K.Realm .. "-" .. K.Name
+	if type(budsUIData.CharacterData[realmKey]) ~= "table" then budsUIData.CharacterData[realmKey] = {} end
+	local charSettings = budsUIData.CharacterData[realmKey]
+	
+	if charSettings.AutoInvite == nil then charSettings.AutoInvite = false end
+	if charSettings.BarsLocked == nil then charSettings.BarsLocked = false end
+	if charSettings.SplitBars == nil then charSettings.SplitBars = true end
+	if charSettings.RightBars == nil then charSettings.RightBars = C.ActionBar.RightBars end
+	if charSettings.BottomBars == nil then charSettings.BottomBars = C.ActionBar.BottomBars end
 
 	if K.ScreenWidth < 1200 then
 		K.SafeSetCVar("useUiScale", 0)
@@ -534,7 +562,7 @@ Install:SetScript("OnEvent", function(self, event, addon)
 		end
 
 		-- Install default if we never ran budsUI on this character
-		if not SavedOptionsPerChar.Install then
+		if not charSettings.Install then
 			StaticPopup_Show("INSTALL_UI")
 		end
 	end

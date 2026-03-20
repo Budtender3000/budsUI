@@ -29,20 +29,7 @@ local function Print(...)
 	print("|cff388bdbbudsUI_Config|r:", ...)
 end
 
--- SavedVariables Versioning and Migration
-local function InitSavedVariables()
-	if not GUIConfigAll then GUIConfigAll = {} end
-	if not GUIConfigAll.Version then
-		-- Migration logic could go here if moving from old GUIConfigSettings
-		GUIConfigAll.Version = 1
-		Print("Konfiguration auf Version 1 aktualisiert.")
-	end
-
-	-- Cleanup legacy variables to prevent confusion
-	if GUIConfigSettings then GUIConfigSettings = nil end
-	if GUIConfig then GUIConfig = nil end
-end
-InitSavedVariables()
+-- Removed legacy InitSavedVariables
 
 local ALLOWED_GROUPS = {
 	["General"] = 1,
@@ -340,50 +327,15 @@ local NormalButton = function(text, parent)
 	return result
 end
 
-StaticPopupDialogs["PERCHAR"] = {
-	text = L_GUI_PER_CHAR,
-	OnAccept = function()
-		if UIConfigAllCharacters:GetChecked() then
-			GUIConfigAll[realm][name] = true
-		else
-			GUIConfigAll[realm][name] = false
-		end
-		ReloadUI()
-	end,
-	OnCancel = function()
-		UIConfigCover:Hide()
-		if UIConfigAllCharacters:GetChecked() then
-			UIConfigAllCharacters:SetChecked(false)
-		else
-			UIConfigAllCharacters:SetChecked(true)
-		end
-	end,
-	button1 = ACCEPT,
-	button2 = CANCEL,
-	timeout = 0,
-	whileDead = 1,
-	preferredIndex = 3,
-}
-
-StaticPopupDialogs["RESET_PERCHAR"] = {
-	text = L_GUI_RESET_CHAR,
-	OnAccept = function()
-		GUIConfig = GUIConfigSettings
-		ReloadUI()
-	end,
-	OnCancel = function() if UIConfig and UIConfig:IsShown() then UIConfigCover:Hide() end end,
-	button1 = ACCEPT,
-	button2 = CANCEL,
-	timeout = 0,
-	whileDead = 1,
-	preferredIndex = 3,
-}
+-- Legacy PerChar popups removed
 
 StaticPopupDialogs["RESET_ALL"] = {
 	text = L_GUI_RESET_ALL,
 	OnAccept = function()
-		GUIConfigSettings = nil
-		GUIConfig = nil
+		local K, C, L, _ = budsUI:unpack()
+		if budsUIData and budsUIData.Profiles then
+			budsUIData.Profiles[K.GetActiveProfile()] = {}
+		end
 		ReloadUI()
 	end,
 	OnCancel = function() UIConfigCover:Hide() end,
@@ -394,84 +346,28 @@ StaticPopupDialogs["RESET_ALL"] = {
 	preferredIndex = 3,
 }
 
-StaticPopupDialogs["SAVE_TO_BUDTENDER_PRESET"] = {
-	text = "Save current settings to BudtenderPreset.lua?\n\nThis will save your settings to SavedVariables.\n\nAfter logout, run the export script to update BudtenderPreset.lua.",
-	OnAccept = function()
-		local K, C, L, _ = budsUI:unpack()
-		
-		if not C then
-			print("|cffff0000Error:|r Could not access budsUI configuration!")
-			return
-		end
-		
-		-- Save to SavedVariables for external script to read
-		if not SavedOptions then SavedOptions = {} end
-		SavedOptions.BudtenderPresetExport = {}
-		
-		for group, options in pairs(C) do
-			if type(options) == "table" and group ~= "Media" and group ~= "Position" then
-				SavedOptions.BudtenderPresetExport[group] = {}
-				for option, value in pairs(options) do
-					-- Deep copy to avoid reference issues
-					if type(value) == "table" then
-						SavedOptions.BudtenderPresetExport[group][option] = {}
-						for k, v in pairs(value) do
-							SavedOptions.BudtenderPresetExport[group][option][k] = v
-						end
-					else
-						SavedOptions.BudtenderPresetExport[group][option] = value
-					end
-				end
-			end
-		end
-		
-		print("|cff388bdb=== Settings saved to SavedVariables ===|r")
-		print("|cffffe02eLogout and run:|r |cff388bdb./export_budtender_preset.sh|r")
-		print("|cffffe02eThis will update BudtenderPreset.lua with your current settings.|r")
-	end,
-	button1 = ACCEPT,
-	button2 = CANCEL,
-	timeout = 0,
-	whileDead = 1,
-	preferredIndex = 3,
-}
-
 local function SetValue(group, option, value)
-	local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
-	
-	-- Branching logic: If modifying "Budtender Preset", create a new profile automatically
-	if activeProfile == "Budtender Preset" then
-		activeProfile = "Budtender Preset (Modified)"
-		if not GUIConfigAll.Profiles[activeProfile] then
-			GUIConfigAll.Profiles[activeProfile] = {}
-			-- Clone current Budtender Preset to the new modified profile
-			if GUIConfigAll.Profiles["Budtender Preset"] then
-				for g, opts in pairs(GUIConfigAll.Profiles["Budtender Preset"]) do
-					GUIConfigAll.Profiles[activeProfile][g] = {}
-					for o, v in pairs(opts) do
-						GUIConfigAll.Profiles[activeProfile][g][o] = v
-					end
-				end
-			end
-		end
-		GUIConfigAll.CharacterMap[realm.."-"..name] = activeProfile
-		Print(format("Profil 'Budtender Preset' geschützt. Änderungen wurden in '%s' gespeichert.", activeProfile))
-	end
+	local K, C, L, _ = budsUI:unpack()
+	local activeProfile = K.GetActiveProfile()
+	if not activeProfile or not budsUIData.Profiles[activeProfile] then return end
 
 	-- Validation: Ensure value is not nil
 	if value == nil then return end
 
-	if not GUIConfigAll.Profiles then GUIConfigAll.Profiles = { ["Budtender Preset"] = {} } end
-	if not GUIConfigAll.Profiles[activeProfile] then GUIConfigAll.Profiles[activeProfile] = {} end
-	if not GUIConfigAll.Profiles[activeProfile][group] then GUIConfigAll.Profiles[activeProfile][group] = {} end
+	if not budsUIData.Profiles[activeProfile][group] then budsUIData.Profiles[activeProfile][group] = {} end
 	
 	-- Store the value
-	GUIConfigAll.Profiles[activeProfile][group][option] = value
+	budsUIData.Profiles[activeProfile][group][option] = value
 	
 	-- Update live C table for instant sync!
-	local K, C, L, _ = budsUI:unpack()
 	if C[group] then
-		C[group][option] = value
+		if type(value) == "table" and type(C[group][option]) == "table" then
+			for k, v in pairs(value) do
+				C[group][option][k] = v
+			end
+		else
+			C[group][option] = value
+		end
 	end
 end
 
@@ -924,157 +820,271 @@ end
 		if not _G["UIConfigProfiles"] then return end
 		local frame = _G["UIConfigProfiles"]
 		
-		-- Clear existing children (except title/static ones)
-		if frame.buttons then
-			for _, b in pairs(frame.buttons) do b:Hide() end
+		-- Clear existing dynamic children
+		if frame.dynamicElements then
+			for _, el in pairs(frame.dynamicElements) do
+				if el.Hide then el:Hide() end
+			end
 		end
-		frame.buttons = {}
-
-		if not GUIConfigAll then GUIConfigAll = {} end
-		if not GUIConfigAll.Profiles then GUIConfigAll.Profiles = { ["Budtender Preset"] = {} } end
-		if not GUIConfigAll.CharacterMap then GUIConfigAll.CharacterMap = {} end
-
-		local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
-		local offset = 40
+		frame.dynamicElements = {}
 		
-		local activeLabel = frame.activeLabel or frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		activeLabel:SetPoint("TOPLEFT", 10, -10)
-		activeLabel:SetText(L_GUI_PROFILES_ACTIVE .. " |cff388bdb" .. activeProfile .. "|r")
-		frame.activeLabel = activeLabel
-
-		for pName, _ in pairs(GUIConfigAll.Profiles) do
-			local btn = NormalButton(pName, frame)
-			btn:SetPoint("TOPLEFT", 20, -offset)
-			btn:SetWidth(200)
-			btn:SetScript("OnClick", function()
-				-- Reset logic: If "Budtender Preset" is clicked while already active or just selected, reset it to hardcoded defaults
-				if pName == "Budtender Preset" then
-					GUIConfigAll.Profiles["Budtender Preset"] = {}
-					if K.BudtenderPreset then
-						for group, options in pairs(K.BudtenderPreset) do
-							GUIConfigAll.Profiles["Budtender Preset"][group] = {}
-							for option, value in pairs(options) do
-								GUIConfigAll.Profiles["Budtender Preset"][group][option] = value
-							end
-						end
-					end
-					Print("Profil 'Budtender Preset' wurde auf Werkseinstellungen zurückgesetzt.")
-				end
-				GUIConfigAll.CharacterMap[realm.."-"..name] = pName
-				ReloadUI()
-			end)
-			if pName == activeProfile then
-				btn:SetText("|cff388bdb" .. pName .. "|r")
-			end
-			tinsert(frame.buttons, btn)
-
-			if pName ~= "Default" and pName ~= "Budtender Preset" then
-				local delSub = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-				delSub:SetSize(20, 20)
-				delSub:SetPoint("LEFT", btn, "RIGHT", 5, 0)
-				delSub:SetText("X")
-				delSub:SetScript("OnClick", function()
-					GUIConfigAll.Profiles[pName] = nil
-					UpdateProfileList()
-				end)
-				tinsert(frame.buttons, delSub)
-			end
-			
-			offset = offset + 25
-		end
-
-		local createEdit = frame.createEdit or CreateFrame("EditBox", nil, frame)
-		if not frame.createEdit then
-			createEdit:SetSize(150, 20)
-			createEdit:SetPoint("TOPLEFT", 20, -offset - 20)
-			createEdit:SetAutoFocus(false)
-			createEdit:SetFontObject(GameFontHighlight)
-			createEdit:SetBackdrop(K.Backdrop)
-			createEdit:SetBackdropColor(0,0,0,0.5)
-			
-			local createBtn = NormalButton(L_GUI_PROFILES_CREATE, frame)
-			createBtn:SetPoint("LEFT", createEdit, "RIGHT", 5, 0)
-			createBtn:SetSize(100, 20)
-			createBtn:SetScript("OnClick", function()
-				local newName = createEdit:GetText()
-				if newName and newName ~= "" and not GUIConfigAll.Profiles[newName] then
-					GUIConfigAll.Profiles[newName] = {}
-					-- Copy current settings to the new profile
-					for group, options in pairs(C) do
-						if type(options) == "table" and ALLOWED_GROUPS[group] then
-							GUIConfigAll.Profiles[newName][group] = {}
-							for option, value in pairs(options) do
-								GUIConfigAll.Profiles[newName][group][option] = value
-							end
-						end
-					end
-					createEdit:SetText("")
-					UpdateProfileList()
-				end
-			end)
-			frame.createBtn = createBtn
-		end
-		createEdit:SetPoint("TOPLEFT", 20, -offset - 20)
-		frame.createEdit = createEdit
+		local activeProfile = K.GetActiveProfile()
+		local offset = 10
 		
-		local saveBtn = frame.saveBtn or NormalButton(L_GUI_PROFILES_SAVE or "Save Profile", frame)
-		saveBtn:SetPoint("TOPLEFT", 20, -offset - 60)
-		saveBtn:SetWidth(250)
-		saveBtn:SetScript("OnClick", function()
-			local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
-			GUIConfigAll.Profiles[activeProfile] = {}
-			for group, options in pairs(C) do
-				if type(options) == "table" and ALLOWED_GROUPS[group] then
-					GUIConfigAll.Profiles[activeProfile][group] = {}
-					for option, value in pairs(options) do
-						GUIConfigAll.Profiles[activeProfile][group][option] = value
-					end
+		-- ============================================================
+		-- 1. PROFILE DROPDOWN
+		-- ============================================================
+		if not frame.profileDropdown then
+			local dropdownLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+			dropdownLabel:SetPoint("TOPLEFT", 10, -offset)
+			dropdownLabel:SetText(L_GUI_PROFILES_ACTIVE or "Active Profile:")
+			frame.dropdownLabel = dropdownLabel
+			
+			local dropdown = CreateFrame("Frame", "budsUIProfileDropdown", frame, "UIDropDownMenuTemplate")
+			dropdown:SetPoint("TOPLEFT", 0, -(offset + 18))
+			UIDropDownMenu_SetWidth(dropdown, 250)
+			frame.profileDropdown = dropdown
+		end
+		
+		UIDropDownMenu_SetText(frame.profileDropdown, "|cff388bdb" .. activeProfile .. "|r")
+		UIDropDownMenu_Initialize(frame.profileDropdown, function(self, level)
+			local info = UIDropDownMenu_CreateInfo()
+			for pName, _ in pairs(budsUIData.Profiles) do
+				info.text = pName
+				info.checked = (pName == activeProfile)
+				info.func = function()
+					K.SetProfile(pName)
+					ReloadUI()
 				end
+				UIDropDownMenu_AddButton(info, level)
 			end
-			Print("Settings saved to profile: " .. activeProfile)
 		end)
-		frame.saveBtn = saveBtn
-
-		-- Budtender Preset settings are now locked and hardcoded.
-		-- Overhead save/overwrite functionality removed.
-
-		-- Save to BudtenderPreset.lua button (Developer Mode only)
-		local K, C, L, _ = budsUI:unpack()
-		if C and C.General and C.General.DeveloperMode then
-			local saveToBudtenderBtn = frame.saveToBudtenderBtn or NormalButton("Save to BudtenderPreset.lua", frame)
-			saveToBudtenderBtn:SetPoint("TOPLEFT", 20, -offset - 140)
-			saveToBudtenderBtn:SetWidth(250)
-			saveToBudtenderBtn:SetScript("OnClick", function()
-				StaticPopup_Show("SAVE_TO_BUDTENDER_PRESET")
-			end)
-			frame.saveToBudtenderBtn = saveToBudtenderBtn
-			
-			local resetBtn = frame.resetBtn or NormalButton(L_GUI_PROFILES_RESET or "Reset Profile", frame)
-			resetBtn:SetPoint("TOPLEFT", 20, -offset - 170)
-			resetBtn:SetWidth(250)
-			resetBtn:SetScript("OnClick", function()
-				local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
-				GUIConfigAll.Profiles[activeProfile] = {} -- Total wipe of custom settings for this profile
-				Print("Profile '" .. activeProfile .. "' has been reset to defaults. Reload UI to apply.")
-			end)
-			frame.resetBtn = resetBtn
+		offset = offset + 60
+		
+		-- ============================================================
+		-- 2. CREATE NEW PROFILE
+		-- ============================================================
+		if not frame.createLabel then
+			local lbl = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+			lbl:SetPoint("TOPLEFT", 10, -offset)
+			lbl:SetText(L_GUI_PROFILES_CREATE or "Create New Profile")
+			frame.createLabel = lbl
 		else
-			-- No developer mode - only show reset button
-			local resetBtn = frame.resetBtn or NormalButton(L_GUI_PROFILES_RESET or "Reset Profile", frame)
-			resetBtn:SetPoint("TOPLEFT", 20, -offset - 140)
-			resetBtn:SetWidth(250)
-			resetBtn:SetScript("OnClick", function()
-				local activeProfile = GUIConfigAll.CharacterMap[realm.."-"..name] or "Budtender Preset"
-				GUIConfigAll.Profiles[activeProfile] = {} -- Total wipe of custom settings for this profile
-				Print("Profile '" .. activeProfile .. "' has been reset to defaults. Reload UI to apply.")
-			end)
-			frame.resetBtn = resetBtn
+			frame.createLabel:SetPoint("TOPLEFT", 10, -offset)
 		end
+		offset = offset + 18
+		
+		if not frame.createEdit then
+			local edit = CreateFrame("EditBox", nil, frame)
+			edit:SetSize(220, 20)
+			edit:SetAutoFocus(false)
+			edit:SetFontObject(GameFontHighlight)
+			edit:SetBackdrop(K.Backdrop)
+			edit:SetBackdropColor(0, 0, 0, 0.5)
+			edit:SetBackdropBorderColor(unpack(C["Media"].Border_Color))
+			edit:SetTextInsets(5, 5, 0, 0)
+			frame.createEdit = edit
+			
+			local btn = NormalButton(L_GUI_PROFILES_CREATE or "Create", frame)
+			btn:SetSize(100, 22)
+			btn:SetScript("OnClick", function()
+				local newName = frame.createEdit:GetText()
+				if newName and newName ~= "" and not budsUIData.Profiles[newName] then
+					K.CreateProfile(newName, activeProfile)
+					frame.createEdit:SetText("")
+					Print("|cff388bdb" .. newName .. "|r created.")
+					UpdateProfileList()
+				end
+			end)
+			frame.createBtn = btn
+		end
+		frame.createEdit:SetPoint("TOPLEFT", 20, -offset)
+		frame.createBtn:SetPoint("LEFT", frame.createEdit, "RIGHT", 5, 0)
+		offset = offset + 30
+		
+		-- ============================================================
+		-- 3. RENAME PROFILE
+		-- ============================================================
+		if not frame.renameLabel then
+			local lbl = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+			lbl:SetText("Rename Profile")
+			frame.renameLabel = lbl
+		end
+		frame.renameLabel:SetPoint("TOPLEFT", 10, -offset)
+		offset = offset + 18
+		
+		if not frame.renameEdit then
+			local edit = CreateFrame("EditBox", nil, frame)
+			edit:SetSize(220, 20)
+			edit:SetAutoFocus(false)
+			edit:SetFontObject(GameFontHighlight)
+			edit:SetBackdrop(K.Backdrop)
+			edit:SetBackdropColor(0, 0, 0, 0.5)
+			edit:SetBackdropBorderColor(unpack(C["Media"].Border_Color))
+			edit:SetTextInsets(5, 5, 0, 0)
+			frame.renameEdit = edit
+			
+			local btn = NormalButton("Rename", frame)
+			btn:SetSize(100, 22)
+			btn:SetScript("OnClick", function()
+				local newName = frame.renameEdit:GetText()
+				if newName and newName ~= "" and newName ~= activeProfile then
+					if K.RenameProfile(activeProfile, newName) then
+						Print("|cff388bdb" .. activeProfile .. "|r renamed to |cff388bdb" .. newName .. "|r. Reloading...")
+						ReloadUI()
+					else
+						Print("|cffff0000Rename failed.|r Name already exists or invalid.")
+					end
+				end
+			end)
+			frame.renameBtn = btn
+		end
+		frame.renameEdit:SetPoint("TOPLEFT", 20, -offset)
+		frame.renameEdit:SetText(activeProfile)
+		frame.renameBtn:SetPoint("LEFT", frame.renameEdit, "RIGHT", 5, 0)
+		offset = offset + 35
+		
+		-- ============================================================
+		-- 4. SAVE PROFILE
+		-- ============================================================
+		if not frame.saveBtn then
+			local btn = NormalButton("Save Profile", frame)
+			btn:SetWidth(330)
+			btn:SetHeight(22)
+			btn:SetScript("OnClick", function()
+				if K.SaveProfile() then
+					Print("|cff388bdb" .. activeProfile .. "|r saved.")
+				end
+			end)
+			frame.saveBtn = btn
+		end
+		frame.saveBtn:SetPoint("TOPLEFT", 20, -offset)
+		offset = offset + 30
+		
+		-- ============================================================
+		-- 5. DELETE PROFILE
+		-- ============================================================
+		if not frame.deleteBtn then
+			local btn = NormalButton("|cffff0000Delete Profile|r", frame)
+			btn:SetWidth(330)
+			btn:SetHeight(22)
+			btn:SetScript("OnClick", function()
+				local profileCount = 0
+				for _ in pairs(budsUIData.Profiles) do profileCount = profileCount + 1 end
+				if profileCount <= 1 then
+					Print("|cffff0000Cannot delete the last profile.|r")
+					return
+				end
+				StaticPopupDialogs["BUDSUI_DELETE_PROFILE"] = {
+					text = "Delete profile |cff388bdb" .. activeProfile .. "|r?\n\nThis cannot be undone. A new default profile will be created.",
+					button1 = ACCEPT,
+					button2 = CANCEL,
+					OnAccept = function()
+						K.DeleteProfile(activeProfile)
+						-- Assign first remaining profile
+						for pName, _ in pairs(budsUIData.Profiles) do
+							K.SetProfile(pName)
+							break
+						end
+						ReloadUI()
+					end,
+					timeout = 0,
+					whileDead = 1,
+					hideOnEscape = true,
+					preferredIndex = 3,
+				}
+				StaticPopup_Show("BUDSUI_DELETE_PROFILE")
+			end)
+			frame.deleteBtn = btn
+		end
+		frame.deleteBtn:SetPoint("TOPLEFT", 20, -offset)
+		offset = offset + 40
+		
+		-- ============================================================
+		-- 6. IMPORT / EXPORT
+		-- ============================================================
+		if not frame.ioLabel then
+			local lbl = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+			lbl:SetText("Import / Export")
+			frame.ioLabel = lbl
+		end
+		frame.ioLabel:SetPoint("TOPLEFT", 10, -offset)
+		offset = offset + 18
+		
+		if not frame.ioBox then
+			local scrollFrame = CreateFrame("ScrollFrame", "budsUIProfileIOScroll", frame, "UIPanelScrollFrameTemplate")
+			scrollFrame:SetSize(330, 80)
+			scrollFrame:SetBackdrop(K.Backdrop)
+			scrollFrame:SetBackdropColor(0, 0, 0, 0.5)
+			scrollFrame:SetBackdropBorderColor(unpack(C["Media"].Border_Color))
+			frame.ioScroll = scrollFrame
+			
+			local editBox = CreateFrame("EditBox", "budsUIProfileIOEdit", scrollFrame)
+			editBox:SetMultiLine(true)
+			editBox:SetAutoFocus(false)
+			editBox:SetFontObject(GameFontHighlightSmall)
+			editBox:SetWidth(310)
+			editBox:SetTextInsets(5, 5, 5, 5)
+			editBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+			scrollFrame:SetScrollChild(editBox)
+			frame.ioBox = editBox
+		end
+		frame.ioScroll:SetPoint("TOPLEFT", 20, -offset)
+		offset = offset + 90
+		
+		if not frame.exportBtn then
+			local btn = NormalButton("Export", frame)
+			btn:SetSize(160, 22)
+			btn:SetScript("OnClick", function()
+				local data = K.ExportProfile(activeProfile)
+				if data then
+					frame.ioBox:SetText(data)
+					frame.ioBox:HighlightText()
+					frame.ioBox:SetFocus()
+					Print("Profile exported. Press Ctrl+C to copy.")
+				end
+			end)
+			frame.exportBtn = btn
+		end
+		frame.exportBtn:SetPoint("TOPLEFT", 20, -offset)
+		
+		if not frame.importBtn then
+			local btn = NormalButton("Import", frame)
+			btn:SetSize(160, 22)
+			btn:SetScript("OnClick", function()
+				local data = frame.ioBox:GetText()
+				if data and data ~= "" then
+					local importName = activeProfile .. " (Import)"
+					if K.ImportProfile(importName, data) then
+						K.SetProfile(importName)
+						Print("|cff388bdb" .. importName .. "|r imported. Reloading...")
+						ReloadUI()
+					else
+						Print("|cffff0000Import failed.|r Invalid data or profile name already exists.")
+					end
+				end
+			end)
+			frame.importBtn = btn
+		end
+		frame.importBtn:SetPoint("LEFT", frame.exportBtn, "RIGHT", 10, 0)
+		offset = offset + 30
+
+		if not frame.ioHint then
+			local lbl = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+			lbl:SetText("Copy with Ctrl+C / Paste with Ctrl+V")
+			lbl:SetJustifyH("LEFT")
+			lbl:SetTextColor(0.8, 0.8, 0.8)
+			frame.ioHint = lbl
+		end
+		frame.ioHint:SetPoint("TOPLEFT", 20, -offset)
+		offset = offset + 35
+		
+		frame:SetHeight(offset + 20)
 	end
 
 	local profilesFrame = CreateFrame("Frame", "UIConfigProfiles", UIConfigGroup)
 	profilesFrame:SetPoint("TOPLEFT")
-	profilesFrame:SetSize(520, 400)
+	profilesFrame:SetSize(520, 500)
 	profilesFrame:Hide()
 	profilesFrame:SetScript("OnShow", UpdateProfileList)
 
@@ -1082,11 +1092,7 @@ end
 	reset:SetPoint("TOPLEFT", UIConfig, "BOTTOMLEFT", -10, -25)
 	reset:SetScript("OnClick", function(self)
 		UIConfigCover:Show()
-		if GUIConfigAll[realm][name] == true then
-			StaticPopup_Show("RESET_PERCHAR")
-		else
-			StaticPopup_Show("RESET_ALL")
-		end
+		StaticPopup_Show("RESET_ALL")
 	end)
 
 	local close = NormalButton(CLOSE, UIConfigMain)
@@ -1102,30 +1108,7 @@ end
 	totalreset:SetPoint("TOPLEFT", groupsBG, "BOTTOMLEFT", 0, -15)
 	totalreset:SetScript("OnClick", function(self)
 		StaticPopup_Show("RESET_UI")
-		GUIConfig = {}
-		if GUIConfigAll[realm][name] == true then
-			GUIConfigAll[realm][name] = {}
-		end
-		GUIConfigSettings = {}
 	end)
-
-	-- Hide legacy per-character toggle
-	if false and GUIConfigAll then
-		local button = CreateFrame("CheckButton", "UIConfigAllCharacters", TitleBox, "InterfaceOptionsCheckButtonTemplate")
-		button:SetScript("OnClick", function(self) StaticPopup_Show("PERCHAR") UIConfigCover:Show() end)
-		button:SetPoint("RIGHT", TitleBox, "RIGHT", -3, 0)
-		button:SetHitRectInsets(0, 0, 0, 0)
-
-		local label = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		label:SetText(L_GUI_SET_SAVED_SETTTINGS)
-		label:SetPoint("RIGHT", button, "LEFT")
-
-		if GUIConfigAll[realm][name] == true then
-			button:SetChecked(true)
-		else
-			button:SetChecked(false)
-		end
-	end
 
 	local bgSkins = {TitleBox, TitleBoxVer, UIConfigBG, groupsBG}
 	for _, sb in pairs(bgSkins) do
@@ -1166,12 +1149,7 @@ end
 do
 	function SlashCmdList.RESETCONFIG()
 		if UIConfigMain and UIConfigMain:IsShown() then UIConfigCover:Show() end
-
-		if GUIConfigAll[realm][name] == true then
-			StaticPopup_Show("RESET_PERCHAR")
-		else
-			StaticPopup_Show("RESET_ALL")
-		end
+		StaticPopup_Show("RESET_ALL")
 	end
 	SLASH_RESETCONFIG1 = "/resetconfig"
 end

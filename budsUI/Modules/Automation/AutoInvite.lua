@@ -1,6 +1,15 @@
 local K, C, L, _ = select(2, ...):unpack()
-if SavedOptionsPerChar.AutoInvite ~= true then return end
 
+-- Helper to access per-character data from budsUIData
+local function charData()
+	if type(budsUIData) ~= "table" then budsUIData = {} end
+	if type(budsUIData.CharacterData) ~= "table" then budsUIData.CharacterData = {} end
+	local key = K.Realm .. "-" .. K.Name
+	if type(budsUIData.CharacterData[key]) ~= "table" then budsUIData.CharacterData[key] = {} end
+	return budsUIData.CharacterData[key]
+end
+
+-- Removed early return to allow SlashCmd registration
 local _G = _G
 local format = string.format
 local strmatch = strmatch
@@ -18,7 +27,7 @@ local AutoInvite = CreateFrame("Frame")
 local InviteWhisper = CreateFrame("Frame")
 
 -- Accept invites from guild members or friend list(by ALZA)
-if SavedOptionsPerChar.AutoInvite == true then
+if charData().AutoInvite == true then
 	local CheckFriend = function(name)
 		for i = 1, GetNumFriends() do
 			if GetFriendInfo(i) == name then
@@ -60,7 +69,7 @@ end
 -- Auto invite by whisper(by Tukz)
 InviteWhisper:RegisterEvent("CHAT_MSG_WHISPER")
 InviteWhisper:SetScript("OnEvent", function(self, event, msg, sender)
-	if (not UnitInParty("player") or UnitIsPartyLeader("player") or UnitIsRaidOfficer("player")) and strmatch(strlower(msg), Keyword) and SavedOptionsPerChar.AutoInvite == true and not MiniMapLFGFrame:IsShown() then
+	if (not UnitInParty("player") or UnitIsPartyLeader("player") or UnitIsRaidOfficer("player")) and strmatch(strlower(msg), Keyword) and charData().AutoInvite == true and not MiniMapLFGFrame:IsShown() then
 		if event == "CHAT_MSG_WHISPER" then
 			InviteUnit(sender)
 		end
@@ -68,15 +77,16 @@ InviteWhisper:SetScript("OnEvent", function(self, event, msg, sender)
 end)
 
 SlashCmdList["AUTOINVITE"] = function(msg)
+	local cd = charData()
 	if msg == "off" then
-		SavedOptionsPerChar.AutoInvite = false
+		cd.AutoInvite = false
 		K.Print("|cffffff00"..L_INVITE_DISABLE..".|r")
 	elseif msg == "" then
-		SavedOptionsPerChar.AutoInvite = true
+		cd.AutoInvite = true
 		K.Print("|cffffff00"..L_INVITE_ENABLE..C.Misc.InviteKeyword..".|r")
 		C.Misc.InviteKeyword = C.Misc.InviteKeyword
 	else
-		SavedOptionsPerChar.AutoInvite = true
+		cd.AutoInvite = true
 		K.Print("|cffffff00"..L_INVITE_ENABLE..msg..".|r")
 		C.Misc.InviteKeyword = msg
 	end

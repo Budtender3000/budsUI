@@ -3,6 +3,15 @@ if C.ActionBar.Enable ~= true or C.ActionBar.ToggleMode ~= true then return end
 
 local _G = _G
 
+-- Helper to access per-character data from budsUIData
+local function charData()
+	if type(budsUIData) ~= "table" then budsUIData = {} end
+	if type(budsUIData.CharacterData) ~= "table" then budsUIData.CharacterData = {} end
+	local key = K.Realm .. "-" .. K.Name
+	if type(budsUIData.CharacterData[key]) ~= "table" then budsUIData.CharacterData[key] = {} end
+	return budsUIData.CharacterData[key]
+end
+
 local ToggleBar = CreateFrame("Frame", "ToggleActionbar", UIParent)
 ToggleBar:Show()
 
@@ -17,17 +26,15 @@ local ToggleBarText = function(i, text, plus, neg)
 end
 
 local MainBars = function()
-	-- Initialize SavedOptionsPerChar if it doesn't exist
-	if not SavedOptionsPerChar then SavedOptionsPerChar = {} end
-	
-	local bottomBars = SavedOptionsPerChar.BottomBars or C.ActionBar.BottomBars
-	local splitBars = SavedOptionsPerChar.SplitBars
+	local cd = charData()
+	local bottomBars = cd.BottomBars or C.ActionBar.BottomBars
+	local splitBars = cd.SplitBars
 	if splitBars == nil then splitBars = C.ActionBar.SplitBars end
 	
 	-- Validate bottomBars value
 	if bottomBars < 1 or bottomBars > 3 then
 		bottomBars = C.ActionBar.BottomBars
-		SavedOptionsPerChar.BottomBars = bottomBars
+		cd.BottomBars = bottomBars
 	end
 
 	if bottomBars == 1 then
@@ -78,18 +85,20 @@ local MainBars = function()
 			end
 		end
 	end
+
+	-- Always update dependent bars to ensure correct layout and prevent squishing
+	if K.UpdateBar2 then K.UpdateBar2() end
+	if K.UpdateBar5 then K.UpdateBar5() end
 end
 
 local RightBars = function()
-	-- Initialize SavedOptionsPerChar if it doesn't exist
-	if not SavedOptionsPerChar then SavedOptionsPerChar = {} end
-	
-	local rightBars = SavedOptionsPerChar.RightBars or C.ActionBar.RightBars
+	local cd = charData()
+	local rightBars = cd.RightBars or C.ActionBar.RightBars
 	
 	-- Validate rightBars value
 	if rightBars < 0 or rightBars > 3 then
 		rightBars = C.ActionBar.RightBars
-		SavedOptionsPerChar.RightBars = rightBars
+		cd.RightBars = rightBars
 	end
 	if rightBars == 0 then
 		if not C.ActionBar.PetBarHorizontal == true then
@@ -137,24 +146,21 @@ local RightBars = function()
 		RightActionBarAnchor:Show()
 		Bar3Holder:Show()
 		Bar4Holder:Show()
-		if K.UpdateBar3 then K.UpdateBar3() end
-		if K.UpdateBar4 then K.UpdateBar4() end
-		if K.UpdateBar5 then K.UpdateBar5() end
-	else
-		-- Ensure Bar3 and Bar4 layout is correct even for < 3 bars
-		if K.UpdateBar3 then K.UpdateBar3() end
-		if K.UpdateBar4 then K.UpdateBar4() end
 	end
+
+	-- Always update all dependent bars to ensure correct layout and prevent squishing
+	if K.UpdateBar3 then K.UpdateBar3(rightBars) end
+	if K.UpdateBar4 then K.UpdateBar4() end
+	if K.UpdateBar5 then K.UpdateBar5() end
 end
 
+
 local SplitBars = function()
-	-- Initialize SavedOptionsPerChar if it doesn't exist
-	if not SavedOptionsPerChar then SavedOptionsPerChar = {} end
-	
-	local splitBars = SavedOptionsPerChar.SplitBars
+	local cd = charData()
+	local splitBars = cd.SplitBars
 	if splitBars == nil then splitBars = C.ActionBar.SplitBars end
-	local rightBars = SavedOptionsPerChar.RightBars or C.ActionBar.RightBars
-	local bottomBars = SavedOptionsPerChar.BottomBars or C.ActionBar.BottomBars
+	local rightBars = cd.RightBars or C.ActionBar.RightBars
+	local bottomBars = cd.BottomBars or C.ActionBar.BottomBars
 
 	if splitBars == true and rightBars ~= 3 then
 		if splitBars == true then
@@ -194,7 +200,8 @@ local SplitBars = function()
 end
 
 local LockCheck = function(i)
-	local locked = SavedOptionsPerChar.BarsLocked
+	local cd = charData()
+	local locked = cd.BarsLocked
 	if locked == nil then locked = true end -- Default to locked
 
 	if locked == true then
@@ -237,17 +244,18 @@ for i = 1, 5 do
 		ToggleBar[i]:SetScript("OnMouseDown", function()
 			if InCombatLockdown() then K.Print("|cffffff00"..ERR_NOT_IN_COMBAT.."|r") return end
 			
-			if not SavedOptionsPerChar.BottomBars then SavedOptionsPerChar.BottomBars = C.ActionBar.BottomBars end
-			SavedOptionsPerChar.BottomBars = SavedOptionsPerChar.BottomBars + 1
-			if SavedOptionsPerChar.BottomBars > 3 then
-				SavedOptionsPerChar.BottomBars = 1
+			local cd = charData()
+			if not cd.BottomBars then cd.BottomBars = C.ActionBar.BottomBars end
+			cd.BottomBars = cd.BottomBars + 1
+			if cd.BottomBars > 3 then
+				cd.BottomBars = 1
 			end
 
 			-- Conflict resolution
-			if SavedOptionsPerChar.BottomBars == 3 then
-				SavedOptionsPerChar.SplitBars = false
-				if SavedOptionsPerChar.RightBars == 3 then
-					SavedOptionsPerChar.RightBars = 2
+			if cd.BottomBars == 3 then
+				cd.SplitBars = false
+				if cd.RightBars == 3 then
+					cd.RightBars = 2
 					RightBars()
 				end
 			end
@@ -263,17 +271,18 @@ for i = 1, 5 do
 		ToggleBar[i]:SetScript("OnMouseDown", function()
 			if InCombatLockdown() then K.Print("|cffffff00"..ERR_NOT_IN_COMBAT.."|r") return end
 			
-			if not SavedOptionsPerChar.RightBars then SavedOptionsPerChar.RightBars = C.ActionBar.RightBars end
-			SavedOptionsPerChar.RightBars = SavedOptionsPerChar.RightBars - 1
-			if SavedOptionsPerChar.RightBars < 0 then
-				SavedOptionsPerChar.RightBars = 3
+			local cd = charData()
+			if not cd.RightBars then cd.RightBars = C.ActionBar.RightBars end
+			cd.RightBars = cd.RightBars - 1
+			if cd.RightBars < 0 then
+				cd.RightBars = 3
 			end
 
 			-- Conflict resolution
-			if SavedOptionsPerChar.RightBars == 3 then
-				SavedOptionsPerChar.SplitBars = false
-				if SavedOptionsPerChar.BottomBars == 3 then
-					SavedOptionsPerChar.BottomBars = 2
+			if cd.RightBars == 3 then
+				cd.SplitBars = false
+				if cd.BottomBars == 3 then
+					cd.BottomBars = 2
 					MainBars()
 				end
 			end
@@ -308,13 +317,14 @@ for i = 1, 5 do
 		ToggleBar[i]:SetScript("OnMouseDown", function()
 			if InCombatLockdown() then return end
 
-			local locked = SavedOptionsPerChar.BarsLocked
+			local cd = charData()
+			local locked = cd.BarsLocked
 			if locked == nil then locked = true end -- Default to locked
 
 			if locked == true then
-				SavedOptionsPerChar.BarsLocked = false
+				cd.BarsLocked = false
 			else
-				SavedOptionsPerChar.BarsLocked = true
+				cd.BarsLocked = true
 			end
 
 			LockCheck(i)
@@ -326,20 +336,21 @@ for i = 1, 5 do
 		ToggleBar[i]:SetScript("OnMouseDown", function()
 			if InCombatLockdown() then K.Print("|cffffff00"..ERR_NOT_IN_COMBAT.."|r") return end
 
-			if SavedOptionsPerChar.SplitBars == nil then SavedOptionsPerChar.SplitBars = C.ActionBar.SplitBars end
-			if SavedOptionsPerChar.SplitBars == false then
-				SavedOptionsPerChar.SplitBars = true
+			local cd = charData()
+			if cd.SplitBars == nil then cd.SplitBars = C.ActionBar.SplitBars end
+			if cd.SplitBars == false then
+				cd.SplitBars = true
 				-- Conflict resolution: SplitBars is incompatible with 3 bars on either side
-				if SavedOptionsPerChar.BottomBars == 3 then
-					SavedOptionsPerChar.BottomBars = 2
+				if cd.BottomBars == 3 then
+					cd.BottomBars = 2
 					MainBars()
 				end
-				if SavedOptionsPerChar.RightBars == 3 then
-					SavedOptionsPerChar.RightBars = 2
+				if cd.RightBars == 3 then
+					cd.RightBars = 2
 					RightBars()
 				end
 			else
-				SavedOptionsPerChar.SplitBars = false
+				cd.SplitBars = false
 			end
 			SplitBars()
 			MainBars() -- Ensure MainBars updates logic for text/visibility
@@ -373,7 +384,8 @@ for i = 1, 5 do
 			K:UIFrameFadeOut(ToggleBar[3], 1, ToggleBar[3]:GetAlpha(), 0)
 			K:UIFrameFadeOut(ToggleBar[4], 1, ToggleBar[4]:GetAlpha(), 0)
 			VehicleButtonAnchor:ClearAllPoints()
-			if SavedOptionsPerChar.SplitBars == true then
+			local cd = charData()
+			if cd.SplitBars == true then
 				VehicleButtonAnchor:SetPoint("BOTTOMRIGHT", SplitBarLeft, "BOTTOMLEFT", -C.ActionBar.ButtonSpace, 0)
 			else
 				VehicleButtonAnchor:SetPoint("BOTTOMRIGHT", ActionBarAnchor, "BOTTOMLEFT", -C.ActionBar.ButtonSpace, 0)

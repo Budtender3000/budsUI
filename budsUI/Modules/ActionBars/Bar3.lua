@@ -9,8 +9,12 @@ local bar = CreateFrame("Frame", "Bar3Holder", RightActionBarAnchor)
 bar:SetAllPoints(RightActionBarAnchor)
 MultiBarLeft:SetParent(bar)
 
-K.UpdateBar3 = function()
-	local rightBars = SavedOptionsPerChar.RightBars or C.ActionBar.RightBars
+K.UpdateBar3 = function(forceRightBars)
+	local cd = {}
+	if type(budsUIData) == "table" and type(budsUIData.CharacterData) == "table" then
+		cd = budsUIData.CharacterData[K.Realm .. "-" .. K.Name] or {}
+	end
+	local rightBars = forceRightBars or cd.RightBars or C.ActionBar.RightBars
 	for i = 1, 12 do
 		local b = _G["MultiBarLeftButton"..i]
 		local b2 = _G["MultiBarLeftButton"..i-1]

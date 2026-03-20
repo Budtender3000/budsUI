@@ -5,7 +5,7 @@
   
   ### Modernes UI für World of Warcraft 3.3.5 (WotLK)
   
-  [![Version](https://img.shields.io/badge/version-0.6.1-blue.svg)](https://github.com/Budtender3000/budsUI/releases)
+  [![Version](https://img.shields.io/badge/version-0.7.0-blue.svg)](https://github.com/Budtender3000/budsUI/releases)
   [![WoW](https://img.shields.io/badge/WoW-3.3.5-orange.svg)](https://ascension.gg)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   
@@ -39,9 +39,10 @@ budsUI ist ein vollständiger UI-Ersatz für World of Warcraft 3.3.5, der das ve
 - 👤 **Unit Frames** - Moderne Spieler-, Target- und Party-Frames
 - 💬 **Chat-System** - Verbessertes Chat mit URL-Erkennung und Spam-Filter
 - 🗺️ **Minimap** - Kompakte Minimap mit Button-Sammler und Farm-Modus
-- 🎒 **Taschen** - Übersichtliche Taschen mit Item-Quality-Glow
+- 🎒 **Taschen** - Übersichtliche Taschen mit Item-Quality-Glow (Jetzt frei verschiebbar)
 - 💡 **Tooltips** - Erweiterte Tooltips mit Item-Level, Spell-IDs und mehr
 - ⚡ **Automation** - Auto-Repair, Auto-Invite, Auto-Release und vieles mehr
+- 🌍 **Lokalisierung** - Volle Unterstützung für Deutsch (deDE) und Englisch (enUS)
 - 🔔 **Ankündigungen** - Interrupt-, Sapped- und Pull-Countdown-Meldungen
 - 🎨 **Skins** - Unterstützung für DBM, Recount, Skada, WeakAuras
 
@@ -64,10 +65,14 @@ Für die beste Erfahrung installiere auch **budsUI_Config** für eine grafische 
 - Kopiere nach `Interface/AddOns/`
 
 ### Schritt 4: Erste Schritte
-Beim ersten Login erscheint automatisch der Installations-Wizard, der:
-- Optimale UI-Einstellungen konfiguriert
-- Chat-Fenster einrichtet
-- Standard-Positionen festlegt
+Beim ersten Login erscheint automatisch der **Moderne Installations-Wizard**. Dieser interaktive Setup-Prozess umfasst:
+- **Schritt 1: Interface** - Aktionsleisten, Loot- und Quest-Einstellungen.
+- **Schritt 2: Grafik** - UI-Skalierung, Kamera-Distanz und Auflösung.
+- **Schritt 3: Kampf** - Buffs, Threat und Nameplate-Konfiguration.
+- **Schritt 4: Chat-Layout** - Automatisierte Einrichtung der Chat-Fenster und Chat-Gruppen.
+- **Schritt 5: Finalisierung** - Profil-Erstellung und UI-Reload.
+
+> 💡 **Neu in v0.7.0:** Der Wizard ist jetzt vollständig in Deutsch und Englisch verfügbar. Gib `/buds` nach dem Reload ein, um dein UI weiter anzupassen!
 
 ---
 
@@ -245,15 +250,14 @@ Contributions sind willkommen!
 4. Push zum Branch (`git push origin feature/AmazingFeature`)
 5. Öffne einen Pull Request
 
-Für technische Details siehe [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
+
 
 ---
 
 ## 📚 Dokumentation
 
-- **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Vollständige technische Dokumentation für Entwickler
-- **[CHANGELOG.md](CHANGELOG.md)** - Versionshistorie und Änderungen
-- **[INTERVIEW_NOTES.md](INTERVIEW_NOTES.md)** - Detaillierte Code-Analyse
+- **[CHANGELOG.md](CHANGELOG.md)** - Detaillierte Versionshistorie
+- **[FUTURE_IDEAS.md](FUTURE_IDEAS.md)** - Roadmap und geplante Features für das Projekt
 
 ---
 

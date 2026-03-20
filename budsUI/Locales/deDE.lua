@@ -168,7 +168,7 @@ L_POPUP_SETTINGS_ALL = "Einstellungen für alle unterstützten Addons anwenden? 
 L_POPUP_SETTINGS_BW = "Position der |cff388bdbBigWigs|r Elemente muss angepasst werden."
 L_POPUP_SETTINGS_DBM = "Position der |cff388bdbDBM|r Balken muss angepasst werden."
 L_POPUP_BOOSTUI = "|cfff02c35WARNUNG:|r Dies optimiert die Performance durch Reduzierung der Grafikeinstellungen. Nur anwenden bei |cfff02c35FPS|r Problemen!|r"
-L_POPUP_RELOADUI = "Installation abgeschlossen. Bitte klicke 'Akzeptieren' um das UI neu zu laden. Viel Spaß mit |cff388bdbbudsUI|r!|n|nBesuche: |cff388bdbwww.github.com/Budtender3000/budsUI|r!|n|nCredits: |cff388bdbwww.github.com/Kkthnx-Wow|r"
+L_POPUP_RELOADUI = "Installation abgeschlossen. Klicke 'Akzeptieren', um das UI neu zu laden.|n|n|cffffe02eWICHTIGER HINWEIS:|r|nTippe nach dem Neuladen |cff388bdb/buds|r in den Chat, um das Config-Menü zu öffnen und das UI nach deinen Wünschen anzupassen!|n|nViel Spaß mit |cff388bdbbudsUI|r!"
 -- Reputation Standing Localization
 L_REPUTATION_EXALTED = "Ehrfürchtig"
 L_REPUTATION_FRIENDLY = "Freundlich"
@@ -206,6 +206,32 @@ L_WATCH_WOWHEAD_LINK = "|cffE8CB3BWowhead-Link|r"
 L_WELCOME_LINE_1 = "Willkommen bei |cff388bdbbudsUI|r v"
 L_WELCOME_LINE_2_1 = ""
 L_WELCOME_LINE_2_2 = "Tippe |cff388bdb/uihelp|r für Hilfe oder |cff388bdb/buds|r für Konfiguration"
+-- Install Wizard Localization
+L_INSTALL_TITLE = "|cff388bdbInstallations-Assistent|r"
+L_INSTALL_BTN_PREV = "< Zurück"
+L_INSTALL_BTN_NEXT = "Weiter >"
+L_INSTALL_BTN_DONE = "Fertig"
+L_INSTALL_BTN_SKIP = "Überspringen"
+L_INSTALL_STEP_TXT = "Schritt %d von %d"
+L_INSTALL_ERROR = "|cffff0000budsUI Install Error:|r "
+
+L_INSTALL_STEP1_TITLE = "Willkommen bei budsUI!"
+L_INSTALL_STEP1_DESC = "Dieser Assistent hilft dir, budsUI optimal einzurichten.\n\nWir werden folgende Bereiche konfigurieren:\n\n• Interface-Einstellungen\n• Grafik & Kamera\n• Kampf & Tooltips\n• Chat-Einstellungen\n• Chat-Fenster Layout\n• Verschiedenes\n\nKlicke auf 'Weiter' um zu beginnen."
+L_INSTALL_STEP2_TITLE = "Schritt 1: Interface"
+L_INSTALL_STEP2_DESC = "Konfiguriere grundlegende Interface-Einstellungen:\n\n• Aktionsleisten immer anzeigen\n• Aktionsleisten sperren\n• Auto-Dismount aktivieren\n• Quest-Tracking aktivieren\n• Loot-Taste auf SHIFT setzen\n• Selbstzauber-Taste auf ALT setzen"
+L_INSTALL_STEP3_TITLE = "Schritt 2: Grafik & Kamera"
+L_INSTALL_STEP3_DESC = "Optimiere Grafik- und Kamera-Einstellungen:\n\n• Maximale Kameradistanz auf 50\n• Screenshot-Qualität auf Maximum\n• UI-Skalierung automatisch anpassen\n• Gewaltlevel auf Maximum"
+L_INSTALL_STEP4_TITLE = "Schritt 3: Kampf & Tooltips"
+L_INSTALL_STEP4_DESC = "Konfiguriere Kampf-relevante Einstellungen:\n\n• Buff-Dauer anzeigen\n• Bedrohungswarnung aktivieren\n• Erweiterte Tooltips\n• Klassenfarben in Namensplaketten\n• Buff-Konsolidierung deaktivieren"
+L_INSTALL_STEP5_TITLE = "Schritt 4: Chat-Einstellungen"
+L_INSTALL_STEP5_DESC = "Optimiere Chat-Funktionen:\n\n• Mausrad-Scrollen aktivieren\n• Klassischen Chat-Stil verwenden\n• Chat-Verzögerung entfernen\n• Spam-Filter konfigurieren"
+L_INSTALL_STEP6_TITLE = "Schritt 5: Chat-Fenster"
+L_INSTALL_STEP6_DESC = "Richte Chat-Fenster ein:\n\n• 5 Chat-Fenster erstellen\n• Fenster 1: Allgemein (Say, Yell, Emote, System)\n• Fenster 2: Gilden-Log\n• Fenster 3: Beute (Loot, XP, Gold)\n• Fenster 4: Handel\n• Fenster 5: Gruppe (Whisper, Party, Raid, BG)\n• Klassenfarben in allen Kanälen aktivieren"
+L_INSTALL_STEP7_TITLE = "Schritt 6: Verschiedenes"
+L_INSTALL_STEP7_DESC = "Letzte Einstellungen:\n\n• Minimap-Rotation deaktivieren\n• Anfänger-Tipps ausblenden\n• Tutorials deaktivieren\n• Fehlerberichte konfigurieren"
+L_INSTALL_STEP8_TITLE = "Installation abgeschlossen!"
+L_INSTALL_STEP8_DESC = "Alle Einstellungen wurden erfolgreich konfiguriert.\n\nbudsUI ist nun einsatzbereit!\n\nKlicke auf 'Fertig' um das Interface neu zu laden.\n\nViel Spaß mit budsUI!\n\nBesuche: |cff388bdbwww.github.com/Budtender3000/budsUI|r"
+
 -- Slash Commands Localization
 L_SLASHCMD_HELP = {
 	"|cffffffffVerfügbare Slash-Befehle:|r",

@@ -419,14 +419,13 @@ function Stuffing:CreateBagFrame(w)
 	f:SetFrameLevel(5)
 	f:RegisterForDrag("LeftButton")
 	f:SetScript("OnDragStart", function(self)
-		if IsShiftKeyDown() then
-			self:StartMoving()
-			DragFunction(self, true)
-		end
+		self:StartMoving()
+		DragFunction(self, true)
 	end)
 	f:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing()
 		DragFunction(self, false)
+		self:SetUserPlaced(true)
 	end)
 
 	if w == "Bank" then

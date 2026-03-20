@@ -5,7 +5,7 @@
   
   ### Modern UI for World of Warcraft 3.3.5 (WotLK)
   
-  [![Version](https://img.shields.io/badge/version-0.6.7-blue.svg)](https://github.com/Budtender3000/budsUI/releases)
+  [![Version](https://img.shields.io/badge/version-0.7.0-blue.svg)](https://github.com/Budtender3000/budsUI/releases)
   [![WoW](https://img.shields.io/badge/WoW-3.3.5-orange.svg)](https://ascension.gg)
   [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
   
@@ -39,9 +39,10 @@ budsUI is a complete UI replacement for World of Warcraft 3.3.5, replacing the o
 - 👤 **Unit Frames** - Modern player, target, and party frames
 - 💬 **Chat System** - Enhanced chat with URL recognition and spam filter
 - 🗺️ **Minimap** - Compact minimap with button collector and farm mode
-- 🎒 **Bags** - Organized bags with item quality glow
+- 🎒 **Bags** - Organized bags with item quality glow (Now freely draggable)
 - 💡 **Tooltips** - Enhanced tooltips with item level, spell IDs, and more
 - ⚡ **Automation** - Auto-repair, auto-invite, auto-release, and much more
+- 🌍 **Localization** - Support for English (enUS) and German (deDE) locales
 - 🔔 **Announcements** - Interrupt, sapped, and pull countdown messages
 - 🎨 **Skins** - Support for DBM, Recount, Skada, WeakAuras
 
@@ -64,10 +65,14 @@ For the best experience, also install **budsUI_Config** for a graphical configur
 - Copy to `Interface/AddOns/`
 
 ### Step 4: Getting Started
-Upon first login, the installation wizard will automatically appear, which:
-- Configures optimal UI settings
-- Sets up chat windows
-- Defines default positions
+Upon first login, the **Modern Installation Wizard** will automatically appear. This interactive setup covers:
+- **Step 1: Interface** - Action bars, loot, and quest settings.
+- **Step 2: Graphics** - UI scale, camera distance, and resolution.
+- **Step 3: Combat** - Buffs, threat, and nameplate configuration.
+- **Step 4: Chat Layout** - Automated setup of chat windows and message groups.
+- **Step 5: Finalization** - Profile creation and UI reload.
+
+> 💡 **New in v0.7.0:** The wizard is now fully localized in English and German. Type `/buds` after the reload to further customize your experience!
 
 ---
 
@@ -94,7 +99,7 @@ Upon first login, the installation wizard will automatically appear, which:
 /cc                - Clear chat
 ```
 
-[Complete Command List](TECHNICAL_DOCUMENTATION.md#commands)
+
 
 ---
 
@@ -212,7 +217,7 @@ Advanced users can directly edit `budsUI/Config/Settings.lua`.
 
 </details>
 
-[Complete Module Documentation](TECHNICAL_DOCUMENTATION.md#modules)
+
 
 ---
 
@@ -245,15 +250,14 @@ Contributions are welcome!
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a pull request
 
-For technical details, see [TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)
+
 
 ---
 
 ## 📚 Documentation
 
-- **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** - Full technical documentation for developers
-- **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
-- **[INTERVIEW_NOTES.md](INTERVIEW_NOTES.md)** - Detailed code analysis
+- **[CHANGELOG.md](CHANGELOG.md)** - Detailed version history and git-reconciled changes
+- **[FUTURE_IDEAS.md](FUTURE_IDEAS.md)** - Roadmap and planned features for the project
 
 ---
 

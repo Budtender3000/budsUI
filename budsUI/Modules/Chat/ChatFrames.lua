@@ -269,13 +269,8 @@ local function SetupChatPosAndFont(self)
 			chat:SetShadowOffset((K.Mult or 1), -(K.Mult or 1))
 		end
 
-		-- Force chat position
-		if i == 1 then
-			chat:ClearAllPoints()
-			chat:SetSize(C.Chat.Width, C.Chat.Height)
-			chat:SetPoint(C.Position.Chat[1], C.Position.Chat[2], C.Position.Chat[3], C.Position.Chat[4], C.Position.Chat[5])
-			FCF_SavePositionAndDimensions(chat)
-		elseif i == 2 then
+		-- Let WoW's layout-local handle ChatFrame1 position
+		if i == 2 then
 			if C.Chat.CombatLog ~= true then
 				FCF_DockFrame(chat)
 				ChatFrame2Tab:EnableMouse(false)

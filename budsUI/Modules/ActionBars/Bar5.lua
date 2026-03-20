@@ -13,9 +13,14 @@ K.UpdateBar5 = function()
 	local size = C.ActionBar.ButtonSize
 	local space = C.ActionBar.ButtonSpace
 	local bar = Bar5Holder
-	local rightBars = SavedOptionsPerChar.RightBars or C.ActionBar.RightBars
-	local bottomBars = SavedOptionsPerChar.BottomBars or C.ActionBar.BottomBars
-	local splitBars = SavedOptionsPerChar.SplitBars
+	
+	local cd = {}
+	if type(budsUIData) == "table" and type(budsUIData.CharacterData) == "table" then
+		cd = budsUIData.CharacterData[K.Realm .. "-" .. K.Name] or {}
+	end
+	local rightBars = cd.RightBars or C.ActionBar.RightBars
+	local bottomBars = cd.BottomBars or C.ActionBar.BottomBars
+	local splitBars = cd.SplitBars
 	if splitBars == nil then splitBars = C.ActionBar.SplitBars end
 
 	if rightBars < 3 and bottomBars < 3 then

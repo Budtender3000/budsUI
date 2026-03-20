@@ -10,6 +10,7 @@ K.MoverFrames = {
 	AchievementAnchor,
 	ActionBarAnchor,
 	BuffsAnchor,
+	ChatFrame1,
 	COOLDOWN_Anchor,
 	LootRollAnchor,
 	MinimapAnchor,
@@ -49,7 +50,19 @@ local placed = {
 
 local SetPosition = function(mover)
 	local ap, _, rp, x, y = mover:GetPoint()
-	C.MoverPositions[mover.frame:GetName()] = {ap, "UIParent", rp, x, y}
+	local frameName = mover.frame:GetName()
+	
+	-- Live update
+	C.MoverPositions[frameName] = {ap, "UIParent", rp, x, y}
+	
+	-- Persistent update
+	local activeProfile = K.GetActiveProfile()
+	if activeProfile and budsUIData.Profiles[activeProfile] then
+		if not budsUIData.Profiles[activeProfile].MoverPositions then
+			budsUIData.Profiles[activeProfile].MoverPositions = {}
+		end
+		budsUIData.Profiles[activeProfile].MoverPositions[frameName] = {ap, "UIParent", rp, x, y}
+	end
 end
 
 local OnDragStart = function(self)
@@ -101,6 +114,11 @@ local InitMove = function(msg)
 	if InCombatLockdown() then print("|cffffe02e"..ERR_NOT_IN_COMBAT.."|r") return end
 	if msg and (msg == "reset" or msg == "куыуе") then
 		C.MoverPositions = {}
+		local activeProfile = K.GetActiveProfile()
+		if activeProfile and budsUIData.Profiles[activeProfile] then
+			budsUIData.Profiles[activeProfile].MoverPositions = {}
+		end
+		
 		for i, v in pairs(placed) do
 			if _G[v] then
 				_G[v]:SetUserPlaced(false)

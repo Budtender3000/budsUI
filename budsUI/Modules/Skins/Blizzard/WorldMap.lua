@@ -18,11 +18,11 @@ end
 
 -- Hilfsfunktion zum Speichern von Position und Größe
 local function SaveWorldMapSettings()
-	if not budsUI_Config or not GUIConfigAll then return end
+	if not budsUIData or not budsUIData.Profiles then return end
 	
-	local activeProfile = GUIConfigAll.CharacterMap[K.Realm.."-"..K.Name] or "Default"
-	local profile = GUIConfigAll.Profiles[activeProfile]
-	if not profile then return end
+	local activeProfile = K.GetActiveProfile()
+	if not activeProfile or not budsUIData.Profiles[activeProfile] then return end
+	local profile = budsUIData.Profiles[activeProfile]
 
 	-- Position
 	local ap, _, rp, x, y = WorldMapFrame:GetPoint()

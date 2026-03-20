@@ -2,10 +2,8 @@
 ## Title: |cff388bdbbudsUI Config|r
 ## Notes: |cff388bdbbudsUI|r Config GUI
 ## Author: Budtender3000
-## Version: 0.6.7
-## SavedVariables: GUIConfigAll, GUIConfigSettings
-## SavedVariablesPerCharacter: GUIConfig
-## RequiredDeps: budsUI
+## Version: 0.7.0
+## SavedVariables: budsUIData, SavedOptions
 
 Locales\enUS.lua
 Locales\deDE.lua
