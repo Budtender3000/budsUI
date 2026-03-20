@@ -82,11 +82,7 @@ local lastChildren = 0
 local hasActiveAnimations = false
 
 local function CheckActiveAnimations()
-	local count = 0
-	for _ in pairs(Smoothing) do
-		count = count + 1
-	end
-	return count > 0
+	return next(Smoothing) ~= nil
 end
 
 SmoothFrame:SetScript("OnUpdate", function(self, elapsed)

@@ -1,5 +1,5 @@
 local K, C, L, _ = select(2, ...):unpack()
-if C.Unitframe.Enable ~= true or C.Filger.Enable ~= true then return end
+if C.Filger.Enable ~= true or IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("ShadowedUnitFrames") or IsAddOnLoaded("XPerl") then return end
 
 local _G = _G
 local pairs = pairs

@@ -1,5 +1,5 @@
 local K, C, L, _ = select(2, ...):unpack()
-if C.Unitframe.Enable ~= true then return end
+if IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("ShadowedUnitFrames") or IsAddOnLoaded("XPerl") then return end
 
 local _G = _G
 local GetName = GetName
@@ -222,7 +222,7 @@ do
 	auraWatcher:SetScript("OnEvent", function(self, event, unit)
 		-- CRITICAL: Only handle target and focus, never raid/party/pet units
 		if event == "UNIT_AURA" then
-			if not unit or unit:match("^raid") or unit:match("^party") or unit == "pet" then
+			if unit ~= "target" and unit ~= "focus" then
 				return
 			end
 		end

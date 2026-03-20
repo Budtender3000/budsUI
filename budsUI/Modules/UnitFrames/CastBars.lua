@@ -1,5 +1,5 @@
 local K, C, L, _ = select(2, ...):unpack()
-if C.Unitframe.Enable ~= true or IsAddOnLoaded("Quartz") then return end
+if IsAddOnLoaded("Quartz") or IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("ShadowedUnitFrames") or IsAddOnLoaded("XPerl") then return end
 
 local unpack = unpack
 local format = string.format

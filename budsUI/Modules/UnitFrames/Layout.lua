@@ -31,7 +31,7 @@ local RUNE_OFFSET_Y = -5
 
 local Unitframes = CreateFrame("Frame", "Unitframes", UIParent)
 
-if C.Unitframe.Enable == true then
+if not (IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("ShadowedUnitFrames") or IsAddOnLoaded("XPerl")) then
 
 	local PlayerAnchor = CreateFrame("Frame", "PlayerFrameAnchor", UIParent)
 	if not InCombatLockdown() then

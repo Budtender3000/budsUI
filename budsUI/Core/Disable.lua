@@ -42,19 +42,14 @@ if C.Unitframe.PercentHealth == true then
 	C.Unitframe.ClassHealth = false
 end
 
-if C.Unitframe.Enable == false then
-	C.Filger.Enable = false
-end
+-- removed check for filger
 
 -- Auto-overwrite script config is X addon is found
 if (select(4, GetAddOnInfo("SexyMap"))) or (select(4, GetAddOnInfo("wMinimap"))) then
 	C.Minimap.Enable = false
 end
 
-if (select(4, GetAddOnInfo("Stuf"))) or (select(4, GetAddOnInfo("PitBull4"))) or (select(4, GetAddOnInfo("ShadowedUnitFrames"))) then
-	C.Unitframe.Enable = false
-	C.Unitframe.EnhancedFrames = false
-end
+-- removed check for competing UF
 
 if (select(4, GetAddOnInfo("QuestHelper"))) then -- This is a temp fix until I figure out what to blacklist from shitty questhelper.
 	C.Skins.MinimapButtons = false
@@ -72,9 +67,7 @@ if (select(4, GetAddOnInfo("budsUI_OldBars"))) then
 	C.ActionBar.Enable = false
 end
 
-if (select(4, GetAddOnInfo("XPerl"))) or (select(4, GetAddOnInfo("Stuf"))) or (select(4, GetAddOnInfo("PitBull4"))) or (select(4, GetAddOnInfo("ShadowedUnitFrames"))) then
-	C.Unitframe.Enable = false
-end
+-- removed check second UF
 
 if (select(4, GetAddOnInfo("AdiBags"))) or (select(4, GetAddOnInfo("ArkInventory"))) or (select(4, GetAddOnInfo("cargBags_Nivaya"))) or (select(4, GetAddOnInfo("cargBags"))) or (select(4, GetAddOnInfo("Bagnon"))) or (select(4, GetAddOnInfo("Combuctor"))) or (select(4, GetAddOnInfo("TBag"))) or (select(4, GetAddOnInfo("BaudBag"))) then
 	C.Bag.Enable = false

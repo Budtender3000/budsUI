@@ -726,7 +726,20 @@ function CreateUIConfig()
 				button:SetPoint("TOPLEFT", 5, -offset)
 				offset = offset + 25
 			elseif type(value) == "number" or type(value) == "string" then
-				if i == "PowerBar" and j == "MaelstromSize" then
+				if (i == "PowerBar" and j == "MaelstromSize") or (i == "Unitframe" and type(value) == "number") then
+					local sMin, sMax, sStep = 64, 512, 8
+					if i == "Unitframe" then
+						if j == "Scale" or j == "CastBarScale" then
+							sMin, sMax, sStep = 0.5, 2.5, 0.05
+						elseif j == "LargeAuraSize" or j == "SmallAuraSize" then
+							sMin, sMax, sStep = 10, 50, 1
+						elseif j == "AuraOffsetY" then
+							sMin, sMax, sStep = -20, 20, 1
+						else
+							sMin, sMax, sStep = 0, 100, 1
+						end
+					end
+
 					local label = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 					local o = "UIConfig"..i..j
 					Local(o)
@@ -738,18 +751,19 @@ function CreateUIConfig()
 					local slider = CreateFrame("Slider", "UIConfig"..i..j.."Slider", frame, "OptionsSliderTemplate")
 					slider:SetPoint("TOPLEFT", 10, -(offset + 25))
 					slider:SetWidth(200)
-					slider:SetMinMaxValues(64, 512)
-					slider:SetValueStep(8)
+					slider:SetMinMaxValues(sMin, sMax)
+					slider:SetValueStep(sStep)
 					slider:SetValue(value)
 
-					_G[slider:GetName().."Low"]:SetText("64")
-					_G[slider:GetName().."High"]:SetText("512")
+					_G[slider:GetName().."Low"]:SetText(sMin)
+					_G[slider:GetName().."High"]:SetText(sMax)
 					_G[slider:GetName().."Text"]:SetText(value)
 
-					slider:SetScript("OnValueChanged", function(self, value)
-						value = math.floor(value / 8) * 8
-						_G[self:GetName().."Text"]:SetText(value)
-						SetValue(i, j, value)
+					slider:SetScript("OnValueChanged", function(self, val)
+						local mult = 1 / sStep
+						val = math.floor(val * mult + 0.5) / mult
+						_G[self:GetName().."Text"]:SetText(val)
+						SetValue(i, j, val)
 					end)
 
 					offset = offset + 50

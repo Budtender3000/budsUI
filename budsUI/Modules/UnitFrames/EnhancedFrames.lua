@@ -1,5 +1,5 @@
 local K, C, L, _ = select(2, ...):unpack()
-if C.Unitframe.EnhancedFrames ~= true then return end
+if IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("ShadowedUnitFrames") or IsAddOnLoaded("XPerl") then return end
 
 local _G = _G
 
@@ -45,17 +45,18 @@ EnableEnhancedFrames = function()
 	
 	local updateQueue = {}
 	local updateFrame = CreateFrame("Frame")
+	updateFrame:Hide()
 	updateFrame:SetScript("OnUpdate", function(self)
 		for statusBar, _ in pairs(updateQueue) do
-			if not InCombatLockdown() then
-				EnhancedFrames_UpdateTextStringWithValues(statusBar)
-			end
+			EnhancedFrames_UpdateTextStringWithValues(statusBar)
 			updateQueue[statusBar] = nil
 		end
+		self:Hide()
 	end)
 	
 	local function QueueUpdate(statusBar)
 		updateQueue[statusBar] = true
+		updateFrame:Show()
 	end
 	
 	if PlayerFrameHealthBar then
@@ -97,19 +98,10 @@ EnableEnhancedFrames = function()
 	-- Show hooks taint the entire TargetFrame update chain including TargetFrameToT
 	-- This causes "TargetFrameToT:Show()" taint when PvE mobs have no target
 	
-	-- Create event watcher for target/focus updates
-	local targetWatcher = CreateFrame("Frame")
-	targetWatcher:RegisterEvent("PLAYER_TARGET_CHANGED")
-	targetWatcher:RegisterEvent("PLAYER_FOCUS_CHANGED")
-	targetWatcher:SetScript("OnEvent", function(self, event)
-		if InCombatLockdown() then return end
-		
-		if event == "PLAYER_TARGET_CHANGED" and TargetFrame and TargetFrame:IsVisible() then
-			EnhancedFrames_TargetFrame_Update(TargetFrame)
-		elseif event == "PLAYER_FOCUS_CHANGED" and FocusFrame and FocusFrame:IsVisible() then
-			EnhancedFrames_TargetFrame_Update(FocusFrame)
-		end
-	end)
+	-- Hook global update functions for target frame styling
+	hooksecurefunc("TargetFrame_Update", EnhancedFrames_TargetFrame_Update)
+	hooksecurefunc("TargetFrame_CheckClassification", EnhancedFrames_Target_Classification)
+	hooksecurefunc("TargetFrame_CheckFaction", EnhancedFrames_TargetFrame_CheckFaction)
 	
 	-- Removed Show hooks to prevent taint chain:
 	-- hooksecurefunc(TargetFrame, "Show", ...) causes taint on TargetFrameToT
@@ -160,7 +152,7 @@ EnhancedFrames_Style_TargetFrame = function(self)
 			self.healthbar:SetPoint("TOPLEFT", 7, -41)
 			self.healthbar.TextString:SetPoint("CENTER", -50, 4)
 			self.deadText:SetPoint("CENTER", -50, 4)
-			self.Background:SetPoint("TOPLEFT", 7, -41)
+			--self.Background:SetPoint("TOPLEFT", 7, -41)
 		else
 			self.name:SetPoint("TOPLEFT", 16, -10)
 
@@ -273,6 +265,10 @@ EnhancedFrames_TargetFrame_Update = function(self)
 	if (not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit)) then
 		-- Gray if npc is tapped by other player
 		self.healthbar:SetStatusBarColor(0.5, 0.5, 0.5)
+	else
+		-- Restore normal color
+		local r, g, b = UnitSelectionColor(self.unit)
+		self.healthbar:SetStatusBarColor(r, g, b)
 	end
 end
 
@@ -346,50 +342,52 @@ end
 EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt = function(self)
 	if InCombatLockdown() then return end
 	
-	if self.healthbar and self.healthbar.TextString then
-		self.healthbar.TextString:SetPoint("CENTER", self.healthbar, "CENTER", 0, 1)
-	end
-
-	if self.name then
-		self.name:SetPoint("TOP", 0, 20)
-		self.name:SetFont(C.Media.Font, 10)
-	end
-
 	local name = self:GetName()
-	if name then
-		local texture = _G[name.."Texture"]
-		if texture then
-			texture:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\PartyFrame]])
-			texture:SetPoint("TOPLEFT", 0, 6)
-		end
+	if not name then return end
 
-		local flash = _G[name.."Flash"]
-		if flash then
-			flash:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\PartyFrameFlash]])
-			flash:SetPoint("TOPLEFT", 0, 6)
-		end
+	local healthBar = _G[name.."HealthBar"]
+	if healthBar and healthBar.TextString then
+		healthBar.TextString:SetPoint("CENTER", healthBar, "CENTER", 0, 1)
+	end
 
-		if self.healthbar then
-			self.healthbar:SetPoint("TOPLEFT", 47, -3)
-			self.healthbar:SetHeight(17)
-		end
+	local nameText = _G[name.."Name"]
+	if nameText then
+		nameText:SetPoint("TOP", 0, 20)
+		nameText:SetFont(C.Media.Font, 10)
+	end
 
-		local bg = _G[name.."Background"]
-		if bg then
-			bg:SetSize(70, 24)
-			bg:SetPoint("TOPLEFT", 47, -3)
-		end
+	local texture = _G[name.."Texture"]
+	if texture then
+		texture:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\PartyFrame]])
+		texture:SetPoint("TOPLEFT", 0, 6)
+	end
+
+	local flash = _G[name.."Flash"]
+	if flash then
+		flash:SetTexture([[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\PartyFrameFlash]])
+		flash:SetPoint("TOPLEFT", 0, 6)
+	end
+
+	if healthBar then
+		healthBar:SetPoint("TOPLEFT", 47, -3)
+		healthBar:SetHeight(17)
+	end
+
+	local bg = _G[name.."Background"]
+	if bg then
+		bg:SetSize(70, 24)
+		bg:SetPoint("TOPLEFT", 47, -3)
 	end
 end
 
 -- UPDATE SETTINGS SPECIFIC TO PARTY MEMBER UNIT FRAMES WHEN IN VEHICLES
 EnhancedPartyFrames_PartyMemberFrame_ToVehicleArt = function(self)
 	if not InCombatLockdown() then
+		local name = self:GetName()
+		if not name then return end
 		local tex = [[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\VehiclePartyFrame]]
-		for i = 1, 4 do
-			local f = _G["PartyMemberFrame"..i.."VehicleTexture"]
-			if f then f:SetTexture(tex) end
-		end
+		local f = _G[name.."VehicleTexture"]
+		if f then f:SetTexture(tex) end
 	end
 end
 

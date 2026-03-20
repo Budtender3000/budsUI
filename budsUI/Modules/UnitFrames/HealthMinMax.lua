@@ -1,5 +1,5 @@
 local K, C, L, _ = select(2, ...):unpack()
-if C.Unitframe.Enable ~= true then return end
+if IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("ShadowedUnitFrames") or IsAddOnLoaded("XPerl") then return end
 
 
 if C.Unitframe.ClassHealth == false and C.Unitframe.PercentHealth == true then

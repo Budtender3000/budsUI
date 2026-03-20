@@ -44,7 +44,7 @@ frame:SetScript("OnEvent", function(self, event, addon, ...)
 		InterfaceOptionsSocialPanelChatStyle:SetAlpha(0)
 	end
 
-	if C.Unitframe.Enable then
+	if not (IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("ShadowedUnitFrames") or IsAddOnLoaded("XPerl")) then
 		PartyMemberBackground:Kill()
 		InterfaceOptionsUnitFramePanelPartyBackground:Kill()
 	end
@@ -61,7 +61,7 @@ frame:SetScript("OnEvent", function(self, event, addon, ...)
 		InterfaceOptionsActionBarsPanelAlwaysShowActionBars:Kill()
 	end
 
-	if C.Unitframe.EnhancedFrames then
+	if not (IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("ShadowedUnitFrames") or IsAddOnLoaded("XPerl")) then
 		SetCVar("fullSizeFocusFrame", 1)
 		InterfaceOptionsUnitFramePanelFullSizeFocusFrame:Kill()
 	end
