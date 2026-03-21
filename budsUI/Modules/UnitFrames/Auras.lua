@@ -10,7 +10,7 @@ local hooksecurefunc = hooksecurefunc
 local AURA_BORDER_SIZE = 8
 local AURA_CD_OFFSET = 1.5
 local AURA_ROW_WIDTH = 100
-local NUM_TOT_AURA_ROWS = 2
+
 local AURA_START_X = 3
 local AURA_START_Y = 32
 local AURA_OFFSET_Y_DEFAULT = 3
@@ -74,7 +74,7 @@ local function TargetAuraColour(self)
 				dframecd:SetPoint("BOTTOMRIGHT", dframe, -AURA_CD_OFFSET, AURA_CD_OFFSET)
 			end
 
-			if dframecount then -- ToT doesn"t show stacks
+			if dframecount then -- debuffs show stacks if applicable
 				dframecount:ClearAllPoints()
 				dframecount:SetPoint("CENTER", dframe, "BOTTOM")
 				dframecount:SetJustifyH("CENTER")
@@ -88,10 +88,9 @@ local beauty = _G["!BeautyCase"] or _G["BeautyCase"]
 
 
 do
-	-- Frame-specific hooks to prevent taint on secure frames like TargetFrameToT and PetFrame
-	-- CRITICAL: Do NOT hook Show on TargetFrame/FocusFrame
-	-- Show hooks taint the entire frame update chain including TargetFrameToT
-	-- This causes "TargetFrameToT:Show()" taint when PvE mobs have no target
+	-- Frame-specific hooks to prevent general unit frame taint.
+	-- Blizzard's TargetFrameToT is handled separately in TargetOfTarget.lua to completely avoid taint.
+	-- DO NOT hook Show on secure frames like TargetFrame/FocusFrame as it still taints other secure chains.
 	
 	-- Create event frame to monitor aura updates
 	local auraWatcher = CreateFrame("Frame")
@@ -119,7 +118,5 @@ do
 		end
 	end)
 	
-	-- Removed Show hooks to prevent taint chain:
-	-- hooksecurefunc(TargetFrame, "Show", ...) causes taint on TargetFrameToT
-	-- hooksecurefunc(FocusFrame, "Show", ...) causes taint on FocusFrameToT
+	-- Note: TargetFrameToT and FocusFrameToT are now handled via custom non-secure frames in TargetOfTarget.lua
 end

@@ -143,15 +143,6 @@ if not (IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("Sha
 			FrameScale:SetScale(C.Unitframe.Scale)
 		end
 
-		-- TAINT FIX: Completely disable budsUI modifications to ToT frames
-		-- TargetFrameToT and FocusFrameToT will use Blizzard's default behavior
-		-- This prevents the persistent "TargetFrameToT:Show()" taint error
-		
-		if C.Unitframe.DisableToT then
-			-- Ensure ToT frames are not touched by budsUI at all
-			-- Let Blizzard handle all ToT positioning and visibility
-		end
-
 		-- Arena Frames Scaling
 		local function SetArenaFrames()
 			for i = 1, MAX_ARENA_ENEMIES do
@@ -201,8 +192,9 @@ end
 if not InCombatLockdown() then
 	if C.Unitframe.ClassIcon == true then
 		-- TAINT FIX: Use UNIT_PORTRAIT_UPDATE events instead of Show hooks
-		-- Show hooks taint the entire frame update chain including TargetFrameToT
-		-- This causes "TargetFrameToT:Show()" taint when PvE mobs have no target
+		-- UnitFrame styling logic
+		-- Secure frames like TargetFrame are hooked safely to avoid taint.
+		-- TargetFrameToT is neutralized separately in TargetOfTarget.lua.
 		
 		local function UpdateClassIcon(self)
 			if not self or not self.unit or not self.portrait then return end

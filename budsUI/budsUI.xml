@@ -46,6 +46,7 @@
 	<Script file="Modules\Unitframes\Layout.lua"/>
 	<Script file="Modules\Unitframes\PowerBar.lua"/>
 	<Script file="Modules\Unitframes\SmoothBars.lua"/>
+	<Script file="Modules\Unitframes\TargetOfTarget.lua"/>
 
 	<Script file="Modules\Misc\AFKSpin.lua"/>
 	<Script file="Modules\Misc\AddonList.lua"/>

@@ -289,7 +289,6 @@ C["Unitframe"] = {
 	["ClassHealth"] = false,
 	["ClassIcon"] = false,
 	["CombatFeedback"] = false,
-	["DisableToT"] = false, -- Disable budsUI ToT modifications, use Blizzard default (prevents taint)
 	["GroupNumber"] = false,
 	["PvPIcon"] = true,
 	["LargeAuraSize"] = 26,

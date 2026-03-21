@@ -40,8 +40,8 @@ end
 
 EnableEnhancedFrames = function()
 	-- SPECIFIC STATUS TEXT HOOKS - Use OnUpdate delay to prevent taint
-	-- SetValue hooks run DURING Blizzard's frame update, which taints TargetFrameToT:Show()
-	-- Solution: Delay our updates with OnUpdate to run AFTER Blizzard's update chain completes
+	-- SetValue hooks run DURING Blizzard's frame update
+	-- Delay our updates with OnUpdate to run AFTER Blizzard's update chain completes
 	
 	local updateQueue = {}
 	local updateFrame = CreateFrame("Frame")
@@ -94,18 +94,12 @@ EnableEnhancedFrames = function()
 	hooksecurefunc("PlayerFrame_ToPlayerArt", EnhancedFrames_PlayerFrame_ToPlayerArt)
 	hooksecurefunc("PlayerFrame_ToVehicleArt", EnhancedFrames_PlayerFrame_ToVehicleArt)
 
-	-- HOOK TARGETFRAME FUNCTIONS - Use UNIT_TARGET events instead of Show hooks
-	-- Show hooks taint the entire TargetFrame update chain including TargetFrameToT
-	-- This causes "TargetFrameToT:Show()" taint when PvE mobs have no target
+	-- HOOK TARGETFRAME FUNCTIONS
 	
 	-- Hook global update functions for target frame styling
 	hooksecurefunc("TargetFrame_Update", EnhancedFrames_TargetFrame_Update)
 	hooksecurefunc("TargetFrame_CheckClassification", EnhancedFrames_Target_Classification)
 	hooksecurefunc("TargetFrame_CheckFaction", EnhancedFrames_TargetFrame_CheckFaction)
-	
-	-- Removed Show hooks to prevent taint chain:
-	-- hooksecurefunc(TargetFrame, "Show", ...) causes taint on TargetFrameToT
-	-- hooksecurefunc(FocusFrame, "Show", ...) causes taint on FocusFrameToT
 
 	-- BOSSFRAME HOOKS REMOVED - Causes taint on Boss2TargetFrame:Hide()
 	-- Boss frames will use default Blizzard styling to prevent taint issues
@@ -249,9 +243,8 @@ EnhancedFrames_TargetFrame_Update = function(self)
 	-- Skip secure frames to prevent taint
 	if not self or not self.unit then return end
 	local unitType = self.unit
-	-- Skip ToT, pet, raid, and boss frames
-	if self == TargetFrameToT or self == FocusFrameToT or
-	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	-- Skip pet, raid, and boss frames
+	if unitType == "pet" or
 	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
 	   unitType:match("^boss%d+") then
 		return
@@ -276,9 +269,8 @@ EnhancedFrames_Target_Classification = function(self, forceNormalTexture)
 	-- Skip secure frames to prevent taint
 	if not self or not self.unit then return end
 	local unitType = self.unit
-	-- Skip ToT, pet, raid, and boss frames
-	if self == TargetFrameToT or self == FocusFrameToT or
-	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	-- Skip pet, raid, and boss frames
+	if unitType == "pet" or
 	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
 	   unitType:match("^boss%d+") then
 		return
@@ -311,9 +303,8 @@ EnhancedFrames_TargetFrame_CheckFaction = function(self)
 	-- Skip secure frames to prevent taint
 	if not self or not self.unit then return end
 	local unitType = self.unit
-	-- Skip ToT, pet, raid, and boss frames
-	if self == TargetFrameToT or self == FocusFrameToT or
-	   unitType == "pet" or unitType == "targettarget" or unitType == "focustarget" or
+	-- Skip pet, raid, and boss frames
+	if unitType == "pet" or
 	   unitType:match("^raid%d+") or unitType:match("^party%d+pet") or unitType:match("^raid%d+pet") or
 	   unitType:match("^boss%d+") then
 		return
