@@ -98,7 +98,15 @@ end
 
 local function Stuffing_ToggleBag(id)
 	if id == -2 then
-		ToggleKeyRing()
+		if show_keyring == 1 then
+			show_keyring = 0
+		else
+			show_keyring = 1
+		end
+		Stuffing:Layout()
+		if show_keyring == 1 and not Stuffing.frame:IsShown() then
+			Stuffing:Open()
+		end
 		return
 	end
 	Stuffing_Toggle()
@@ -156,7 +164,9 @@ function Stuffing:SlotUpdate(b)
 		end
 	end
 
-	b.frame:Show()
+	if b.bag ~= -2 or show_keyring == 1 then
+		b.frame:Show()
+	end
 end
 
 function Stuffing:BagSlotUpdate(bag)
@@ -954,8 +964,9 @@ function Stuffing:ADDON_LOADED(addon)
 
 	-- hook functions
 	ToggleBackpack = Stuffing_Toggle
-	ToggleBag = Stuffing_Toggle
+	ToggleBag = Stuffing_ToggleBag
 	ToggleAllBags = Stuffing_Toggle
+	ToggleKeyRing = function() Stuffing_ToggleBag(-2) end
 	OpenAllBags = Stuffing_Open
 	OpenBackpack = Stuffing_Open
 	CloseAllBags = Stuffing_Close
