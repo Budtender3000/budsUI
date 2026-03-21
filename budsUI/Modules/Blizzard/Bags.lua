@@ -27,6 +27,7 @@ local ST_SOULBAG = 2
 local ST_SPECIAL = 3
 local ST_QUIVER = 4
 local bag_bars = 0
+local show_keyring = 0
 
 -- Extracted constants (previously hardcoded magic numbers)
 local HEARTHSTONE_ID = 6948
@@ -440,7 +441,29 @@ function Stuffing:CreateBagFrame(w)
 		f.b_purchase:SetSize(80, 20)
 		f.b_purchase:SetPoint("TOPLEFT", 10, -4)
 		f.b_purchase:RegisterForClicks("AnyUp")
-		f.b_purchase:SetScript("OnClick", function(self) StaticPopup_Show("CONFIRM_BUY_BANK_SLOT") end)
+		-- Define custom popup to avoid Blizzard's MoneyFrame nil error in 3.3.5/Ascension
+		if not StaticPopupDialogs["BUDSUI_BUY_BANK_SLOT"] then
+			StaticPopupDialogs["BUDSUI_BUY_BANK_SLOT"] = {
+				text = CONFIRM_BUY_BANK_SLOT,
+				button1 = YES,
+				button2 = NO,
+				OnAccept = function()
+					PurchaseSlot()
+				end,
+				OnShow = function(self)
+					MoneyFrame_Update(self:GetName().."MoneyFrame", GetBankSlotCost() or 0)
+				end,
+				hasMoneyFrame = 1,
+				timeout = 0,
+				hideOnEscape = 1,
+				preferredIndex = 3,
+			}
+		end
+
+		f.b_purchase:SetScript("OnClick", function(self)
+			if GetNumBankSlots() >= 7 then return end
+			StaticPopup_Show("BUDSUI_BUY_BANK_SLOT")
+		end)
 		f.b_purchase:FontString("text", C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
 		f.b_purchase.text:SetPoint("CENTER")
 		f.b_purchase.text:SetText("|cff388bdb"..BANKSLOTPURCHASE.."|r")
@@ -491,6 +514,26 @@ function Stuffing:CreateBagFrame(w)
 
 	return f
 end
+
+-- Slash commands for Bags
+SlashCmdList["STUFFING_BAGS"] = function(msg)
+	msg = msg and string.lower(msg)
+	if msg == "purchase yes" then
+		if not Stuffing.bankFrame or not Stuffing.bankFrame:IsShown() then
+			K.Print(L_BAG_OPEN_BANK)
+			return
+		end
+		local _, full = GetNumBankSlots()
+		if full then
+			K.Print(L_BAG_NO_SLOTS)
+			return
+		end
+		PurchaseSlot()
+	else
+		K.Print(L_BAG_BUY_SLOTS)
+	end
+end
+SLASH_STUFFING_BAGS1 = "/bags"
 
 function Stuffing:InitBank()
 	if self.bankFrame then
@@ -637,6 +680,9 @@ function Stuffing:Layout(lb)
 		f:SetAlpha(1)
 	else
 		bs = BAGS_BACKPACK
+		if show_keyring == 1 then
+			bs = {0, 1, 2, 3, 4, -2}
+		end
 		cols = C.Bag.BagColumns
 		f = self.frame
 
@@ -648,6 +694,13 @@ function Stuffing:Layout(lb)
 		f.detail:ClearAllPoints()
 		f.detail:SetPoint("TOPLEFT", f, 12, -8)
 		f.detail:SetPoint("RIGHT", f, -140, 0)
+	end
+
+	-- Hide all existing buttons for this frame before re-layouting
+	for _, v in ipairs(self.buttons) do
+		if (lb and (v.bag == -1 or v.bag >= 5)) or (not lb and (v.bag == -2 or (v.bag >= 0 and v.bag <= 4))) then
+			v.frame:Hide()
+		end
 	end
 
 	f:SetClampedToScreen(1)
@@ -678,7 +731,7 @@ function Stuffing:Layout(lb)
 
 	local idx = 0
 	for _, v in ipairs(bs) do
-		if(not lb and v <= 3 ) or(lb and v ~= -1) then
+		if(not lb and v >= 0 and v <= 3) or(lb and v ~= -1) then
 			local bsize = C.Bag.ButtonSize
 			local b = self:BagFrameSlotNew(v, fb)
 			local xoff = 10
@@ -766,6 +819,7 @@ function Stuffing:Layout(lb)
 					b.frame:ClearAllPoints()
 					b.frame:SetPoint("TOPLEFT", f, "TOPLEFT", xoff, yoff)
 					b.frame:SetSize(C.Bag.ButtonSize, C.Bag.ButtonSize)
+					b.frame:Show()
 					
 					b.frame:StyleButton(true)
 					b.frame.lock = false
@@ -1382,12 +1436,16 @@ function Stuffing.Menu(self, level)
 
 	wipe(info)
 	info.text = KEYRING
-	info.notCheckable = 1
+	info.checked = function()
+		return show_keyring == 1
+	end
 	info.func = function()
-		if InCombatLockdown() or UnitIsDeadOrGhost("player") then
-			K.Print("|cffffe02e"..L_ERR_NOT_IN_COMBAT.."|r") return
+		if show_keyring == 1 then
+			show_keyring = 0
+		else
+			show_keyring = 1
 		end
-		ToggleKeyRing()
+		Stuffing:Layout()
 	end
 	UIDropDownMenu_AddButton(info, level)
 
