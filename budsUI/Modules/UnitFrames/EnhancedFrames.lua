@@ -19,8 +19,7 @@ local EnhancedFrames_PlayerFrame_ToVehicleArt
 local EnhancedFrames_TargetFrame_Update
 local EnhancedFrames_Target_Classification
 local EnhancedFrames_TargetFrame_CheckFaction
-local EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt
-local EnhancedPartyFrames_PartyMemberFrame_ToVehicleArt
+local EnhancedFrames_Style_PartyMemberFrame
 local EnableEnhancedFrames
 local EnhancedFrames_StartUp
 
@@ -33,9 +32,31 @@ function EnhancedFrames:PLAYER_ENTERING_WORLD()
 	EnableEnhancedFrames()
 	for i = 1, MAX_PARTY_MEMBERS do
 		if _G["PartyMemberFrame"..i] then
-			EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt(_G["PartyMemberFrame"..i])
+			EnhancedFrames_Style_PartyMemberFrame(_G["PartyMemberFrame"..i])
 		end
 	end
+end
+
+function EnhancedFrames:PLAYER_TARGET_CHANGED()
+	EnhancedFrames_TargetFrame_Update(TargetFrame)
+	EnhancedFrames_Target_Classification(TargetFrame)
+	EnhancedFrames_TargetFrame_CheckFaction(TargetFrame)
+end
+
+function EnhancedFrames:PLAYER_FOCUS_CHANGED()
+	EnhancedFrames_TargetFrame_Update(FocusFrame)
+	EnhancedFrames_Target_Classification(FocusFrame)
+	EnhancedFrames_TargetFrame_CheckFaction(FocusFrame)
+end
+
+function EnhancedFrames:UNIT_FACTION(unit)
+	if unit == "target" then EnhancedFrames_TargetFrame_CheckFaction(TargetFrame) end
+	if unit == "focus" then EnhancedFrames_TargetFrame_CheckFaction(FocusFrame) end
+end
+
+function EnhancedFrames:UNIT_CLASSIFICATION_CHANGED(unit)
+	if unit == "target" then EnhancedFrames_Target_Classification(TargetFrame) end
+	if unit == "focus" then EnhancedFrames_Target_Classification(FocusFrame) end
 end
 
 EnableEnhancedFrames = function()
@@ -59,34 +80,14 @@ EnableEnhancedFrames = function()
 		updateFrame:Show()
 	end
 	
-	if PlayerFrameHealthBar then
-		hooksecurefunc(PlayerFrameHealthBar, "SetValue", function(self)
-			QueueUpdate(self)
-		end)
-	end
-	if PlayerFrameManaBar then
-		hooksecurefunc(PlayerFrameManaBar, "SetValue", function(self)
-			QueueUpdate(self)
-		end)
-	end
-	if TargetFrameHealthBar then
-		hooksecurefunc(TargetFrameHealthBar, "SetValue", function(self)
-			QueueUpdate(self)
-		end)
-	end
-	if TargetFrameManaBar then
-		hooksecurefunc(TargetFrameManaBar, "SetValue", function(self)
-			QueueUpdate(self)
-		end)
-	end
-	if FocusFrameHealthBar then
-		hooksecurefunc(FocusFrameHealthBar, "SetValue", function(self)
-			QueueUpdate(self)
-		end)
-	end
-	if FocusFrameManaBar then
-		hooksecurefunc(FocusFrameManaBar, "SetValue", function(self)
-			QueueUpdate(self)
+	-- Hook global string update function to safely delay updates without directly hooking widget methods
+	if _G.TextStatusBar_UpdateTextString then
+		hooksecurefunc("TextStatusBar_UpdateTextString", function(textStatusBar)
+			if textStatusBar == PlayerFrameHealthBar or textStatusBar == PlayerFrameManaBar or
+			   textStatusBar == TargetFrameHealthBar or textStatusBar == TargetFrameManaBar or
+			   textStatusBar == FocusFrameHealthBar or textStatusBar == FocusFrameManaBar then
+				QueueUpdate(textStatusBar)
+			end
 		end)
 	end
 
@@ -96,17 +97,11 @@ EnableEnhancedFrames = function()
 
 	-- HOOK TARGETFRAME FUNCTIONS
 	
-	-- Hook global update functions for target frame styling
-	hooksecurefunc("TargetFrame_Update", EnhancedFrames_TargetFrame_Update)
-	hooksecurefunc("TargetFrame_CheckClassification", EnhancedFrames_Target_Classification)
-	hooksecurefunc("TargetFrame_CheckFaction", EnhancedFrames_TargetFrame_CheckFaction)
+	-- HOOKS REMOVED: TargetFrame styling is now handled by event listeners to prevent taint
 
 	-- BOSSFRAME HOOKS REMOVED - Causes taint on Boss2TargetFrame:Hide()
 	-- Boss frames will use default Blizzard styling to prevent taint issues
 	-- hooksecurefunc("BossTargetFrame_OnLoad", EnhancedFrames_BossTargetFrame_Style)
-
-	hooksecurefunc("PartyMemberFrame_ToPlayerArt", EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt)
-	hooksecurefunc("PartyMemberFrame_ToVehicleArt", EnhancedPartyFrames_PartyMemberFrame_ToVehicleArt)
 
 	-- SET UP SOME STYLINGS
 	EnhancedFrames_Style_PlayerFrame()
@@ -239,6 +234,21 @@ EnhancedFrames_PlayerFrame_ToVehicleArt = function(self)
 	PlayerFrameHealthBarText:SetPoint("CENTER", 50, 3)
 end
 
+-- TAINT FIX: PLAYER_REGEN_ENABLED flush for vehicle ↔ player art transitions.
+-- If PlayerFrame_ToPlayerArt or PlayerFrame_ToVehicleArt fires during the rare
+-- in-combat vehicle transition window, the InCombatLockdown() guard blocks the
+-- layout changes. This ensures they are re-applied immediately after combat ends.
+local vehicleArtFlush = CreateFrame("Frame")
+vehicleArtFlush:RegisterEvent("PLAYER_REGEN_ENABLED")
+vehicleArtFlush:SetScript("OnEvent", function()
+	-- Re-apply the correct art after combat ends
+	if UnitHasVehicleUI and UnitHasVehicleUI("player") then
+		EnhancedFrames_PlayerFrame_ToVehicleArt()
+	else
+		EnhancedFrames_PlayerFrame_ToPlayerArt()
+	end
+end)
+
 EnhancedFrames_TargetFrame_Update = function(self)
 	-- Skip secure frames to prevent taint
 	if not self or not self.unit then return end
@@ -330,7 +340,7 @@ EnhancedFrames_TargetFrame_CheckFaction = function(self)
 	EnhancedFrames_Style_TargetFrame(self)
 end
 
-EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt = function(self)
+EnhancedFrames_Style_PartyMemberFrame = function(self)
 	if InCombatLockdown() then return end
 	
 	local name = self:GetName()
@@ -371,21 +381,17 @@ EnhancedPartyFrames_PartyMemberFrame_ToPlayerArt = function(self)
 	end
 end
 
--- UPDATE SETTINGS SPECIFIC TO PARTY MEMBER UNIT FRAMES WHEN IN VEHICLES
-EnhancedPartyFrames_PartyMemberFrame_ToVehicleArt = function(self)
-	if not InCombatLockdown() then
-		local name = self:GetName()
-		if not name then return end
-		local tex = [[Interface\Addons\]] .. K.Directory .. [[\Media\Unitframes\VehiclePartyFrame]]
-		local f = _G[name.."VehicleTexture"]
-		if f then f:SetTexture(tex) end
-	end
-end
-
 -- BOOTSTRAP
+-- NOTE (VERIFIED_SAFE): EnhancedFrames is created as CreateFrame("Frame") — a regular,
+-- non-protected frame. SetScript on non-protected frames does NOT cause taint.
+-- No InCombatLockdown() guard is needed here.
 EnhancedFrames_StartUp = function(self)
-	self:SetScript("OnEvent", function(self, event) self[event](self) end)
+	self:SetScript("OnEvent", function(self, event, ...) if self[event] then self[event](self, ...) end end)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("PLAYER_TARGET_CHANGED")
+	self:RegisterEvent("PLAYER_FOCUS_CHANGED")
+	self:RegisterEvent("UNIT_FACTION")
+	self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED")
 end
 
 EnhancedFrames_StartUp(EnhancedFrames)

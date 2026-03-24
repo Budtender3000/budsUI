@@ -142,7 +142,6 @@ end
 
 -- Create Panel
 local function CreatePanel(f, t, w, h, a1, p, a2, x, y)
-	local r, g, b = K.Color.r, K.Color.g, K.Color.b
 	f:SetFrameLevel(1)
 	f:SetSize(w, h)
 	f:SetFrameStrata("BACKGROUND")

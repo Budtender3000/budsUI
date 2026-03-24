@@ -37,6 +37,8 @@ local function StyleNormalButton(self)
 		return 
 	end
 
+	if InCombatLockdown() then return end
+
 	local button = self
 	local icon = _G[name.."Icon"]
 	local count = _G[name.."Count"]
@@ -90,9 +92,6 @@ local function StyleNormalButton(self)
 			macroName:Kill()
 		end
 	end
-
-	-- Skip all secure operations during combat to prevent taint
-	if InCombatLockdown() then return end
 	
 	if self:GetHeight() ~= C.ActionBar.ButtonSize then
 		self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
@@ -321,6 +320,23 @@ do
 end
 
 hooksecurefunc("ActionButton_Update", StyleNormalButton)
+
+local pendingHotkeys = {}
+local hotkeyDeferFrame = CreateFrame("Frame")
+hotkeyDeferFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+hotkeyDeferFrame:SetScript("OnEvent", function(...)
+	for button in pairs(pendingHotkeys) do
+		UpdateHotkey(button)
+	end
+	pendingHotkeys = {}
+end)
+
 if C.ActionBar.Hotkey == true then
-	hooksecurefunc("ActionButton_UpdateHotkeys", UpdateHotkey)
+	hooksecurefunc("ActionButton_UpdateHotkeys", function(button)
+		if InCombatLockdown() then
+			pendingHotkeys[button] = true
+		else
+			UpdateHotkey(button)
+		end
+	end)
 end

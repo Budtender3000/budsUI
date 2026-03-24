@@ -59,6 +59,24 @@ do
 	if PlayerTalentFrame then
 		PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	else
-		hooksecurefunc("TalentFrame_LoadUI", function() PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED") end)
+		local pendingTalentLoad = false
+		local talentDeferFrame = CreateFrame("Frame")
+		talentDeferFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+		talentDeferFrame:SetScript("OnEvent", function(...)
+			if pendingTalentLoad and PlayerTalentFrame then
+				PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+				pendingTalentLoad = false
+			end
+		end)
+
+		hooksecurefunc("TalentFrame_LoadUI", function()
+			if InCombatLockdown() then
+				pendingTalentLoad = true
+			else
+				if PlayerTalentFrame then
+					PlayerTalentFrame:UnregisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
+				end
+			end
+		end)
 	end
 end

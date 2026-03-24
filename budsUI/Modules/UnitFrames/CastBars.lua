@@ -114,24 +114,84 @@ CastBars:SetScript("OnEvent", function(self, event, addon)
 	end
 end)
 
--- Displays the Casting Bar timer
-local function CastingBarFrame_OnUpdate_Hook(self, elapsed)
-	if(not self.timer) then
-		return
-	end
-	if(self.updateDelay) and (self.updateDelay < elapsed) then
-		if(self.casting) then
-			self.timer:SetText(format("%2.1f / %1.1f", max(self.maxValue - self.value, 0), self.maxValue))
-		elseif(self.channeling) then
-			self.timer:SetText(format("%.1f", max(self.value, 0)))
-		else
-			self.timer:SetText("")
+-- TAINT FIX: Standalone cast timer frame replaces hooksecurefunc on CastingBarFrame_OnUpdate.
+-- The hook injected addon code into Blizzard's protected cast bar OnUpdate chain every frame
+-- during combat casts. This standalone frame reads CastingBarFrame values independently and
+-- only runs its OnUpdate during active casts (zero overhead when not casting).
+local castTimerFrame = CreateFrame("Frame")
+castTimerFrame:Hide()
+
+-- Update both CastingBarFrame and TargetFrameSpellBar timers
+local function UpdateCastTimers(self, elapsed)
+	-- Player cast bar timer
+	local cbf = CastingBarFrame
+	if cbf and cbf.timer then
+		if not cbf._timerDelay then cbf._timerDelay = 0 end
+		cbf._timerDelay = cbf._timerDelay - elapsed
+		if cbf._timerDelay <= 0 then
+			if cbf.casting and cbf.maxValue and cbf.value then
+				cbf.timer:SetText(format("%2.1f / %1.1f", max(cbf.maxValue - cbf.value, 0), cbf.maxValue))
+			elseif cbf.channeling and cbf.value then
+				cbf.timer:SetText(format("%.1f", max(cbf.value, 0)))
+			else
+				cbf.timer:SetText("")
+			end
+			cbf._timerDelay = 0.1
 		end
-		self.updateDelay = 0.1
-	else
-		self.updateDelay = self.updateDelay - elapsed
+	end
+
+	-- Target cast bar timer
+	local tsb = TargetFrameSpellBar
+	if tsb and tsb.timer then
+		if not tsb._timerDelay then tsb._timerDelay = 0 end
+		tsb._timerDelay = tsb._timerDelay - elapsed
+		if tsb._timerDelay <= 0 then
+			if tsb.casting and tsb.maxValue and tsb.value then
+				tsb.timer:SetText(format("%2.1f / %1.1f", max(tsb.maxValue - tsb.value, 0), tsb.maxValue))
+			elseif tsb.channeling and tsb.value then
+				tsb.timer:SetText(format("%.1f", max(tsb.value, 0)))
+			else
+				tsb.timer:SetText("")
+			end
+			tsb._timerDelay = 0.1
+		end
+	end
+
+	-- If neither bar is actively casting/channeling, deactivate
+	local playerActive = cbf and (cbf.casting or cbf.channeling)
+	local targetActive = tsb and (tsb.casting or tsb.channeling)
+	if not playerActive and not targetActive then
+		-- Clear timer text
+		if cbf and cbf.timer then cbf.timer:SetText("") end
+		if tsb and tsb.timer then tsb.timer:SetText("") end
+		self:Hide()
 	end
 end
 
--- Add a function to be called after execution of a secure function. Allows one to "post-hook" a secure function without tainting the original.
-hooksecurefunc("CastingBarFrame_OnUpdate", CastingBarFrame_OnUpdate_Hook)
+castTimerFrame:SetScript("OnUpdate", UpdateCastTimers)
+
+-- Event-driven activation: only enable OnUpdate during active casts
+castTimerFrame:RegisterEvent("UNIT_SPELLCAST_START")
+castTimerFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
+castTimerFrame:RegisterEvent("UNIT_SPELLCAST_FAILED")
+castTimerFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+castTimerFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+castTimerFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+castTimerFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+castTimerFrame:SetScript("OnEvent", function(self, event, unit)
+	if event == "PLAYER_TARGET_CHANGED" then
+		-- Check if new target is casting
+		local tsb = TargetFrameSpellBar
+		if tsb and (tsb.casting or tsb.channeling) then
+			self:Show()
+		end
+		return
+	end
+	if unit ~= "player" and unit ~= "target" then return end
+	if event == "UNIT_SPELLCAST_START" or event == "UNIT_SPELLCAST_CHANNEL_START" then
+		self:Show()
+	elseif event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_FAILED"
+		or event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+		-- Let OnUpdate handle cleanup on next tick (in case other bar is still active)
+	end
+end)

@@ -36,10 +36,8 @@ local OnEvent = function(self, event, unit)
 	end
 end
 SpinCam:RegisterEvent("PLAYER_DEAD")
-SpinCam:RegisterEvent("PLAYER_ENTERING_WORLD")
 SpinCam:RegisterEvent("PLAYER_FLAGS_CHANGED")
 SpinCam:RegisterEvent("PLAYER_LEAVING_WORLD")
-SpinCam:RegisterEvent("PLAYER_LOGIN")
 SpinCam:RegisterEvent("PLAYER_REGEN_DISABLED")
 SpinCam:SetScript("OnEvent", OnEvent)
 

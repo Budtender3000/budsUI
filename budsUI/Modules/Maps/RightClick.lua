@@ -48,9 +48,10 @@ local menuList = {
 
 local taint = CreateFrame("Frame")
 taint:RegisterEvent("PLAYER_ENTERING_WORLD")
-taint:SetScript("OnEvent", function(self)
+taint:SetScript("OnEvent", function(self, event)
 	ToggleFrame(SpellBookFrame)
 	ToggleFrame(SpellBookFrame)
+	self:UnregisterEvent(event)
 end)
 
 Minimap:SetScript("OnMouseUp", function(self, button)

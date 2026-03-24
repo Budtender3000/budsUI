@@ -55,7 +55,13 @@ bar:SetScript("OnEvent", function(self, event, arg1)
 		PetActionBarFrame.showgrid = 1
 		RegisterStateDriver(self, "visibility", "[pet,novehicleui,nobonusbar:5] show; hide")
 		if K.PetBarUpdate then
-			hooksecurefunc("PetActionBar_Update", K.PetBarUpdate)
+			hooksecurefunc("PetActionBar_Update", function()
+				if InCombatLockdown() then
+					self.needsPetBarUpdate = true
+				else
+					K.PetBarUpdate()
+				end
+			end)
 		end
 	elseif event == "PET_BAR_UPDATE" or (event == "UNIT_PET" and arg1 == "player")
 	or event == "PLAYER_CONTROL_LOST" or event == "PLAYER_CONTROL_GAINED" or event == "PLAYER_FARSIGHT_FOCUS_CHANGED" 
@@ -76,6 +82,12 @@ bar:SetScript("OnEvent", function(self, event, arg1)
 			self.needsStyling = false
 		end
 	elseif event == "PLAYER_REGEN_ENABLED" then
+		if self.needsPetBarUpdate then
+			if K.PetBarUpdate then
+				K.PetBarUpdate()
+			end
+			self.needsPetBarUpdate = false
+		end
 		if self.needsStyling then
 			if K.StylePet then
 				K.StylePet()

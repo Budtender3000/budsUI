@@ -3,7 +3,6 @@ if IsAddOnLoaded("Stuf") or IsAddOnLoaded("PitBull4") or IsAddOnLoaded("Shadowed
 
 local _G = _G
 local CreateFrame = CreateFrame
-local hooksecurefunc = hooksecurefunc
 local UnitExists = UnitExists
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
@@ -22,14 +21,11 @@ local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 
 local ToT = CreateFrame("Frame")
 
--- Make Blizzard ToT frames invisible to avoid taint without using :Hide()
+-- Disable Blizzard ToT frames natively to avoid taint.
+-- Setting SetAlpha(0) on secure frames causes taint when Blizzard's secure combat 
+-- updates attempt to show/hide them. We use the CVar to cleanly bypass the logic.
 local function DisableBlizzardToT()
-	if TargetFrameToT then
-		TargetFrameToT:SetAlpha(0)
-	end
-	if FocusFrameToT then
-		FocusFrameToT:SetAlpha(0)
-	end
+	SetCVar("showTargetOfTarget", "0")
 end
 
 local targetToT

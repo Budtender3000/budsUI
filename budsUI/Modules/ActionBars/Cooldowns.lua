@@ -12,6 +12,7 @@ local getmetatable = getmetatable
 local CreateFrame = CreateFrame
 local GetTime = GetTime
 local GetActionCooldown = GetActionCooldown
+local ActionButton_GetPagedID = ActionButton_GetPagedID
 
 local ICON_SIZE = 36
 local FONT_SIZE = C.Cooldown.FontSize
@@ -113,4 +114,55 @@ local function Timer_Start(self, start, duration)
 		end
 	end
 end
-hooksecurefunc(getmetatable(_G["ActionButton1Cooldown"]).__index, "SetCooldown", Timer_Start)
+-- TAINT FIX (P4): Replace metatable SetCooldown hook with event-driven approach.
+-- Listening to ACTIONBAR_UPDATE_COOLDOWN and iterating known buttons avoids
+-- injecting code into Blizzard's protected cooldown update chain.
+local cooldownWatcher = CreateFrame("Frame")
+cooldownWatcher.elapsed = 0
+local COOLDOWN_THROTTLE = 0.1
+
+local buttonPrefixes = {
+	"ActionButton",
+	"MultiBarBottomLeftButton",
+	"MultiBarBottomRightButton",
+	"MultiBarRightButton",
+	"MultiBarLeftButton",
+	"BonusActionButton",
+}
+
+local function UpdateAllCooldowns()
+	for _, prefix in pairs(buttonPrefixes) do
+		for i = 1, 12 do
+			local button = _G[prefix .. i]
+			if button and button:IsVisible() then
+				local action = ActionButton_GetPagedID and ActionButton_GetPagedID(button)
+					or button.action
+				if action then
+					local start, duration, enable = GetActionCooldown(action)
+					local cooldown = _G[button:GetName() .. "Cooldown"]
+					if cooldown then
+						Timer_Start(cooldown, start, duration)
+					end
+				end
+			end
+		end
+	end
+end
+
+cooldownWatcher:RegisterEvent("ACTIONBAR_UPDATE_COOLDOWN")
+cooldownWatcher:SetScript("OnEvent", function(self)
+	-- Throttle: mark dirty and let OnUpdate handle it
+	self.dirty = true
+	self:Show()
+end)
+cooldownWatcher:SetScript("OnUpdate", function(self, elapsed)
+	self.elapsed = self.elapsed + elapsed
+	if self.elapsed < COOLDOWN_THROTTLE then return end
+	self.elapsed = 0
+	if self.dirty then
+		self.dirty = false
+		UpdateAllCooldowns()
+	end
+	self:Hide()
+end)
+cooldownWatcher:Hide()
