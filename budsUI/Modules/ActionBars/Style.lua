@@ -10,35 +10,9 @@ local tostring = tostring
 local NUM_PET_ACTION_SLOTS = NUM_PET_ACTION_SLOTS
 local hooksecurefunc = hooksecurefunc
 
--- Cache for hotkey strings to avoid repeated gsub calls
-local hotkeyCache = {}
-
 local function StyleNormalButton(self)
-	if not self then return end
 	local name = self:GetName()
-	if not name or name:match("MultiCast") then return end
-	
-	-- TAINT FIX: Handle already skinned buttons during combat
-	if self.isSkinned then
-		-- Only visual updates during combat (no SetSize/SetPoint)
-		local border = _G[name.."Border"]
-		if border and self.backdrop then
-			if border:IsShown() and C.ActionBar.EquipBorder then
-				self.backdrop:SetBackdropBorderColor(.08, .70, 0)
-			else
-				self.backdrop:SetBackdropBorderColor(unpack(C.Media.Border_Color))
-			end
-		end
-		
-		-- Resize only outside combat
-		if not InCombatLockdown() and self:GetHeight() ~= C.ActionBar.ButtonSize then
-			self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
-		end
-		return 
-	end
-
-	if InCombatLockdown() then return end
-
+	if name:match("MultiCast") then return end
 	local button = self
 	local icon = _G[name.."Icon"]
 	local count = _G[name.."Count"]
@@ -49,37 +23,19 @@ local function StyleNormalButton(self)
 	local normal = _G[name.."NormalTexture"]
 	local float = _G[name.."FloatingBG"]
 
-	if flash then flash:SetTexture("") end
+	flash:SetTexture("")
 	button:SetNormalTexture("")
 
-	if normal then
-		normal:ClearAllPoints()
-		normal:SetPoint("TOPLEFT")
-		normal:SetPoint("BOTTOMRIGHT")
-		normal:Hide()
-		normal:SetAlpha(0)
-	end
-
-	if float then
+	if (float) then
 		float:Kill()
 	end
 
-	if count then
-		count:ClearAllPoints()
-		count:SetPoint("BOTTOMRIGHT", 0, 2)
-		count:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-	end
+	count:ClearAllPoints()
+	count:SetPoint("BOTTOMRIGHT", 0, 2)
+	count:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
 
-	if hotkey then
-		hotkey:ClearAllPoints()
-		hotkey:SetPoint("TOPRIGHT", 0, -2)
-		if C.ActionBar.Hotkey then
-			hotkey:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
-		else
-			hotkey:SetText("")
-			hotkey:Kill()
-		end
-	end
+	hotkey:ClearAllPoints()
+	hotkey:SetPoint("TOPRIGHT", 0, -2)
 
 	if macroName then
 		if C.ActionBar.Macro == true then
@@ -92,21 +48,33 @@ local function StyleNormalButton(self)
 			macroName:Kill()
 		end
 	end
-	
-	if self:GetHeight() ~= C.ActionBar.ButtonSize then
-		self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
-	end
-	
-	button:CreateBackdrop()
-	button.backdrop:SetOutside()
 
-	if icon then
+	if hotkey then
+		if C.ActionBar.Hotkey then
+			hotkey:SetFont(C.Media.Font, C.Media.Font_Size, C.Media.Font_Style)
+			hotkey.ClearAllPoints = K.Noop
+			hotkey.SetPoint = K.Noop
+		else
+			hotkey:SetText("")
+			hotkey:Kill()
+		end
+	end
+
+	if not button.isSkinned then
+		if self:GetHeight() ~= C.ActionBar.ButtonSize and not InCombatLockdown() then
+			self:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
+		end
+		button:CreateBackdrop()
+		button.backdrop:SetOutside()
+
 		icon:SetTexCoord(unpack(K.TexCoords))
 		icon:SetInside()
-		icon:SetDrawLayer("BORDER", 7)
+		icon:SetDrawLayer("BORDER", 7) -- ??
+
+		button.isSkinned = true
 	end
 
-	if border then
+	if border and button.isSkinned then
 		border:SetTexture("")
 		if border:IsShown() and C.ActionBar.EquipBorder then
 			button.backdrop:SetBackdropBorderColor(.08, .70, 0)
@@ -115,7 +83,7 @@ local function StyleNormalButton(self)
 		end
 	end
 
-	if not button.shadow then
+	if not button.shadow and button.isSkinned then
 		button:CreateBlizzShadow(5)
 	end
 
@@ -124,58 +92,39 @@ local function StyleNormalButton(self)
 		normal:SetPoint("TOPLEFT")
 		normal:SetPoint("BOTTOMRIGHT")
 	end
-	
-	button.isSkinned = true
 end
 
 local function StyleSmallButton(normal, button, icon, name, pet)
-	if not button then return end
 	local flash = _G[name.."Flash"]
 	button:SetNormalTexture("")
+	button.SetNormalTexture = K.Noop
 
-	if flash then
-		flash:SetTexture(204/255, 204/255, 204/255, 0.5)
-		flash:SetInside()
-	end
+	flash:SetTexture(204/255, 204/255, 204/255, 0.5)
+	flash:SetInside()
 
 	if not button.isSkinned then
-		-- Skip all sizing and styling during combat to prevent taint
-		if InCombatLockdown() then return end
-		
 		button:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
 		button:CreateBackdrop()
 		button.backdrop:SetOutside()
 
-		if icon then
-			icon:SetTexCoord(unpack(K.TexCoords))
-			icon:SetInside()
-			icon:SetDrawLayer("BORDER", 7)
-		end
+		icon:SetTexCoord(unpack(K.TexCoords))
+		icon:SetInside()
+		icon:SetDrawLayer("BORDER", 7)
 
 		if pet then
 			local autocast = _G[name.."AutoCastable"]
-			if autocast then
-				autocast:SetSize((C.ActionBar.ButtonSize * 2) - 10, (C.ActionBar.ButtonSize * 2) - 10)
-				autocast:ClearAllPoints()
-				autocast:SetPoint("CENTER", button, 0, 0)
-			end
+			autocast:SetSize((C.ActionBar.ButtonSize * 2) - 10, (C.ActionBar.ButtonSize * 2) - 10)
+			autocast:ClearAllPoints()
+			autocast:SetPoint("CENTER", button, 0, 0)
 
 			local shine = _G[name.."Shine"]
-			if shine then
-				shine:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
-			end
+			shine:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
 
 			local cooldown = _G[name.."Cooldown"]
-			if cooldown then
-				cooldown:SetSize(C.ActionBar.ButtonSize - 2, C.ActionBar.ButtonSize - 2)
-			end
+			cooldown:SetSize(C.ActionBar.ButtonSize - 2, C.ActionBar.ButtonSize - 2)
 		end
 
 		button.isSkinned = true
-	else
-		if button:GetHeight() ~= C.ActionBar.ButtonSize and not InCombatLockdown() then
-			button:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
-		end
 	end
 
 	if not button.shadow then
@@ -184,10 +133,7 @@ local function StyleSmallButton(normal, button, icon, name, pet)
 
 	if normal then
 		normal:ClearAllPoints()
-		normal:SetPoint("TOPLEFT")
-		normal:SetPoint("BOTTOMRIGHT")
-		normal:Hide()
-		normal:SetAlpha(0)
+		normal:SetOutside()
 	end
 end
 
@@ -213,66 +159,50 @@ end
 
 local function UpdateHotkey(button, type)
 	local hotkey = _G[button:GetName() .. "HotKey"]
-	if not hotkey then return end
-	
 	local text = hotkey:GetText()
 	local indicator = _G["RANGE_INDICATOR"]
 
 	if (not text) then
 		return
 	end
-	
-	-- Check cache first
-	if hotkeyCache[text] then
-		if text == indicator then
-			hotkey:SetText("")
-		else
-			hotkey:SetText(hotkeyCache[text])
-		end
-		return
-	end
 
-	-- Process and cache the result
-	local processedText = text
-	processedText = gsub(processedText, "(s%-)", "S")
-	processedText = gsub(processedText, "(a%-)", "A")
-	processedText = gsub(processedText, "(c%-)", "C")
-	processedText = gsub(processedText, KEY_MOUSEWHEELDOWN , "MDn")
-	processedText = gsub(processedText, KEY_MOUSEWHEELUP , "MUp")
-	processedText = gsub(processedText, KEY_BUTTON3, "M3")
-	processedText = gsub(processedText, KEY_BUTTON4, "M4")
-	processedText = gsub(processedText, KEY_BUTTON5, "M5")
-	processedText = gsub(processedText, KEY_MOUSEWHEELUP, "MU")
-	processedText = gsub(processedText, KEY_MOUSEWHEELDOWN, "MD")
-	processedText = gsub(processedText, KEY_NUMPAD0, "N0")
-	processedText = gsub(processedText, KEY_NUMPAD1, "N1")
-	processedText = gsub(processedText, KEY_NUMPAD2, "N2")
-	processedText = gsub(processedText, KEY_NUMPAD3, "N3")
-	processedText = gsub(processedText, KEY_NUMPAD4, "N4")
-	processedText = gsub(processedText, KEY_NUMPAD5, "N5")
-	processedText = gsub(processedText, KEY_NUMPAD6, "N6")
-	processedText = gsub(processedText, KEY_NUMPAD7, "N7")
-	processedText = gsub(processedText, KEY_NUMPAD8, "N8")
-	processedText = gsub(processedText, KEY_NUMPAD9, "N9")
-	processedText = gsub(processedText, KEY_NUMPADDECIMAL, "N.")
-	processedText = gsub(processedText, KEY_NUMPADDIVIDE, "N/")
-	processedText = gsub(processedText, KEY_NUMPADMINUS, "N-")
-	processedText = gsub(processedText, KEY_NUMPADMULTIPLY, "N*")
-	processedText = gsub(processedText, KEY_NUMPADPLUS, "N+")
-	processedText = gsub(processedText, KEY_PAGEUP, "PU")
-	processedText = gsub(processedText, KEY_PAGEDOWN, "PD")
-	processedText = gsub(processedText, KEY_SPACE, "SpB")
-	processedText = gsub(processedText, KEY_INSERT, "Ins")
-	processedText = gsub(processedText, KEY_HOME, "Hm")
-	processedText = gsub(processedText, KEY_DELETE, "Del")
-	processedText = gsub(processedText, KEY_INSERT_MAC, "Hlp") -- mac
-	
-	hotkeyCache[text] = processedText
+	text = gsub(text, "(s%-)", "S")
+	text = gsub(text, "(a%-)", "A")
+	text = gsub(text, "(c%-)", "C")
+	text = gsub(text, KEY_MOUSEWHEELDOWN , "MDn")
+    text = gsub(text, KEY_MOUSEWHEELUP , "MUp")
+	text = gsub(text, KEY_BUTTON3, "M3")
+	text = gsub(text, KEY_BUTTON4, "M4")
+	text = gsub(text, KEY_BUTTON5, "M5")
+	text = gsub(text, KEY_MOUSEWHEELUP, "MU")
+	text = gsub(text, KEY_MOUSEWHEELDOWN, "MD")
+	text = gsub(text, KEY_NUMPAD0, "N0")
+    text = gsub(text, KEY_NUMPAD1, "N1")
+    text = gsub(text, KEY_NUMPAD2, "N2")
+    text = gsub(text, KEY_NUMPAD3, "N3")
+    text = gsub(text, KEY_NUMPAD4, "N4")
+    text = gsub(text, KEY_NUMPAD5, "N5")
+    text = gsub(text, KEY_NUMPAD6, "N6")
+    text = gsub(text, KEY_NUMPAD7, "N7")
+    text = gsub(text, KEY_NUMPAD8, "N8")
+    text = gsub(text, KEY_NUMPAD9, "N9")
+    text = gsub(text, KEY_NUMPADDECIMAL, "N.")
+    text = gsub(text, KEY_NUMPADDIVIDE, "N/")
+    text = gsub(text, KEY_NUMPADMINUS, "N-")
+    text = gsub(text, KEY_NUMPADMULTIPLY, "N*")
+    text = gsub(text, KEY_NUMPADPLUS, "N+")
+	text = gsub(text, KEY_PAGEUP, "PU")
+	text = gsub(text, KEY_PAGEDOWN, "PD")
+	text = gsub(text, KEY_SPACE, "SpB")
+	text = gsub(text, KEY_INSERT, "Ins")
+	text = gsub(text, KEY_HOME, "Hm")
+	text = gsub(text, KEY_DELETE, "Del")
+	text = gsub(text, KEY_INSERT_MAC, "Hlp") -- mac
 
-	if text == indicator then
+	if hotkey:GetText() == indicator then
 		hotkey:SetText("")
 	else
-		hotkey:SetText(processedText)
+		hotkey:SetText(text)
 	end
 end
 
@@ -320,23 +250,6 @@ do
 end
 
 hooksecurefunc("ActionButton_Update", StyleNormalButton)
-
-local pendingHotkeys = {}
-local hotkeyDeferFrame = CreateFrame("Frame")
-hotkeyDeferFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-hotkeyDeferFrame:SetScript("OnEvent", function(...)
-	for button in pairs(pendingHotkeys) do
-		UpdateHotkey(button)
-	end
-	pendingHotkeys = {}
-end)
-
 if C.ActionBar.Hotkey == true then
-	hooksecurefunc("ActionButton_UpdateHotkeys", function(button)
-		if InCombatLockdown() then
-			pendingHotkeys[button] = true
-		else
-			UpdateHotkey(button)
-		end
-	end)
+	hooksecurefunc("ActionButton_UpdateHotkeys", UpdateHotkey)
 end

@@ -269,20 +269,20 @@ local function Colorize(frame)
 	local texcoord = {0, 0, 0, 0}
 	frame.isClass = false
 
-	for class, _ in pairs(RAID_CLASS_COLORS) do
-		local r, g, b = floor(r * 100 + 0.5) / 100, floor(g * 100 + 0.5) / 100, floor(b * 100 + 0.5) / 100
-		if RAID_CLASS_COLORS[class].r == r and RAID_CLASS_COLORS[class].g == g and RAID_CLASS_COLORS[class].b == b then
+	for classToken, color in pairs(RAID_CLASS_COLORS) do
+		-- Fix: use new naming to prevent leak and add tolerance to comparison
+		if math.abs(color.r - r) < 0.02 and math.abs(color.g - g) < 0.02 and math.abs(color.b - b) < 0.02 then
 			frame.isClass = true
 			frame.isFriendly = false
 			if C.Nameplate.ClassIcons == true then
-				texcoord = CLASS_BUTTONS[class]
+				texcoord = CLASS_BUTTONS[classToken]
 				frame.class.Glow:Show()
 				frame.class:SetTexCoord(texcoord[1], texcoord[2], texcoord[3], texcoord[4])
 			end
-			frame.hp.name:SetTextColor(RAID_CLASS_COLORS[class].r, RAID_CLASS_COLORS[class].g, RAID_CLASS_COLORS[class].b)
-			frame.hp:SetStatusBarColor(RAID_CLASS_COLORS[class].r, RAID_CLASS_COLORS[class].g, RAID_CLASS_COLORS[class].b)
-			frame.hp.bg:SetTexture(RAID_CLASS_COLORS[class].r, RAID_CLASS_COLORS[class].g, RAID_CLASS_COLORS[class].b, 0.2)
-			return class
+			frame.hp.name:SetTextColor(color.r, color.g, color.b)
+			frame.hp:SetStatusBarColor(color.r, color.g, color.b)
+			frame.hp.bg:SetTexture(color.r, color.g, color.b, 0.2)
+			return classToken
 		end
 	end
 

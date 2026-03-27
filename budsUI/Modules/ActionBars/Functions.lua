@@ -12,9 +12,7 @@ K.ShiftBarUpdate = function()
 		icon = _G["ShapeshiftButton"..i.."Icon"]
 		if i <= numForms then
 			texture, name, isActive, isCastable = GetShapeshiftFormInfo(i)
-			if texture then
-				icon:SetTexture(texture)
-			end
+			icon:SetTexture(texture)
 
 			cooldown = _G["ShapeshiftButton"..i.."Cooldown"]
 			if texture then
@@ -47,88 +45,71 @@ K.PetBarUpdate = function(self, event)
 	for i = 1, NUM_PET_ACTION_SLOTS, 1 do
 		local buttonName = "PetActionButton"..i
 		petActionButton = _G[buttonName]
-		if not petActionButton then return end
-		
 		petActionIcon = _G[buttonName.."Icon"]
 		petAutoCastableTexture = _G[buttonName.."AutoCastable"]
 		petAutoCastShine = _G[buttonName.."Shine"]
 		local name, subtext, texture, isToken, isActive, autoCastAllowed, autoCastEnabled = GetPetActionInfo(i)
 
-		if name then
-			-- Handle valid pet action slot
-			if not isToken then
-				petActionIcon:SetTexture(texture)
-				petActionButton.tooltipName = name
-			else
-				petActionIcon:SetTexture(_G[texture])
-				petActionButton.tooltipName = _G[name]
-			end
+		if not isToken then
+			petActionIcon:SetTexture(texture)
+			petActionButton.tooltipName = name
+		else
+			petActionIcon:SetTexture(_G[texture])
+			petActionButton.tooltipName = _G[name]
+		end
 
-			petActionButton.isToken = isToken
-			petActionButton.tooltipSubtext = subtext
+		petActionButton.isToken = isToken
+		petActionButton.tooltipSubtext = subtext
 
-			-- Skip secure operations during combat to prevent taint
-			if not InCombatLockdown() then
-				if isActive and name ~= "PET_ACTION_FOLLOW" then
-					petActionButton:SetChecked(true)
-					if IsPetAttackAction(i) then
-						PetActionButton_StartFlash(petActionButton)
-					end
-				else
-					petActionButton:SetChecked(false)
-					if IsPetAttackAction(i) then
-						PetActionButton_StopFlash(petActionButton)
-					end
-				end
-			end
-
-			if autoCastAllowed then
-				petAutoCastableTexture:Show()
-			else
-				petAutoCastableTexture:Hide()
-			end
-
-			if autoCastEnabled then
-				AutoCastShine_AutoCastStart(petAutoCastShine)
-			else
-				AutoCastShine_AutoCastStop(petAutoCastShine)
-			end
-
-			if not C.ActionBar.ShowGrid then
-				-- TAINT FIX: Consistent combat check for SetAlpha
-				if not InCombatLockdown() then
-					petActionButton:SetAlpha(1)
-				end
-			end
-
-			if texture then
-				if GetPetActionSlotUsable(i) then
-					SetDesaturation(petActionIcon, nil)
-				else
-					SetDesaturation(petActionIcon, 1)
-				end
-				petActionIcon:Show()
-			else
-				petActionIcon:Hide()
-			end
-
-			-- TAINT FIX: Consistent combat check for pet action bar state
-			if not InCombatLockdown() then
-				if not PetHasActionBar() and texture and name ~= "PET_ACTION_FOLLOW" then
-					PetActionButton_StopFlash(petActionButton)
-					SetDesaturation(petActionIcon, 1)
-					petActionButton:SetChecked(false)
-				end
+		if isActive and name ~= "PET_ACTION_FOLLOW" then
+			petActionButton:SetChecked(true)
+			if IsPetAttackAction(i) then
+				PetActionButton_StartFlash(petActionButton)
 			end
 		else
-			-- Handle empty pet action slot
-			if not C.ActionBar.ShowGrid then
-				-- TAINT FIX: Consistent combat check for SetAlpha
-				if not InCombatLockdown() then
-					petActionButton:SetAlpha(0)
-				end
+			petActionButton:SetChecked(false)
+			if IsPetAttackAction(i) then
+				PetActionButton_StopFlash(petActionButton)
 			end
+		end
+
+		if autoCastAllowed then
+			petAutoCastableTexture:Show()
+		else
+			petAutoCastableTexture:Hide()
+		end
+
+		if autoCastEnabled then
+			AutoCastShine_AutoCastStart(petAutoCastShine)
+		else
+			AutoCastShine_AutoCastStop(petAutoCastShine)
+		end
+
+		if name then
+			if not C.ActionBar.ShowGrid then
+				petActionButton:SetAlpha(1)
+			end
+		else
+			if not C.ActionBar.ShowGrid then
+				petActionButton:SetAlpha(0)
+			end
+		end
+
+		if texture then
+			if GetPetActionSlotUsable(i) then
+				SetDesaturation(petActionIcon, nil)
+			else
+				SetDesaturation(petActionIcon, 1)
+			end
+			petActionIcon:Show()
+		else
 			petActionIcon:Hide()
+		end
+
+		if not PetHasActionBar() and texture and name ~= "PET_ACTION_FOLLOW" then
+			PetActionButton_StopFlash(petActionButton)
+			SetDesaturation(petActionIcon, 1)
+			petActionButton:SetChecked(false)
 		end
 	end
 end

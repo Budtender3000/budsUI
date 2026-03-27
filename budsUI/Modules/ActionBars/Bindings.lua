@@ -14,9 +14,7 @@ local IsModifiedClick = IsModifiedClick
 local hooksecurefunc = hooksecurefunc
 local InCombatLockdown = InCombatLockdown
 
-local bind = CreateFrame("Frame", "HoverBind", UIParent)
-local oneBind = true
-local localmacros = 0
+local bind, oneBind, localmacros = CreateFrame("Frame", "HoverBind", UIParent), true, 0
 SlashCmdList.MOUSEOVERBIND = function()
 	if InCombatLockdown() then K.Print("|cffffe02e"..ERR_NOT_IN_COMBAT.."|r") return end
 	if not bind.loaded then
@@ -32,18 +30,7 @@ SlashCmdList.MOUSEOVERBIND = function()
 		bind:Hide()
 
 		local elapsed = 0
-		local tooltipUpdateActive = false
-		GameTooltip:HookScript("OnShow", function(self)
-			tooltipUpdateActive = true
-		end)
-		GameTooltip:HookScript("OnHide", function(self)
-			tooltipUpdateActive = false
-			for _, frame in pairs(self.shoppingTooltips) do
-				frame:Hide()
-			end
-		end)
 		GameTooltip:HookScript("OnUpdate", function(self, e)
-			if not tooltipUpdateActive then return end
 			elapsed = elapsed + e
 			if elapsed < 0.2 then return else elapsed = 0 end
 			if not self.comparing and IsModifiedClick("COMPAREITEMS") then
@@ -81,10 +68,8 @@ SlashCmdList.MOUSEOVERBIND = function()
 			ShoppingTooltip1:Hide()
 
 			if spellmacro == "SPELL" then
-				self.button.id = self.button:GetID()
+				self.button.id = SpellBook_GetSpellBookSlot(self.button)
 				self.button.name = GetSpellBookItemName(self.button.id, SpellBookFrame.bookType)
-				
-				if not self.button.name then return end
 
 				GameTooltip:Show()
 				GameTooltip:SetScript("OnHide", function(self)
@@ -109,8 +94,6 @@ SlashCmdList.MOUSEOVERBIND = function()
 				if localmacros == 1 then self.button.id = self.button.id + 36 end
 
 				self.button.name = GetMacroInfo(self.button.id)
-				
-				if not self.button.name then return end
 
 				GameTooltip:SetOwner(bind, "ANCHOR_NONE")
 				GameTooltip:SetPoint("BOTTOM", bind, "TOP", 0, 1)
@@ -284,18 +267,18 @@ SlashCmdList.MOUSEOVERBIND = function()
 		}
 
 		-- Registering
-		local shapeshift = ShapeshiftButton1 and ShapeshiftButton1:GetScript("OnClick")
-		local pet = PetActionButton1 and PetActionButton1:GetScript("OnClick")
-		local button = ActionButton1 and ActionButton1:GetScript("OnClick")
+		local shapeshift = ShapeshiftButton1:GetScript("OnClick")
+		local pet = PetActionButton1:GetScript("OnClick")
+		local button = ActionButton1:GetScript("OnClick")
 
 		local function register(val)
-			if val and val.IsProtected and val.GetObjectType and val.GetScript and val:GetObjectType() == "CheckButton" and val:IsProtected() then
+			if val.IsProtected and val.GetObjectType and val.GetScript and val:GetObjectType() == "CheckButton" and val:IsProtected() then
 				local script = val:GetScript("OnClick")
-				if script and button and script == button then
+				if script == button then
 					val:HookScript("OnEnter", function(self) bind:Update(self) end)
-				elseif script and shapeshift and script == shapeshift then
+				elseif script == shapeshift then
 					val:HookScript("OnEnter", function(self) bind:Update(self, "STANCE") end)
-				elseif script and pet and script == pet then
+				elseif script == pet then
 					val:HookScript("OnEnter", function(self) bind:Update(self, "PET") end)
 				end
 			end
@@ -315,16 +298,10 @@ SlashCmdList.MOUSEOVERBIND = function()
 		local function registermacro()
 			for i = 1, 36 do
 				local b = _G["MacroButton"..i]
-				if b then
-					b:HookScript("OnEnter", function(self) bind:Update(self, "MACRO") end)
-				end
+				b:HookScript("OnEnter", function(self) bind:Update(self, "MACRO") end)
 			end
-			if MacroFrameTab1 then
-				MacroFrameTab1:HookScript("OnMouseUp", function() localmacros = 0 end)
-			end
-			if MacroFrameTab2 then
-				MacroFrameTab2:HookScript("OnMouseUp", function() localmacros = 1 end)
-			end
+			MacroFrameTab1:HookScript("OnMouseUp", function() localmacros = 0 end)
+			MacroFrameTab2:HookScript("OnMouseUp", function() localmacros = 1 end)
 		end
 
 		if not IsAddOnLoaded("Blizzard_MacroUI") then

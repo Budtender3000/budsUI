@@ -51,58 +51,35 @@ bar:RegisterEvent("BAG_UPDATE")
 bar:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 bar:RegisterEvent("UPDATE_VEHICLE_ACTIONBAR")
 bar:RegisterEvent("UPDATE_OVERRIDE_ACTIONBAR")
--- TAINT FIX: Bar1Holder inherits SecureHandlerStateTemplate — SetScript on a protected
--- frame during combat taints it. Guard with InCombatLockdown() and defer if needed.
-local function Bar1_SetupEventHandler()
-	bar:SetScript("OnEvent", function(self, event, ...)
-		if event == "PLAYER_LOGIN" then
+bar:SetScript("OnEvent", function(self, event, ...)
+	if event == "PLAYER_LOGIN" or event == "ACTIVE_TALENT_GROUP_CHANGED" then
+		for i = 1, NUM_ACTIONBAR_BUTTONS do
+			local button = _G["ActionButton"..i]
+			self:SetFrameRef("ActionButton"..i, button)
+		end
+
+		self:Execute([[
+		buttons = table.new()
+		for i = 1, 12 do
+			table.insert(buttons, self:GetFrameRef("ActionButton"..i))
+		end
+		]])
+
+		self:SetAttribute("_onstate-page", [[
+		for i, button in ipairs(buttons) do
+			button:SetAttribute("actionpage", tonumber(newstate))
+		end
+		]])
+
+		RegisterStateDriver(self, "page", GetBar())
+	elseif event == "UPDATE_VEHICLE_ACTIONBAR" or event == "UPDATE_OVERRIDE_ACTIONBAR" then
+		if not InCombatLockdown() and (HasVehicleActionBar() or HasOverrideActionBar()) then
 			for i = 1, NUM_ACTIONBAR_BUTTONS do
 				local button = _G["ActionButton"..i]
-				self:SetFrameRef("ActionButton"..i, button)
-			end
-
-			self:Execute([[
-				buttons = newtable()
-				for i = 1, 12 do
-					table.insert(buttons, self:GetFrameRef("ActionButton"..i))
-				end
-			]])
-
-			self:SetAttribute("_onstate-page", [[
-				if buttons then
-					for i, button in ipairs(buttons) do
-						button:SetAttribute("actionpage", tonumber(newstate))
-					end
-				end
-			]])
-
-			RegisterStateDriver(self, "page", GetBar())
-		elseif event == "ACTIVE_TALENT_GROUP_CHANGED" then
-			-- Just update the state driver, buttons are already set up
-			RegisterStateDriver(self, "page", GetBar())
-		elseif event == "UPDATE_VEHICLE_ACTIONBAR" or event == "UPDATE_OVERRIDE_ACTIONBAR" then
-			if not InCombatLockdown() and (HasVehicleActionBar() or HasOverrideActionBar()) then
-				for i = 1, NUM_ACTIONBAR_BUTTONS do
-					local button = _G["ActionButton"..i]
-					ActionButton_Update(button)
-				end
-			end
-		else
-			if MainMenuBar_OnEvent then
-				MainMenuBar_OnEvent(self, event, ...)
+				ActionButton_Update(button)
 			end
 		end
-	end)
-end
-
-if not InCombatLockdown() then
-	Bar1_SetupEventHandler()
-else
-	-- Defer SetScript until after combat ends (e.g. /reload during combat)
-	local deferFrame = CreateFrame("Frame")
-	deferFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-	deferFrame:SetScript("OnEvent", function(self)
-		self:UnregisterAllEvents()
-		Bar1_SetupEventHandler()
-	end)
-end
+	else
+		MainMenuBar_OnEvent(self, event, ...)
+	end
+end)

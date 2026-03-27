@@ -4,7 +4,7 @@ if C.ActionBar.Enable ~= true then return end
 local _G = _G
 local next = next
 local pairs = pairs
-local UPDATE_DELAY = 0.2
+local UPDATE_DELAY = 0.1
 local ATTACK_BUTTON_FLASH_TIME = ATTACK_BUTTON_FLASH_TIME
 local ActionButton_GetPagedID = ActionButton_GetPagedID
 local ActionButton_IsFlashing = ActionButton_IsFlashing
@@ -12,8 +12,6 @@ local ActionHasRange = ActionHasRange
 local IsActionInRange = IsActionInRange
 local IsUsableAction = IsUsableAction
 local HasAction = HasAction
-local InCombatLockdown = InCombatLockdown
-local CreateFrame = CreateFrame
 
 --[[ The main thing ]]--
 local tullaRange = CreateFrame("Frame", "tullaRange", UIParent) tullaRange:Hide()
@@ -23,7 +21,6 @@ function tullaRange:Load()
 	self:SetScript("OnHide", self.OnHide)
 	self:SetScript("OnEvent", self.OnEvent)
 	self.elapsed = 0
-	self.buttonsToUpdate = {}
 
 	self:RegisterEvent("PLAYER_LOGIN")
 end
@@ -57,61 +54,9 @@ function tullaRange:PLAYER_LOGIN()
 
 	self.buttonsToUpdate = {}
 
-	-- TAINT FIX (P2): Register buttons directly at init instead of hooking
-	-- ActionButton_OnUpdate, which runs inside Blizzard's secure chain.
-	local buttonPrefixes = {
-		"ActionButton",
-		"MultiBarBottomLeftButton",
-		"MultiBarBottomRightButton",
-		"MultiBarRightButton",
-		"MultiBarLeftButton",
-		"BonusActionButton",
-	}
-	for _, prefix in ipairs(buttonPrefixes) do
-		for i = 1, 12 do
-			local button = _G[prefix .. i]
-			if button then
-				self.RegisterButton(button)
-			end
-		end
-	end
-
-	local pendingUsableUpdates = {}
-	local pendingButtonUpdates = {}
-	local combatDeferFrame = CreateFrame("Frame")
-	combatDeferFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-	combatDeferFrame:SetScript("OnEvent", function(...)
-		for button in pairs(pendingButtonUpdates) do
-			if button then
-				tullaRange:UpdateButtonStatus(button)
-			end
-		end
-		pendingButtonUpdates = {}
-		
-		for button in pairs(pendingUsableUpdates) do
-			if button then
-				tullaRange.OnUpdateButtonUsable(button)
-			end
-		end
-		pendingUsableUpdates = {}
-	end)
-
-	hooksecurefunc("ActionButton_UpdateUsable", function(button)
-		if InCombatLockdown() then
-			pendingUsableUpdates[button] = true
-		else
-			tullaRange.OnUpdateButtonUsable(button)
-		end
-	end)
-
-	hooksecurefunc("ActionButton_Update", function(button)
-		if InCombatLockdown() then
-			pendingButtonUpdates[button] = true
-		else
-			tullaRange.OnButtonUpdate(button)
-		end
-	end)
-	self:UnregisterEvent("PLAYER_LOGIN")
+	hooksecurefunc("ActionButton_OnUpdate", self.RegisterButton)
+	hooksecurefunc("ActionButton_UpdateUsable", self.OnUpdateButtonUsable)
+	hooksecurefunc("ActionButton_Update", self.OnButtonUpdate)
 end
 
 --[[ Actions ]]--

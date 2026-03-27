@@ -349,7 +349,15 @@ StaticPopupDialogs["RESET_ALL"] = {
 local function SetValue(group, option, value)
 	local K, C, L, _ = budsUI:unpack()
 	local activeProfile = K.GetActiveProfile()
-	if not activeProfile or not budsUIData.Profiles[activeProfile] then return end
+	
+	-- Safety check: If no valid profile exists, create a default one
+	if not activeProfile or activeProfile == "Unknown" or not budsUIData.Profiles[activeProfile] then
+		Print("|cffff0000No valid profile found. Creating default profile...|r")
+		K.CreateProfile("Default")
+		local realmKey = K.Realm .. "-" .. K.Name
+		budsUIData.ActiveProfiles[realmKey] = "Default"
+		activeProfile = "Default"
+	end
 
 	-- Validation: Ensure value is not nil
 	if value == nil then return end

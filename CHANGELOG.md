@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-03-27
+
+### Fixed
+- **Settings Persistence (Issue #1):** Fixed critical bug where settings were not being saved for new users or characters without an assigned profile. The addon now automatically creates a "Default" profile on first load, ensuring all configuration changes are properly persisted across reloads.
+
 ## [0.7.0] - 2026-03-20
 
 ### Added

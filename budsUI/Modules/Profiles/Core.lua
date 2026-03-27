@@ -292,6 +292,27 @@ local function MergeProfileIntoC()
 	end
 end
 
+-- Helper function to ensure a valid profile exists for the current character
+local function EnsureValidProfile()
+	local realmKey = K.Realm .. "-" .. K.Name
+	local activeProfileName = budsUIData.ActiveProfiles[realmKey]
+	
+	-- Check if we have a valid active profile
+	if not activeProfileName or not budsUIData.Profiles[activeProfileName] then
+		-- No valid profile exists, create a default one
+		local defaultProfileName = "Default"
+		
+		-- If "Default" already exists but isn't assigned, use it
+		if not budsUIData.Profiles[defaultProfileName] then
+			-- Create new default profile from current C settings
+			K.CreateProfile(defaultProfileName)
+		end
+		
+		-- Assign this profile to the current character
+		budsUIData.ActiveProfiles[realmKey] = defaultProfileName
+	end
+end
+
 -- 1) File-load merge: runs immediately so modules that check C.xxx.Enable get correct values
 MergeProfileIntoC()
 
@@ -308,6 +329,9 @@ profileMergeFrame:SetScript("OnEvent", function(self, event, addon)
 	if type(budsUIData.ActiveProfiles) ~= "table" then budsUIData.ActiveProfiles = {} end
 	if type(budsUIData.CharacterData) ~= "table" then budsUIData.CharacterData = {} end
 	if type(budsUIData.Profiles) ~= "table" then budsUIData.Profiles = {} end
+	
+	-- Ensure a valid profile exists for this character
+	EnsureValidProfile()
 	
 	MergeProfileIntoC()
 	self:UnregisterEvent(event)

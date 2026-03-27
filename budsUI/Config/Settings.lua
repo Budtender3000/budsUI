@@ -23,6 +23,7 @@ C["Media"] = {
 }
 -- ActionBar Options
 C["ActionBar"] = {
+	["BarsLocked"] = false,
 	["BottomBars"] = 3,
 	["ButtonSize"] = 36,
 	["ButtonSpace"] = 3,

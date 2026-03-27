@@ -20,21 +20,20 @@ bar:RegisterEvent("PLAYER_CONTROL_GAINED")
 bar:RegisterEvent("PLAYER_CONTROL_LOST")
 bar:RegisterEvent("PLAYER_FARSIGHT_FOCUS_CHANGED")
 bar:RegisterEvent("PLAYER_LOGIN")
-bar:RegisterEvent("PLAYER_REGEN_ENABLED")
 bar:RegisterEvent("UNIT_AURA")
 bar:RegisterEvent("UNIT_FLAGS")
 bar:RegisterEvent("UNIT_PET")
 bar:SetScript("OnEvent", function(self, event, arg1)
 	if event == "PLAYER_LOGIN" then
-		-- Setup buttons in PLAYER_LOGIN to avoid taint
-		if InCombatLockdown() then return end
-		
+		PetActionBarFrame.showgrid = 1
+
+		local button
 		for i = 1, 10 do
-			local button = _G["PetActionButton"..i]
-			button:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
+			button = _G["PetActionButton"..i]
 			button:ClearAllPoints()
 			button:SetParent(PetHolder)
-			
+
+			button:SetSize(C.ActionBar.ButtonSize, C.ActionBar.ButtonSize)
 			if i == 1 then
 				if C.ActionBar.PetBarHorizontal == true then
 					button:SetPoint("BOTTOMLEFT", 0, 0)
@@ -51,48 +50,15 @@ bar:SetScript("OnEvent", function(self, event, arg1)
 			button:Show()
 			self:SetAttribute("addchild", button)
 		end
-		
-		PetActionBarFrame.showgrid = 1
 		RegisterStateDriver(self, "visibility", "[pet,novehicleui,nobonusbar:5] show; hide")
-		if K.PetBarUpdate then
-			hooksecurefunc("PetActionBar_Update", function()
-				if InCombatLockdown() then
-					self.needsPetBarUpdate = true
-				else
-					K.PetBarUpdate()
-				end
-			end)
-		end
-	elseif event == "PET_BAR_UPDATE" or (event == "UNIT_PET" and arg1 == "player")
-	or event == "PLAYER_CONTROL_LOST" or event == "PLAYER_CONTROL_GAINED" or event == "PLAYER_FARSIGHT_FOCUS_CHANGED" 
-	or (event == "UNIT_FLAGS" and arg1 == "pet")
-	or (event == "UNIT_AURA" and arg1 == "pet") then
-		if K.PetBarUpdate then
-			K.PetBarUpdate()
-		end
+		hooksecurefunc("PetActionBar_Update", K.PetBarUpdate)
+	elseif event == "PET_BAR_UPDATE" or event == "UNIT_PET" and arg1 == "player"
+	or event == "PLAYER_CONTROL_LOST" or event == "PLAYER_CONTROL_GAINED" or event == "PLAYER_FARSIGHT_FOCUS_CHANGED" or event == "UNIT_FLAGS"
+	or arg1 == "pet" and (event == "UNIT_AURA") then
+		K.PetBarUpdate()
 	elseif event == "PET_BAR_UPDATE_COOLDOWN" then
 		PetActionBar_UpdateCooldowns()
-	elseif event == "PET_BAR_HIDE" or event == "PET_BAR_UPDATE_USABLE" then
-		if InCombatLockdown() then
-			self.needsStyling = true
-		else
-			if K.StylePet then
-				K.StylePet()
-			end
-			self.needsStyling = false
-		end
-	elseif event == "PLAYER_REGEN_ENABLED" then
-		if self.needsPetBarUpdate then
-			if K.PetBarUpdate then
-				K.PetBarUpdate()
-			end
-			self.needsPetBarUpdate = false
-		end
-		if self.needsStyling then
-			if K.StylePet then
-				K.StylePet()
-			end
-			self.needsStyling = false
-		end
+	else
+		K.StylePet()
 	end
 end)

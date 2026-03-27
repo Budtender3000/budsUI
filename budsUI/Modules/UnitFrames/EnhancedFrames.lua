@@ -268,8 +268,23 @@ EnhancedFrames_TargetFrame_Update = function(self)
 	if (not UnitPlayerControlled(self.unit) and UnitIsTapped(self.unit) and not UnitIsTappedByPlayer(self.unit)) then
 		-- Gray if npc is tapped by other player
 		self.healthbar:SetStatusBarColor(0.5, 0.5, 0.5)
+	elseif C.Unitframe.ClassHealth and UnitIsPlayer(self.unit) then
+		-- CLASS COLOR FIX: When ClassHealth is enabled, skip UnitSelectionColor for player
+		-- units. Layout.lua applies class colors via UNIT_HEALTH events. Applying
+		-- UnitSelectionColor here would overwrite them with Blizzard's default green,
+		-- causing visible flickering between green and the class color.
+		if class then
+			local color = CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[class] or RAID_CLASS_COLORS[class]
+			if color then
+				local cr, cg, cb = self.healthbar:GetStatusBarColor()
+				-- HARDENING: Only set if color has changed to prevent noise/thrashing
+				if math.abs(cr - color.r) > 0.01 or math.abs(cg - color.g) > 0.01 or math.abs(cb - color.b) > 0.01 then
+					self.healthbar:SetStatusBarColor(color.r, color.g, color.b)
+				end
+			end
+		end
 	else
-		-- Restore normal color
+		-- Restore normal color (NPC reaction coloring)
 		local r, g, b = UnitSelectionColor(self.unit)
 		self.healthbar:SetStatusBarColor(r, g, b)
 	end

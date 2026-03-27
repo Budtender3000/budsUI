@@ -33,7 +33,6 @@ bar:RegisterEvent("UPDATE_SHAPESHIFT_USABLE")
 bar:RegisterEvent("UPDATE_SHAPESHIFT_COOLDOWN")
 bar:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 bar:RegisterEvent("ACTIONBAR_PAGE_CHANGED")
-bar:RegisterEvent("PLAYER_REGEN_ENABLED")
 bar:SetScript("OnEvent", function(self, event, ...)
 	if event == "PLAYER_LOGIN" then
 		for i = 1, NUM_SHAPESHIFT_SLOTS do
@@ -63,20 +62,16 @@ bar:SetScript("OnEvent", function(self, event, ...)
 		end
 		RegisterStateDriver(self, "visibility", States[K.Class] or "hide")
 		local function movestance()
-			if InCombatLockdown() then 
-				self.needsMoveStance = true
-				return 
-			end
-			
-			if C.ActionBar.StanceBarHorizontal == true then
-				ShapeshiftButton1:SetPoint("BOTTOMLEFT", ShiftHolder, "BOTTOMLEFT", 0, 0)
-			else
-				ShapeshiftButton1:SetPoint("TOPLEFT", ShiftHolder, "TOPLEFT", 0, 0)
+			if not InCombatLockdown() then
+				if C.ActionBar.StanceBarHorizontal == true then
+					ShapeshiftButton1:SetPoint("BOTTOMLEFT", ShiftHolder, "BOTTOMLEFT", 0, 0)
+				else
+					ShapeshiftButton1:SetPoint("TOPLEFT", ShiftHolder, "TOPLEFT", 0, 0)
+				end
 			end
 		end
 		hooksecurefunc("ShapeshiftBar_Update", movestance)
 	elseif event == "UPDATE_SHAPESHIFT_FORMS" then
-		K.ShiftBarUpdate()
 		if InCombatLockdown() then return end
 		for i = 1, NUM_SHAPESHIFT_SLOTS do
 			local button = _G["ShapeshiftButton"..i]
@@ -87,15 +82,7 @@ bar:SetScript("OnEvent", function(self, event, ...)
 				button:Hide()
 			end
 		end
-	elseif event == "PLAYER_REGEN_ENABLED" then
-		if self.needsMoveStance then
-			if C.ActionBar.StanceBarHorizontal == true then
-				ShapeshiftButton1:SetPoint("BOTTOMLEFT", ShiftHolder, "BOTTOMLEFT", 0, 0)
-			else
-				ShapeshiftButton1:SetPoint("TOPLEFT", ShiftHolder, "TOPLEFT", 0, 0)
-			end
-			self.needsMoveStance = false
-		end
+		K.ShiftBarUpdate()
 	elseif event == "PLAYER_ENTERING_WORLD" then
 		K.StyleShift()
 	else

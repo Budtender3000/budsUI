@@ -25,7 +25,7 @@ if not res or not string.match(res, "%d+x%d+") then
 end
 Engine[1].Resolution = res
 Engine[1].Color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[Engine[1].Class]
-Engine[1].Version = "0.7.0"
+Engine[1].Version = "0.7.1"
 Engine[1].ScreenHeight = tonumber(string.match(Engine[1].Resolution, "%d+x(%d+)"))
 Engine[1].ScreenWidth = tonumber(string.match(Engine[1].Resolution, "(%d+)x+%d"))
 Engine[1].VersionNumber = tonumber(Engine[1].Version)

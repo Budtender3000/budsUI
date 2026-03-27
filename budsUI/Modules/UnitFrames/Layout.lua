@@ -232,84 +232,50 @@ if not InCombatLockdown() then
 		end)
 	end
 
-	-- Class Color Bars - Use OnUpdate delay to prevent taint
+	-- Class Color Bars
+	-- Strategy: Hook AFTER Blizzard's UnitFrameHealthBar_Update to override
+	-- the default UnitSelectionColor (green) with class colors in the SAME frame.
+	-- The previous OnUpdate-queue approach caused 1-frame flicker because Blizzard
+	-- set green synchronously and our fix ran 1 frame later.
+	-- hooksecurefunc on a global function name (string) is taint-safe.
+	-- SetStatusBarColor is NOT a protected operation.
+	-- Class Color Bars
 	if C.Unitframe.ClassHealth == true then
 		local function colorHealthBar(statusbar, unit)
-			if not statusbar or not statusbar.unit then return end
+			if not statusbar or not unit then return end
 			
-			local _, class, color
-			if UnitIsPlayer(unit) and UnitIsConnected(unit) and unit == statusbar.unit and UnitClass(unit) then
-				_, class = UnitClass(unit)
-				color = CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[class] or RAID_CLASS_COLORS[class]
-				statusbar:SetStatusBarColor(color.r, color.g, color.b)
+			if UnitIsPlayer(unit) and UnitIsConnected(unit) then
+				local _, class = UnitClass(unit)
+				if class then
+					local color = CUSTOM_CLASS_COLORS and CUSTOM_CLASS_COLORS[class] or RAID_CLASS_COLORS[class]
+					if color then
+						local cr, cg, cb = statusbar:GetStatusBarColor()
+						-- Only set if current color differs by more than 1% to prevent feedback loops
+						if math.abs(cr - color.r) > 0.01 or math.abs(cg - color.g) > 0.01 or math.abs(cb - color.b) > 0.01 then
+							statusbar:SetStatusBarColor(color.r, color.g, color.b)
+						end
+					end
+				end
 			end
 		end
 
-		-- OnUpdate delay to prevent taint during Blizzard's frame update chain
-		-- Show/Hide gated: only runs OnUpdate when events have queued work
-		local colorQueue = {}
-		local colorFrame = CreateFrame("Frame")
-		colorFrame:Hide()
-		colorFrame:SetScript("OnUpdate", function(self)
-			for statusBar, unit in pairs(colorQueue) do
-				colorHealthBar(statusBar, unit)
-				colorQueue[statusBar] = nil
-			end
-			self:Hide()
-		end)
-
-		-- TAINT FIX: Use events instead of hooking protected StatusBar:SetValue()
-		-- This avoids tainting Blizzard's secure health bar update chain.
-		local healthColorWatcher = CreateFrame("Frame")
-		healthColorWatcher:RegisterEvent("UNIT_HEALTH")
-		healthColorWatcher:RegisterEvent("UNIT_MAXHEALTH")
-		healthColorWatcher:RegisterEvent("PLAYER_TARGET_CHANGED")
-		healthColorWatcher:RegisterEvent("PLAYER_FOCUS_CHANGED")
-		healthColorWatcher:SetScript("OnEvent", function(self, event, unit)
-			if event == "UNIT_HEALTH" or event == "UNIT_MAXHEALTH" then
-				if unit == "player" and PlayerFrameHealthBar then
-					colorQueue[PlayerFrameHealthBar] = "player"
-				elseif unit == "target" and TargetFrameHealthBar then
-					colorQueue[TargetFrameHealthBar] = "target"
-				elseif unit == "focus" and FocusFrameHealthBar then
-					colorQueue[FocusFrameHealthBar] = "focus"
-				end
-			elseif event == "PLAYER_TARGET_CHANGED" and TargetFrameHealthBar then
-				colorQueue[TargetFrameHealthBar] = "target"
-			elseif event == "PLAYER_FOCUS_CHANGED" and FocusFrameHealthBar then
-				colorQueue[FocusFrameHealthBar] = "focus"
-			end
-			colorFrame:Show()
-		end)
-		
-		-- TAINT FIX: Party Member Frames Class Colors
-		-- Replaced instance method hook on partyHealthBar:SetValue() with event listener.
-		-- The SetValue hook ran inside Blizzard's secure party frame update chain, causing taint.
-		local partyUnitToBar = {}
-		for i = 1, MAX_PARTY_MEMBERS do
+		-- Map health bars to their unit IDs for fast lookup
+		local barToUnit = {}
+		barToUnit[PlayerFrameHealthBar] = "player"
+		barToUnit[TargetFrameHealthBar] = "target"
+		barToUnit[FocusFrameHealthBar]  = "focus"
+		for i = 1, 4 do -- MAX_PARTY_MEMBERS
 			local partyHealthBar = _G["PartyMemberFrame"..i.."HealthBar"]
-			if partyHealthBar then
-				partyUnitToBar["party"..i] = { bar = partyHealthBar, unit = "party"..i }
-			end
+			if partyHealthBar then barToUnit[partyHealthBar] = "party"..i end
 		end
 
-		local partyColorWatcher = CreateFrame("Frame")
-		partyColorWatcher:RegisterEvent("UNIT_HEALTH")
-		partyColorWatcher:RegisterEvent("UNIT_MAXHEALTH")
-		partyColorWatcher:RegisterEvent("GROUP_ROSTER_UPDATE")
-		partyColorWatcher:SetScript("OnEvent", function(self, event, unit)
-			if event == "UNIT_HEALTH" or event == "UNIT_MAXHEALTH" then
-				local entry = partyUnitToBar[unit]
-				if entry then
-					colorQueue[entry.bar] = entry.unit
-				end
-			elseif event == "GROUP_ROSTER_UPDATE" then
-				-- Re-queue all party bars on roster change
-				for _, entry in pairs(partyUnitToBar) do
-					colorQueue[entry.bar] = entry.unit
-				end
+		-- Hook Blizzard's global health bar update function.
+		-- Restricted to frames we explicitly care about to avoid noise.
+		hooksecurefunc("UnitFrameHealthBar_Update", function(statusbar, unit)
+			local u = barToUnit[statusbar]
+			if u then
+				colorHealthBar(statusbar, u)
 			end
-			colorFrame:Show()
 		end)
 	end
 end

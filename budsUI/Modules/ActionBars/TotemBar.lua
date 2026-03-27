@@ -13,28 +13,10 @@ if K.Class == "SHAMAN" then
 		MultiCastActionBarFrame:ClearAllPoints()
 		MultiCastActionBarFrame:SetPoint("BOTTOMLEFT", ShiftHolder, -3, 23)
  
-		local pendingTotemButtons = {}
-		local totemDeferFrame = CreateFrame("Frame")
-		totemDeferFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-		totemDeferFrame:SetScript("OnEvent", function(...)
-			for button in pairs(pendingTotemButtons) do
-				if button then
-					button:SetAllPoints(button.slotButton)
-				end
-			end
-			pendingTotemButtons = {}
-		end)
-
-		hooksecurefunc("MultiCastActionButton_Update", function(actionbutton)
-			if not InCombatLockdown() then
-				actionbutton:SetAllPoints(actionbutton.slotButton)
-			else
-				pendingTotemButtons[actionbutton] = true
-			end
-		end)
+		hooksecurefunc("MultiCastActionButton_Update",function(actionbutton) if not InCombatLockdown() then actionbutton:SetAllPoints(actionbutton.slotButton) end end)
  
-		-- MultiCastActionBarFrame.SetParent = K.Noop
-		-- MultiCastActionBarFrame.SetPoint = K.Noop
-		-- MultiCastRecallSpellButton.SetPoint = K.Noop
+		MultiCastActionBarFrame.SetParent = K.Noop
+		MultiCastActionBarFrame.SetPoint = K.Noop
+		MultiCastRecallSpellButton.SetPoint = K.Noop
 	end
 end
